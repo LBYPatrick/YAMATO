@@ -3,7 +3,7 @@
 #define DEBUG_MODE 0
 
 
-bool SSManager::readFile(string filename, vector<string> & file_buffer) {
+bool SSManager::ReadFile(string filename, vector<string> & file_buffer) {
     
     ifstream reader;
     string   read_buffer;
@@ -22,7 +22,7 @@ bool SSManager::readFile(string filename, vector<string> & file_buffer) {
     return true;
 }
 
-string SSManager::MakeUser(string method,string port, string password, string nameserver, string redirect){
+string SSManager::MakeUserConfig(string method,string port, string password, string nameserver, string redirect){
     string returnBuffer;
     returnBuffer += "{\n"
             "\t\"server\" : \"0.0.0.0\",\n"
@@ -52,7 +52,7 @@ string SSManager::MakeUser(string method,string port, string password, string na
 
 }
 
-void SSManager::ExecuteFile(string filename) {
+void SSManager::RunConfig(string filename) {
 
     std::vector<string>     file_buffer;
     Json                    json_read_buffer;
@@ -60,52 +60,35 @@ void SSManager::ExecuteFile(string filename) {
     std::string             temp_encryption = "chacha20-ietf";
     std::string             temp_nameserver = "127.0.0.1";
     std::string             temp_redirect   = "bing.com";
-    ofstream writer;
+    std::string             temp_groupname  = "DEFAULT GROUP";
 
 
     bool isInUserList = 0;
 
     //Read file, quit if failed
-    if(!readFile(filename,file_buffer)) {return;}    
+    if(!ReadFile(filename,file_buffer)) {return;}
 
-    for(int i = 0; i < file_buffer.size(); ++i) {
+    for(string current_file_line : file_buffer) {
 
-        if(file_buffer[i].find("}") != string::npos) {
+        if(current_file_line[0] == '#') continue;
+
+        if(current_file_line.find("}") != string::npos) {
             isInUserList = false;
-
-            //User read complete, start processing
-            for (int n = 0; n < temp_user_list.size(); ++n) {
-
-                string current_user_buffer = MakeUser(temp_encryption,
-                                                      temp_user_list[n].port,
-                                                      temp_user_list[n].password,
-                                                      temp_nameserver,
-                                                      temp_redirect);
-
-                if(DEBUG_MODE) {
-                    printf("USER: %s, PASS: %s \n", temp_user_list[n].port.c_str(), temp_user_list[n].password.c_str());
-                    printf(current_user_buffer.c_str());
-                    printf("\n");
-                }
-
-                writer.open("PROTECTED_USER.conf");
-                writer<<current_user_buffer;
-                writer.close();
-
-                if(!DEBUG_MODE) system((std::string("ss-server -c PROTECTED_USER.conf -f ss-pid/") + temp_user_list[n].port + ".pid").c_str());
-
-            }
+            if(temp_user_list.size() != 0) {RunUsers(temp_user_list,temp_encryption,temp_nameserver,temp_redirect);}
             temp_user_list.clear();
             continue;
         }
 
-        json_read_buffer = Utils::GetJson(file_buffer[i]);
+        json_read_buffer = Utils::GetJson(current_file_line);
 
         if (isInUserList) {
-            temp_user_list.push_back({json_read_buffer.element,json_read_buffer.key});
+            if(json_read_buffer.element == "nameserver")    {temp_nameserver = json_read_buffer.key; }
+            else if(json_read_buffer.element == "redirect") {temp_redirect = json_read_buffer.key; }
+            else                                            { temp_user_list.push_back({json_read_buffer.element, json_read_buffer.key}); }
             continue;
         }
-        else if (json_read_buffer.element == "user_group") {
+        else {
+            temp_groupname = json_read_buffer.element;
 
             Utils::RemoveLetter(json_read_buffer.key,'{');
             Utils::RemoveLetter(json_read_buffer.key, ':');
@@ -115,4 +98,34 @@ void SSManager::ExecuteFile(string filename) {
             continue;
         }
     }
+}
+
+void SSManager::RunUsers(std::vector<User> & user_list, string & encryption, string & nameserver, string & redirect) {
+
+    ofstream writer;
+
+    //User read complete, start processing
+    for (User current_user : user_list) {
+
+        string current_user_buffer = MakeUserConfig(encryption,
+                                                    current_user.port,
+                                                    current_user.password,
+                                                    nameserver,
+                                                    redirect);
+
+        if(DEBUG_MODE) {
+            printf("USER: %s, PASS: %s \n", current_user.port.c_str(), current_user.password.c_str());
+            printf("%s",current_user_buffer.c_str());
+            printf("\n");
+        }
+
+        writer.open("PROTECTED_USER.conf");
+        writer<<current_user_buffer;
+        writer.close();
+
+        system((std::string("ss-server -c PROTECTED_USER.conf -f ss-pid/") + current_user.port + ".pid").c_str());
+    }
+
+    //Clean up
+    Utils::RemoveFile("PROTECTED_USER.conf");
 }

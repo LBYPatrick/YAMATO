@@ -7,8 +7,8 @@
 void Utils::RemoveLetter(string & original_string, char letter) {
     string temp_buffer;
 
-    for(int i = 0; i < original_string.size(); ++i) {
-        if(original_string[i] != letter) temp_buffer += original_string[i];
+    for (char i : original_string) {
+        if(i != letter) temp_buffer += i;
     }
     original_string = temp_buffer;
 }
@@ -23,7 +23,7 @@ Json Utils::GetJson(string raw_json_line) {
     RemoveLetter(raw_json_line, ';');
 
     int start_position = 0;
-    int end_position = raw_json_line.find_first_of(":") -1;
+    int end_position = raw_json_line.find_first_of(':') -1;
 
     //Get element
     for (int n = start_position; n <= end_position; ++n) {
@@ -43,4 +43,34 @@ Json Utils::GetJson(string raw_json_line) {
 
 void Utils::ReportError(string message) {
     printf("[ERROR] %s", message.c_str());
+}
+
+void Utils::RemoveFile(string filename) {
+    remove(filename.c_str());
+}
+
+void Utils::ShowHelp(std::vector<Help> option_list) {
+    int max_option_length = 0;
+
+    string print_buffer;
+
+    //Get max option length for better formatting
+    for(Help current_help : option_list) {
+        max_option_length = current_help.option.length() > max_option_length ?
+                            current_help.option.length() : max_option_length;
+    }
+
+    for(Help current_help : option_list) {
+        print_buffer += current_help.option;
+
+        for(int i = current_help.option.length(); i < max_option_length; ++i) {
+            print_buffer += ' ';
+        }
+
+        print_buffer += " : ";
+        print_buffer += current_help.description + "\n";
+    }
+
+    printf("%s",print_buffer.c_str());
+
 }
