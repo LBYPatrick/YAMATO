@@ -41,7 +41,7 @@ string SSManager::MakeUser(string method,string port, string password, string na
 
     returnBuffer += "\",\n"
             "\t\"fast_open\" : true,\n"
-            "\t\"nameserver : \"";
+            "\t\"nameserver\" : \"";
     returnBuffer += nameserver;
 
     returnBuffer += "\",\n"
