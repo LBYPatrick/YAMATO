@@ -92,7 +92,7 @@ void SSManager::ExecuteFile(string filename) {
                 writer<<current_user_buffer;
                 writer.close();
 
-                if(!DEBUG_MODE) system((std::string("ss-server -c PROTECTED_UESR.conf -f ss-pid/") + temp_user_list[n].port + ".pid").c_str());
+                if(!DEBUG_MODE) system((std::string("ss-server -c PROTECTED_USER.conf -f ss-pid/") + temp_user_list[n].port + ".pid").c_str());
 
             }
             temp_user_list.clear();
