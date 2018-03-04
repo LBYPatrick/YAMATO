@@ -13,5 +13,7 @@ namespace SSManager {
 	/**
 	* @param file_list:  
 	*/
-	void GenerateCommand(string filename, vector<string> & output_buffer);
+	void ExecuteFile(string filename);
+	bool readFile(string filename, vector<string> & file_buffer);
+	string makeUser(string name, string port, string password, string fastopen, string nameserver, string redirect);
 };

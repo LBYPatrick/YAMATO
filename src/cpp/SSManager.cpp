@@ -15,64 +15,68 @@ struct User {
     string password;
 };
 
-void SSManager::GenerateCommand(string filename, vector<string> & output_buffer) {
-
+bool SSManager::readFile(string filename, vector<string> & file_buffer) {
+    
     ifstream reader;
-    string read_buffer;
-    vector<string> file_buffer;
-    vector<User>   userlist;
-    bool is_in_userlist = false;
+    string   read_buffer;
 
-    /**
-     * Read
-     */
-    reader.open(filename.c_str());
-    while (getline(reader, read_buffer)) file_buffer.push_back(read_buffer);
-    reader.close();
+    reader.open(filename);
 
-    const int lineCount = file_buffer.size();
+    if(!reader.is_open()){
+        Utils::reportError("Cannot open file. Please check filename/file access");
+        return false;
+    }
 
-    /**
-     * Process line-by-line
-     */
-    for (int i = 0; i < lineCount; ++i) {
-        string json_string;
-        string json_value;
-        /**
-         * Get string and value for the current line
-         */
+    //Read file
+    while(getline(reader,read_buffer)) { file_buffer.push_back(read_buffer); }
 
-        Utils::RemoveLetter(file_buffer[i], ' ');
-        Utils::RemoveLetter(file_buffer[i], '\"');
+    reader.close(); //Close file session
+    return true;
+}
 
-        if(file_buffer[i][0] == '}' && is_in_userlist) {
-            is_in_userlist = false;
-            continue;
-        }
+string SSManager::makeUser(string name, string port, string password, string fastopen, string nameserver, string redirect){
+    string returnBuffer;
+}
 
-        for (int n = 0; n < file_buffer[i].find_first_of(":"); ++n) {
-            json_string += file_buffer[i][n];
-        }
+void SSManager::ExecuteFile(string filename) {
 
-        for (int n = file_buffer[i].find_first_of(":") + 1;
-             n < file_buffer[i].size();
-             ++n) {
-            json_value += file_buffer[i][n];
-        }
+    std::vector<string>     file_buffer;
+    Json                    json_read_buffer;
+    std::vector<User>       temp_user_list;
+    std::string             temp_encryption;
+    std::string             nameserver = "127.0.0.1";
+    std::string             fastopen   = "false";
+    
 
-        if(json_string == "port_password") {
-            is_in_userlist = true;
-            continue;
-        }
-        else if(is_in_userlist) {
-            userlist.push_back({json_string,json_value});
-        }
-        else {
-            const int endPosition = optionList.size() - 1;
-            for(int i = 0; i <= endPosition; ++i) {
-                if(json_string == optionList[i]) {
-                }
+
+    bool isInUserList = 0;
+
+    //Read file, quit if failed
+    if(!readFile(filename,file_buffer)) {return;}    
+
+    for(int i = 0; i < file_buffer.size(); ++i) {
+
+        if(file_buffer[i].find("}") != string::npos) {
+            isInUserList = false;
+
+            //User read complete, start processing
+            for (int n = 0; n < temp_user_list.size(); ++n) {
+                
             }
+            continue;
+        }
+
+        json_read_buffer = Utils::GetJson(file_buffer[i]);
+
+
+        if (isInUserList) {
+            temp_user_list.push_back({json_read_buffer.element,json_read_buffer.key});
+            continue;
+        }
+        else if (json_read_buffer.element == "user_group") {
+            temp_encryption = json_read_buffer.key;
+            isInUserList = 1;
+            continue;
         }
     }
 }

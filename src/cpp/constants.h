@@ -6,6 +6,17 @@
 using std::vector;
 using std::string;
 
-extern struct Param;
+struct Param {
+    string full;
+    string abbr;
+};
 
-extern vector<string> ConfigFileList;
+struct Json {
+    string element;
+    string key;
+};
+
+struct User {
+    string port;
+    string password;
+}
