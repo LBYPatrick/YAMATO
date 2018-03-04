@@ -70,9 +70,10 @@ void SSManager::RunConfig(string filename) {
 
     for(string current_file_line : file_buffer) {
 
-        if(current_file_line[0] == '#') continue;
+        //Skip blank lines and commented lines
+        if(current_file_line[0] == '#' || current_file_line.size() < 1) continue;
 
-        if(current_file_line.find("}") != string::npos) {
+        if(current_file_line.find('}') != string::npos) {
             isInUserList = false;
             if(temp_user_list.size() != 0) {RunUsers(temp_user_list,temp_encryption,temp_nameserver,temp_redirect);}
             temp_user_list.clear();

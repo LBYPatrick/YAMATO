@@ -23,4 +23,4 @@ namespace SSManager {
 	void RunUsers(std::vector<User> & user_list, string & encryption, string & nameserver, string & redirect);
 };
 
-#endif SS_MANAGER_SS_MANAGER_H
+#endif //SS_MANAGER_SS_MANAGER_H
