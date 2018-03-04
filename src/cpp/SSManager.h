@@ -3,6 +3,7 @@
 #include <vector>
 #include <fstream>
 #include "Utils.h"
+#include "constants.h"
 
 using std::string;
 using std::vector;
@@ -15,5 +16,5 @@ namespace SSManager {
 	*/
 	void ExecuteFile(string filename);
 	bool readFile(string filename, vector<string> & file_buffer);
-	string makeUser(string name, string port, string password, string fastopen, string nameserver, string redirect);
+	string MakeUser(string method, string port, string password, string nameserver, string redirect);
 };

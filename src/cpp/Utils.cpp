@@ -41,6 +41,6 @@ Json Utils::GetJson(string raw_json_line) {
     return return_buffer;
 }
 
-void Utils::reportError(string message) {
+void Utils::ReportError(string message) {
     printf("[ERROR] %s", message.c_str());
 }

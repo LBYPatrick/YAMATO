@@ -12,7 +12,7 @@ using std::string;
 namespace Utils {
     void RemoveLetter(string & original_string, char letter);
     Json GetJson(string raw_json_line);
-    void reportError(string message);
+    void ReportError(string message);
 }
 
 #endif //SS_MANAGER_UTILS_H
