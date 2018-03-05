@@ -105,6 +105,8 @@ void SSManager::RunUsers(std::vector<User> & user_list, string & encryption, str
 
     ofstream writer;
 
+    system("mkdir ss-pid > /dev/null");
+
     //User read complete, start processing
     for (User current_user : user_list) {
 
