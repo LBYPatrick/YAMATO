@@ -70,4 +70,4 @@ Because this software is for myself, but you are always welcome to make suggesti
 
 ### 4. Why putting an anime picture in README?
 
-Is there any one who doesn't like anime? I force all of you to say no.
+Is there any one who hates anime? I force all of you to like anime.
