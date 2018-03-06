@@ -23,6 +23,7 @@ namespace SSManager {
 	void RunUsers(std::vector<User> & user_list, string & encryption, string & nameserver, string & redirect,std::vector<std::string> & pid_list_buffer);
     void WritePidMap(string filename, std::vector<string> & pid_list,std::vector<string> & port_list);
     void StopConfig(string filename);
+    void CheckPort(string filename, string port);
 };
 
 #endif //SS_MANAGER_SS_MANAGER_H

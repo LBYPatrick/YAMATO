@@ -143,13 +143,13 @@ inline void SSManager::RunUsers(std::vector<User> & user_list, string & encrypti
         writer<<current_user_buffer;
         writer.close();
 
-        system((std::string("ss-server -c PROTECTED_USER.conf -f ss-pid/") + current_user.port + ".pid").c_str());
-        reader.open("ss-pid/" + current_user.port + ".pid");
+        system(std::string("ss-server -c PROTECTED_USER.conf -f PROTECTED_USER.pid").c_str());
+        reader.open("PROTECTED_USER.pid");
         reader>>pid_buffer;
         reader.close();
+        Utils::RemoveFile("PROTECTED_USER.pid");
 
         pid_list_buffer.push_back(pid_buffer);
-
     }
 
     //Clean up
@@ -165,10 +165,32 @@ void SSManager::StopConfig(string filename) {
         return;
     }
     else {
-        for(string current_line : file_buffer) {
+        for(std::string current_line : file_buffer) {
             json_read_buffer = Utils::GetJson(current_line);
             system((std::string("kill -15 ") + json_read_buffer.key).c_str());
-            remove((std::string("ss-pid/") + json_read_buffer.element + ".pid").c_str());
         }
+    }
+
+    Utils::RemoveFile(filename + std::string(".pidmap"));
+}
+
+void SSManager::CheckPort(string filename, string port) {
+
+    std::vector<std::string> file_buffer;
+    Json                     json_read_buffer;
+
+    if(!ReadFile(filename + ".pidmap", file_buffer)) {
+        Utils::ReportError("Cannot read the pidmap for the file specified, please load the config before unload and DO NOT delete pidmap.");
+        return;
+    }
+    else {
+        for(string current_line : file_buffer) {
+            json_read_buffer = Utils::GetJson(current_line);
+            if(json_read_buffer.element == port) {
+                system(("systemctl status " + json_read_buffer.key).c_str());
+                return;
+            }
+        }
+        Utils::ReportError("Port " + port + " no found in pidmap for " + filename);
     }
 }

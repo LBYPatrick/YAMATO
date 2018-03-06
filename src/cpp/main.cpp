@@ -14,7 +14,8 @@ const vector<Help> option_list = {
         {"--help", " "},
         {"/?", "Show help"},
         {"load <config_file_name>", "loads users based on the config file specified"},
-        {"unload <filename>,","unloads users based on the config file specified (Need to load first)"}
+        {"unload <config_file_name>,","unloads users based on the config file specified (Need to load first)"},
+        {"status <config_file_name> <user_port>","get status of a port loaded with a specific config"}
 };
 
 int main(int argc, char*const argv[]) {
@@ -27,13 +28,13 @@ int main(int argc, char*const argv[]) {
         }
         else { //Print software info
             printf(
-                    "SS-Manager"SOFTWARE_VERSION" by LBYPatrick\n");
+                    "SS-Manager" SOFTWARE_VERSION " by LBYPatrick\n");
             Utils::ShowHelp(option_list);
             return 0;
         }
     }
     else if(argc > 2) {
-        const int func_number = Utils::StringToEnum({"load","unload"},argv[1]);
+        const int func_number = Utils::StringToEnum({"load","unload", "status"},argv[1]);
 
         switch(func_number) {
             case 0:
@@ -42,6 +43,11 @@ int main(int argc, char*const argv[]) {
             case 1:
                 SSManager::StopConfig(argv[2]);
                 break;
+            case 2:
+                if(argc < 4) { Utils::ReportError("Need to specify user port"); }
+                else { SSManager::CheckPort(argv[2],argv[3]); }
+                break;
+
             default :
                 Utils::ReportError(std::string("Unknown Option: \"") + argv[1] + "\"");
                 break;
