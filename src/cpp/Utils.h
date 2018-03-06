@@ -16,6 +16,7 @@ namespace Utils {
     void ReportError(string message);
     void RemoveFile(string filename);
     void ShowHelp(std::vector<Help> option_list);
+    int  StringToEnum(std::vector<std::string> fake_string_enum, std::string input);
 }
 
 #endif //SS_MANAGER_UTILS_H

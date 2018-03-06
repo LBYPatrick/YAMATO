@@ -74,3 +74,10 @@ void Utils::ShowHelp(std::vector<Help> option_list) {
     printf("%s",print_buffer.c_str());
 
 }
+
+int Utils::StringToEnum(std::vector<std::string> fake_string_enum, std::string input) {
+    for(int i = 0; i < fake_string_enum.size(); ++i) {
+        if(input == fake_string_enum[i]) return i;
+    }
+    return -1;
+}
