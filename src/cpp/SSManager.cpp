@@ -184,32 +184,25 @@ void SSManager::CheckPort(string filename, string port) {
     std::vector<std::string> file_buffer;
     Json                     json_read_buffer;
     std::string              target_pid = "-1";
-    std::vector<int>         output_line_list;
 
     if(!ReadFile(filename + ".pidmap", file_buffer)) {
         Utils::ReportError("Cannot read the pidmap for the file specified, please load the config before unload and DO NOT delete pidmap.");
         return;
     }
     else {
-        for(string current_line : file_buffer) {
+        for(std::string current_line : file_buffer) {
             json_read_buffer = Utils::GetJson(current_line);
             if(json_read_buffer.element == port) {
-                target_pid = json_read_buffer.element;
+                target_pid = json_read_buffer.key;
             }
         }
 
         if(target_pid == "-1") Utils::ReportError("Port " + port + " no found in pidmap for " + filename);
         else {
-            file_buffer = Utils::SysExecute("journalctl | grep \"ss-server\"");
+            file_buffer = Utils::SysExecute("journalctl | grep \"ss-server[" + target_pid + "]\"");
 
-            for(int i = 0; i < file_buffer.size(); ++i) {
-                if(file_buffer[i].find("ss-server[" + target_pid + "]") != string::npos) {
-                    output_line_list.push_back(i);
-                }
-            }
-
-            for(int line : output_line_list) {
-                printf("%s\n",file_buffer[line].c_str());
+            for(std::string current_line : file_buffer) {
+                printf("%s\n",current_line.c_str());
             }
         }
     }
