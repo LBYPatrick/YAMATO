@@ -5,18 +5,33 @@
 ![README_PIC](./resources/readme_pic.jpg)
 Artist: @Bison仓鼠
 
+[中文说明](./README.zhCN.md)
+
 Use shadowsocks-libev in a more elegant way.
 
-Designed to be cross-platform, but since libev does not support Windows,
-so it is Unix only then...
+System Requirement: any unix-based system with systemd support.
 
+## Build
+
+```bash
+g++ -std=c++11 -static src/cpp/* -o ss-manager
+```
+
+Or use CMake with ``CMakeLists.txt``.
 
 ## Usage
 
 ### Console
 
+Parameters
 ```bash
-    ss-manager <config_file>
+    -h                                    :
+    --help                                :
+    /?                                    : Show help
+    load <config_file_name>               : loads users based on the config file specified
+    unload <config_file_name>,            : unloads users based on the config file specified (Need to load first)
+    status <config_file_name> <user_port> : get status of a port loaded with a specific config
+
 ```
 
 ### Config
@@ -56,18 +71,22 @@ Example:
 
 ## FAQs
 
-### 1. Why not providing options for "TCP fast open" and "UDP overlay"?
+### 1. Can this software work on Windows?
+
+WARNING: Don't ever run this software on Windows even though it passes compilation. All functions except ``load`` requires linux system commands.
+
+### 2. Why not providing options for "TCP fast open" and "UDP overlay"?
 
 Because there's no point playing around with them. Enabling TCP fastopen does not give you any side-effect. And disabling UDP overlay avoids package loss. (Yes, UDP performs actually WORSE than TCP in the real world)
 
-### 2. Why re-inventing the wheel? 
+### 3. Why re-inventing the wheel? 
 
 Because I love to do so.
 
-### 3. Why is the user experience so bad?
+### 4. Why is the user experience so bad?
 
-Because this software is for myself, but you are always welcome to make suggestions by opening issues.
+Because this software is for myself, but you are always welcome to make suggestions by opening issues. Plus, what do you expect from a less-than-1000-line program?
 
-### 4. Why putting an anime picture in README?
+### 5. Why putting an anime picture in README?
 
 Is there any one who hates anime? I force all of you to like anime.

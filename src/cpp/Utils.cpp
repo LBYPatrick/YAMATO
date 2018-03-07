@@ -4,8 +4,8 @@
 
 #include "Utils.h"
 
-void Utils::RemoveLetter(string & original_string, char letter) {
-    string temp_buffer;
+void Utils::RemoveLetter(std::string & original_string, char letter) {
+    std::string temp_buffer;
 
     for (char i : original_string) {
         if(i != letter) temp_buffer += i;
@@ -13,7 +13,7 @@ void Utils::RemoveLetter(string & original_string, char letter) {
     original_string = temp_buffer;
 }
 
-Json Utils::GetJson(string raw_json_line) {
+Json Utils::GetJson(std::string raw_json_line) {
 
     Json return_buffer;
 
@@ -41,18 +41,18 @@ Json Utils::GetJson(string raw_json_line) {
     return return_buffer;
 }
 
-void Utils::ReportError(string message) {
-    printf("[ERROR] %s", message.c_str());
+void Utils::ReportError(std::string message) {
+    printf("[ERROR] %s\n", message.c_str());
 }
 
-void Utils::RemoveFile(string filename) {
+void Utils::RemoveFile(std::string filename) {
     remove(filename.c_str());
 }
 
 void Utils::ShowHelp(std::vector<Help> option_list) {
     int max_option_length = 0;
 
-    string print_buffer;
+    std::string print_buffer;
 
     //Get max option length for better formatting
     for(Help current_help : option_list) {
@@ -72,5 +72,49 @@ void Utils::ShowHelp(std::vector<Help> option_list) {
     }
 
     printf("%s",print_buffer.c_str());
+
+}
+
+int Utils::StringToEnum(std::vector<std::string> fake_string_enum, std::string input) {
+    for(int i = 0; i < fake_string_enum.size(); ++i) {
+        if(input == fake_string_enum[i]) return i;
+    }
+    return -1;
+}
+
+bool Utils::IsFileExist(std::string filename) {
+
+    std::ifstream reader;
+    bool result;
+
+    reader.open(filename);
+    result = reader.is_open();
+    reader.close();
+
+    return result;
+
+}
+
+std::vector<std::string> Utils::SysExecute(std::string cmd) {
+
+    std::ifstream reader;
+    std::vector<std::string> return_buffer;
+    std::string read_buffer;
+
+
+    system((cmd + "> output.data").c_str());
+
+
+
+    reader.open("output.data");
+
+    while(getline(reader,read_buffer)) {
+        return_buffer.push_back(read_buffer);
+    }
+
+    reader.close();
+    RemoveFile("output.data");
+
+    return return_buffer;
 
 }
