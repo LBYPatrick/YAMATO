@@ -90,7 +90,8 @@ Desktop.ini
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
 
-#Visual Studio Files in C++
+# Visual Studio Files in C++
+
 *.VC.db
 *.VC.opendb
 *.ipch
@@ -99,7 +100,13 @@ $RECYCLE.BIN/
 src/.vs/*
 .vs/*
 
-#Test files
+# Test files
 builds/lsheader.ini
 builds/*.java
 builds/*.class
+
+# VS Code
+
+\.vscode/*
+settings.json
+src/\.vscode/*
