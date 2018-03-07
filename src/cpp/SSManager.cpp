@@ -146,7 +146,7 @@ inline void SSManager::RunUsers(std::vector<User> & user_list, string & encrypti
         writer<<current_user_buffer;
         writer.close();
 
-        system(std::string("ss-server -c PROTECTED_USER.conf -f" + current_user.port + ".pid").c_str());
+        system(std::string("ss-server -c PROTECTED_USER.conf -f " + current_user.port + ".pid").c_str());
         reader.open(current_user.port + ".pid");
         reader>>pid_buffer;
         reader.close();
