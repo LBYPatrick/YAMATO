@@ -68,7 +68,7 @@ void SSManager::RunConfig(string filename) {
     bool isInUserList = 0;
 
     //Unload sessions from the config session if loaded already
-    if(Utils::IsFileExist(filename + ".pid")) StopConfig(filename);
+    if(Utils::IsFileExist(filename + ".pidmap")) StopConfig(filename);
 
     //Read file, quit if failed
     if(!ReadFile(filename,file_buffer)) {return;}
@@ -172,7 +172,9 @@ void SSManager::StopConfig(string filename) {
     else {
         for(std::string current_line : file_buffer) {
             json_read_buffer = Utils::GetJson(current_line);
-            printf("PORT: %s  PID: %s\n", json_read_buffer.element.c_str(), json_read_buffer.key.c_str());
+            
+            if(DEBUG_MODE) printf("PORT: %s  PID: %s\n", json_read_buffer.element.c_str(), json_read_buffer.key.c_str());
+            
             system((std::string("kill -15 ") + json_read_buffer.key).c_str());
         }
     }
