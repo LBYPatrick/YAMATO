@@ -9,15 +9,20 @@
 #include <cstdio>
 #include <fstream>
 
+using std::string;
+using std::vector;
+using std::ifstream;
+using std::ofstream;
+
 namespace Utils {
-    void RemoveLetter(std::string & original_string, char letter);
-    Json GetJson(std::string raw_json_line);
-    void ReportError(std::string message);
-    void RemoveFile(std::string filename);
-    void ShowHelp(std::vector<Help> option_list);
-    int  StringToEnum(std::vector<std::string> fake_string_enum, std::string input);
-    bool IsFileExist(std::string filename);
-    std::vector<std::string> SysExecute(std::string cmd);
+    void RemoveLetter(string & original_string, char letter);
+    Json GetJson(string raw_json_line);
+    void ReportError(string message);
+    void RemoveFile(string filename);
+    void ShowHelp(vector<Help> option_list);
+    int  StringToEnum(vector<string> fake_string_enum, string input);
+    bool IsFileExist(string filename);
+    vector<string> SysExecute(string cmd);
 }
 
 #endif //SS_MANAGER_UTILS_H

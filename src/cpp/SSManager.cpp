@@ -54,15 +54,15 @@ string SSManager::MakeUserConfig(string method,string port, string password, str
 
 void SSManager::RunConfig(string filename) {
 
-    std::vector<string>         file_buffer;
+    vector<string>         file_buffer;
     Json                        json_read_buffer;
-    std::vector<User>           temp_user_list;
-    std::string                 temp_encryption = "chacha20-ietf";
-    std::string                 temp_nameserver = "8.8.8.8";
-    std::string                 temp_redirect   = "bing.com";
-    std::string                 temp_groupname  = "DEFAULT GROUP";
-    std::vector<std::string>    temp_pid_list;
-    std::vector<std::string>    port_list;
+    vector<User>           temp_user_list;
+    string                 temp_encryption = "chacha20-ietf";
+    string                 temp_nameserver = "8.8.8.8";
+    string                 temp_redirect   = "bing.com";
+    string                 temp_groupname  = "DEFAULT GROUP";
+    vector<string>    temp_pid_list;
+    vector<string>    port_list;
 
 
     bool isInUserList = 0;
@@ -113,7 +113,7 @@ void SSManager::RunConfig(string filename) {
 
 }
 
-inline void SSManager::WritePidMap(string filename, std::vector<string> & pid_list,std::vector<string> & port_list) {
+inline void SSManager::WritePidMap(string filename, vector<string> & pid_list,vector<string> & port_list) {
     ofstream writer;
     writer.open(filename.c_str());
     for(int i = 0; i < pid_list.size(); ++i) {
@@ -122,7 +122,7 @@ inline void SSManager::WritePidMap(string filename, std::vector<string> & pid_li
     writer.close();
 }
 
-inline void SSManager::RunUsers(std::vector<User> & user_list, string & encryption, string & nameserver, string & redirect, std::vector<std::string> & pid_list_buffer) {
+inline void SSManager::RunUsers(vector<User> & user_list, string & encryption, string & nameserver, string & redirect, vector<string> & pid_list_buffer) {
 
     ofstream writer;
     ifstream reader;
@@ -146,7 +146,7 @@ inline void SSManager::RunUsers(std::vector<User> & user_list, string & encrypti
         writer<<current_user_buffer;
         writer.close();
 
-        system(std::string("ss-server -c PROTECTED_USER.conf -f " + current_user.port + ".pid").c_str());
+        system(string("ss-server -c PROTECTED_USER.conf -f " + current_user.port + ".pid").c_str());
         reader.open(current_user.port + ".pid");
         reader>>pid_buffer;
         reader.close();
@@ -162,7 +162,7 @@ inline void SSManager::RunUsers(std::vector<User> & user_list, string & encrypti
 }
 
 void SSManager::StopConfig(string filename) {
-    std::vector<std::string> file_buffer;
+    vector<string> file_buffer;
     Json                     json_read_buffer;
 
     if(!ReadFile(filename + ".pidmap", file_buffer)) {
@@ -170,30 +170,30 @@ void SSManager::StopConfig(string filename) {
         return;
     }
     else {
-        for(std::string current_line : file_buffer) {
+        for(string current_line : file_buffer) {
             json_read_buffer = Utils::GetJson(current_line);
             
             if(DEBUG_MODE) printf("PORT: %s  PID: %s\n", json_read_buffer.element.c_str(), json_read_buffer.key.c_str());
             
-            system((std::string("kill -15 ") + json_read_buffer.key).c_str());
+            system((string("kill -15 ") + json_read_buffer.key).c_str());
         }
     }
 
-    Utils::RemoveFile(filename + std::string(".pidmap"));
+    Utils::RemoveFile(filename + string(".pidmap"));
 }
 
 void SSManager::CheckPort(string filename, string port) {
 
-    std::vector<std::string> file_buffer;
+    vector<string> file_buffer;
     Json                     json_read_buffer;
-    std::string              target_pid = "-1";
+    string              target_pid = "-1";
 
     if(!ReadFile(filename + ".pidmap", file_buffer)) {
         Utils::ReportError("Cannot read the pidmap for the file specified, please load the config before unload and DO NOT delete pidmap.");
         return;
     }
     else {
-        for(std::string current_line : file_buffer) {
+        for(string current_line : file_buffer) {
             json_read_buffer = Utils::GetJson(current_line);
             if(json_read_buffer.element == port) {
                 target_pid = json_read_buffer.key;
@@ -204,7 +204,7 @@ void SSManager::CheckPort(string filename, string port) {
         else {
             file_buffer = Utils::SysExecute(R"(journalctl | grep "ss-server\[)" + target_pid + R"(\]")");
 
-            for(std::string current_line : file_buffer) {
+            for(string current_line : file_buffer) {
                 printf("%s\n",current_line.c_str());
             }
         }
