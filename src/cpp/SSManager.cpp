@@ -199,7 +199,7 @@ void SSManager::CheckPort(string filename, string port) {
 
         if(target_pid == "-1") Utils::ReportError("Port " + port + " no found in pidmap for " + filename);
         else {
-            file_buffer = Utils::SysExecute("journalctl | grep \"ss-server[" + target_pid + "]\"");
+            file_buffer = Utils::SysExecute(R"(journalctl | grep "ss-server\[)" + target_pid + R"(\]")");
 
             for(std::string current_line : file_buffer) {
                 printf("%s\n",current_line.c_str());
