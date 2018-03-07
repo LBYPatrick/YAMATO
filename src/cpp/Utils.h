@@ -7,16 +7,17 @@
 #include <string>
 #include "constants.h"
 #include <cstdio>
-
-using std::string;
+#include <fstream>
 
 namespace Utils {
-    void RemoveLetter(string & original_string, char letter);
-    Json GetJson(string raw_json_line);
-    void ReportError(string message);
-    void RemoveFile(string filename);
+    void RemoveLetter(std::string & original_string, char letter);
+    Json GetJson(std::string raw_json_line);
+    void ReportError(std::string message);
+    void RemoveFile(std::string filename);
     void ShowHelp(std::vector<Help> option_list);
     int  StringToEnum(std::vector<std::string> fake_string_enum, std::string input);
+    bool IsFileExist(std::string filename);
+    std::vector<std::string> SysExecute(std::string cmd);
 }
 
 #endif //SS_MANAGER_UTILS_H

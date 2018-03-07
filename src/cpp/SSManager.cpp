@@ -67,6 +67,9 @@ void SSManager::RunConfig(string filename) {
 
     bool isInUserList = 0;
 
+    //Unload sessions from the config session if loaded already
+    if(Utils::IsFileExist(filename + ".pid")) StopConfig(filename);
+
     //Read file, quit if failed
     if(!ReadFile(filename,file_buffer)) {return;}
 
@@ -143,16 +146,18 @@ inline void SSManager::RunUsers(std::vector<User> & user_list, string & encrypti
         writer<<current_user_buffer;
         writer.close();
 
-        system(std::string("ss-server -c PROTECTED_USER.conf -f PROTECTED_USER.pid").c_str());
-        reader.open("PROTECTED_USER.pid");
+        system(std::string("ss-server -c PROTECTED_USER.conf -f" + current_user.port + ".pid").c_str());
+        reader.open(current_user.port + ".pid");
         reader>>pid_buffer;
         reader.close();
-        Utils::RemoveFile("PROTECTED_USER.pid");
 
         pid_list_buffer.push_back(pid_buffer);
     }
 
     //Clean up
+    for(User temp_user : user_list) {
+        Utils::RemoveFile(temp_user.port + ".pid");
+    }
     Utils::RemoveFile("PROTECTED_USER.conf");
 }
 
@@ -178,6 +183,8 @@ void SSManager::CheckPort(string filename, string port) {
 
     std::vector<std::string> file_buffer;
     Json                     json_read_buffer;
+    std::string              target_pid = "-1";
+    std::vector<int>         output_line_list;
 
     if(!ReadFile(filename + ".pidmap", file_buffer)) {
         Utils::ReportError("Cannot read the pidmap for the file specified, please load the config before unload and DO NOT delete pidmap.");
@@ -187,10 +194,23 @@ void SSManager::CheckPort(string filename, string port) {
         for(string current_line : file_buffer) {
             json_read_buffer = Utils::GetJson(current_line);
             if(json_read_buffer.element == port) {
-                system(("systemctl status " + json_read_buffer.key).c_str());
-                return;
+                target_pid = json_read_buffer.element;
             }
         }
-        Utils::ReportError("Port " + port + " no found in pidmap for " + filename);
+
+        if(target_pid == "-1") Utils::ReportError("Port " + port + " no found in pidmap for " + filename);
+        else {
+            file_buffer = Utils::SysExecute("journalctl | grep \"ss-server\"");
+
+            for(int i = 0; i < file_buffer.size(); ++i) {
+                if(file_buffer[i].find("ss-server[" + target_pid + "]") != string::npos) {
+                    output_line_list.push_back(i);
+                }
+            }
+
+            for(int line : output_line_list) {
+                printf("%s\n",file_buffer[line].c_str());
+            }
+        }
     }
 }
