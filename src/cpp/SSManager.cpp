@@ -58,7 +58,7 @@ void SSManager::RunConfig(string filename) {
     Json                        json_read_buffer;
     std::vector<User>           temp_user_list;
     std::string                 temp_encryption = "chacha20-ietf";
-    std::string                 temp_nameserver = "127.0.0.1";
+    std::string                 temp_nameserver = "8.8.8.8";
     std::string                 temp_redirect   = "bing.com";
     std::string                 temp_groupname  = "DEFAULT GROUP";
     std::vector<std::string>    temp_pid_list;
