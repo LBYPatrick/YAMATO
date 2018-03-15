@@ -6,9 +6,13 @@
 
 void Utils::RemoveLetter(string & original_string, char letter) {
     string temp_buffer;
-
+    bool   is_in_quote = false;
     for (char i : original_string) {
-        if(i != letter) temp_buffer += i;
+        if(i == '\"') {
+            is_in_quote = !is_in_quote;
+            continue;
+        }
+        else if(i != letter || is_in_quote) temp_buffer += i;
     }
     original_string = temp_buffer;
 }
@@ -18,7 +22,6 @@ Json Utils::GetJson(string raw_json_line) {
     Json return_buffer;
 
     RemoveLetter(raw_json_line, ' ');
-    RemoveLetter(raw_json_line, '\"');
     RemoveLetter(raw_json_line, ',');
     RemoveLetter(raw_json_line, ';');
 

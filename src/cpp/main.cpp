@@ -3,7 +3,7 @@
 #include "Utils.h"
 #include "SSManager.h"
 
-#define SOFTWARE_VERSION "0.0.1"
+#define SOFTWARE_VERSION "0.1.2"
 
 
 using std::vector;
@@ -21,14 +21,14 @@ const vector<Help> option_list = {
 int main(int argc, char*const argv[]) {
 
     if(argc <= 2) {
-
+        
         if(argc == 2 && (string(argv[1]) == "--help" || string(argv[1]) == "-h" || string(argv[1]) == "/?")) {
             Utils::ShowHelp(option_list);
             return 0;
         }
         else { //Print software info
             printf(
-                    "SS-Manager" SOFTWARE_VERSION " by LBYPatrick\n");
+                    "SS-Manager v" SOFTWARE_VERSION " by LBYPatrick\n");
             Utils::ShowHelp(option_list);
             return 0;
         }

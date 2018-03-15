@@ -75,6 +75,7 @@ void SSManager::RunConfig(string filename) {
 
     for(string current_file_line : file_buffer) {
 
+        Utils::RemoveLetter(current_file_line,' ');
         //Skip blank lines and commented lines
         if(current_file_line[0] == '#' || current_file_line.size() < 1) continue;
 
