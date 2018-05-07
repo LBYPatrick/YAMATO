@@ -4,7 +4,7 @@ project(ss_manager)
 set(CMAKE_CXX_STANDARD 11)
 
 add_executable(ss_manager
-        src/cpp/constants.h
+        src/cpp/constants.hpp
         src/cpp/main.cpp
-        src/cpp/SSManager.cpp
-        src/cpp/SSManager.h src/cpp/Utils.cpp src/cpp/Utils.h)
+        src/cpp/ssm.cpp
+        src/cpp/ssm.hpp src/cpp/util.cpp src/cpp/util.hpp)

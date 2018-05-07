@@ -5,15 +5,15 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include "Utils.h"
-#include "constants.h"
+#include "util.hpp"
+#include "constants.hpp"
 
 using std::string;
 using std::vector;
 using std::ifstream;
 using std::ofstream;
 
-namespace SSManager {
+namespace ssm {
 	/**
 	* @param file_list:  
 	*/

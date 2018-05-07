@@ -25,12 +25,12 @@ Or use CMake with ``CMakeLists.txt``.
 
 Parameters
 ```bash
-    -h                                    :
-    --help                                :
-    /?                                    : Show help
-    load <config_file_name>               : loads users based on the config file specified
-    unload <config_file_name>,            : unloads users based on the config file specified (Need to load first)
-    status <config_file_name> <user_port> : get status of a port loaded with a specific config
+    -h                                                   :
+    --help                                               :
+    /?                                                   : Show help
+    load <config_file_name>                              : loads users based on the config file specified
+    unload <config_file_name>                            : unloads users based on the config file specified (Need to load first)
+    status <config_file_name> <user_port_or_process_pid> : get status of a port loaded with a specific config
 
 ```
 
@@ -41,8 +41,8 @@ Format:
 ```javascript
 {
     "<group_name>" : "<method_name>" {
-    <optional_nameserver> : <nameserver>,
-    <optional_redirect>   : <redirect_site>,
+    <nameserver> : <this_is_optional>,
+    <redirect>   : <this_is_optional>,
     <user_port_1>         : <user_password>,
     <user_port_2>         : <user_password2>
     }
@@ -53,14 +53,13 @@ Example:
 
 ```javascript
 {
-
-    #Group 1 (Yes we support COMMENTS IN JSON, Yay!)
-
+    //Comment here...
     "example_group" : "chacha20" : {
         443 : "password1",
         80  : "DoNotBruteForceMePLZ"
     }
-
+    
+    //Comment here...
     "example_group_2" : "aes-256-cfb" {
         "nameserver" : "8.8.8.8",
         "redirect"   : "isSeptaFucked.com",
@@ -89,4 +88,4 @@ Because this software is for myself, but you are always welcome to make suggesti
 
 ### 5. Why putting an anime picture in README?
 
-Is there any one who hates anime? I force all of you to like anime.
+Because it stands for justice.

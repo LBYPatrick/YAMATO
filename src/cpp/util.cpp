@@ -2,9 +2,9 @@
 // Created by LBYPatrick on 2/6/2018.
 //
 
-#include "Utils.h"
+#include "util.hpp"
 
-void Utils::RemoveLetter(string & original_string, char letter) {
+void util::RemoveLetter(string & original_string, char letter) {
     string temp_buffer;
     bool   is_in_quote = false;
     for (char i : original_string) {
@@ -17,7 +17,7 @@ void Utils::RemoveLetter(string & original_string, char letter) {
     original_string = temp_buffer;
 }
 
-Json Utils::GetJson(string raw_json_line) {
+Json util::GetJson(string raw_json_line) {
 
     Json return_buffer;
 
@@ -44,15 +44,15 @@ Json Utils::GetJson(string raw_json_line) {
     return return_buffer;
 }
 
-void Utils::ReportError(string message) {
+void util::ReportError(string message) {
     printf("[ERROR] %s\n", message.c_str());
 }
 
-void Utils::RemoveFile(string filename) {
+void util::RemoveFile(string filename) {
     remove(filename.c_str());
 }
 
-void Utils::ShowHelp(vector<Help> option_list) {
+void util::ShowHelp(vector<Help> option_list) {
     int max_option_length = 0;
 
     string print_buffer;
@@ -78,14 +78,7 @@ void Utils::ShowHelp(vector<Help> option_list) {
 
 }
 
-int Utils::StringToEnum(vector<string> fake_string_enum, string input) {
-    for(int i = 0; i < fake_string_enum.size(); ++i) {
-        if(input == fake_string_enum[i]) return i;
-    }
-    return -1;
-}
-
-bool Utils::IsFileExist(string filename) {
+bool util::IsFileExist(string filename) {
 
     ifstream reader;
     bool result;
@@ -98,7 +91,7 @@ bool Utils::IsFileExist(string filename) {
 
 }
 
-vector<string> Utils::SysExecute(string cmd) {
+vector<string> util::SysExecute(string cmd) {
 
     ifstream reader;
     vector<string> return_buffer;
@@ -120,4 +113,35 @@ vector<string> Utils::SysExecute(string cmd) {
 
     return return_buffer;
 
+}
+
+int util::Search(string str, vector<string> match_list, bool precise) {
+    for(int i = 0; i < match_list.size(); ++i) {
+
+        if(precise && match_list[i] == str) {
+            return i;
+        }
+        else if(!precise && str.find(match_list[i]) != string::npos) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+int util::Search(string str, vector<string> match_list) {
+    return Search(str,match_list,true);
+}
+
+
+
+bool util::IsProcessAlive(int pid) {
+
+    vector<string> cmd_buffer = SysExecute("ps -p " + to_string(pid));
+
+    return cmd_buffer.size() > 1;
+}
+
+vector<string> util::GetFileList() {
+    return (SysExecute("ls -1"));
 }

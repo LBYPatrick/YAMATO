@@ -100,11 +100,6 @@ $RECYCLE.BIN/
 src/.vs/*
 .vs/*
 
-# Test files
-builds/lsheader.ini
-builds/*.java
-builds/*.class
-
 # VS Code
 
 \.vscode/*
