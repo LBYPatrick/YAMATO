@@ -94,7 +94,7 @@ void ssm::RunConfig(string filename) {
 
         util::RemoveLetter(current_file_line, ' ');
         //Skip blank lines and commented lines
-        if (current_file_line[0] == '//' || current_file_line.size() < 1) continue;
+        if (current_file_line.find("//") == 0 || current_file_line.size() < 1) continue;
 
         if (current_file_line.find('}') != string::npos) {
             isInUserList = false;
