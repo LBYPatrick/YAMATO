@@ -74,18 +74,14 @@ Example:
 
 WARNING: Don't ever run this software on Windows even though it passes compilation. All functions except ``load`` requires linux system commands.
 
-### 2. Why not providing options for "TCP fast open" and "UDP overlay"?
-
-Because there's no point playing around with them. Enabling TCP fastopen does not give you any side-effect. And disabling UDP overlay avoids package loss. (Yes, UDP performs actually WORSE than TCP in the real world)
-
-### 3. Why re-inventing the wheel? 
+### 2. Why re-inventing the wheel?
 
 Because I love to do so.
 
-### 4. Why is the user experience so bad?
+### 3. Why is the user experience so bad?
 
 Because this software is for myself, but you are always welcome to make suggestions by opening issues. Plus, what do you expect from a less-than-1000-line program?
 
-### 5. Why putting an anime picture in README?
+### 4. Why putting an anime picture in README?
 
 Because it stands for justice.
