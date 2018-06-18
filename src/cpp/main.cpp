@@ -136,6 +136,15 @@ int main(int argc, char*const argv[]) {
         }
 
         else if (util::Search(argv[a], {"-p","--port"},true) != -1) {
+
+            if(a+1 >= argc) {
+                util::ReportError("You need to specify a port when using -p");
+                exit(0);
+            }
+
+            port = argv[a+1];
+
+            a += 1;
         }
 
         else {
