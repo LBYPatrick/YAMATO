@@ -17,6 +17,8 @@ Travis CI编译状态: [![Build Status](https://travis-ci.org/LBYPatrick/ss-mana
 g++ -std=c++11 -static src/cpp/* -o ss-manager
 ```
 
+或者你可以用根目录的``compile_release.sh``来进行编译，程序会输出到bin目录里
+
 或者配合 ``CMakeLists.txt`` 使用CMake编译.
 
 ## 使用方法
@@ -25,12 +27,12 @@ g++ -std=c++11 -static src/cpp/* -o ss-manager
 
 参数
 ```bash
-    -h                                                   :
-    --help                                               :
-    /?                                                   : 显示帮助(英文)
-    load <config_file_name>                              : 加载指定的ss-manager配置
-    unload <config_file_name>,                           : 卸载指定的ss-manager配置(需要先挂载过)
-    status <config_file_name> <user_port_or_process_pid> : 获得在指定ss-manager配置下的特定用户的状态信息(系统信息)
+
+    -i or --input <filename>        : 指定配置文件
+    -a or --action <action>         : 指定程序行为 (status 对应检查端口状态, load 对应加载配置, unload 对应卸载配置)
+    /?, -h or --help                : 显示这则帮助信息
+    -e or --extra-parameter <param> : 指定额外的ss-server参数, 你可以结合这个开启UDP转发和HTTP/TLS混淆，因为一些功能只有少数人需要，所以加了这个功能
+    -p or --port                    : 指定要检查的端口 (在-a status的时候要用到，具体行为就是显示用户进程的PID和完整的ss-server日志)
 
 ```
 
@@ -69,11 +71,11 @@ Example:
 }
 ```
 
-## FAQs
+## FA♂Q
 
 ### 1. 这个软件可以在Windows上跑吗？
 
-不行，即使Windows下能过编译也不要。除了 ``load``功能外，其他功能都会用到Linux的命令。
+不行，即使Windows下能过编译也不要。除了 ``-a load``功能外，其他功能都会用到Linux的命令。
 
 ### 2. 为什么要造轮子？
 
@@ -81,7 +83,7 @@ Example:
 
 ### 3. 为什么使用体验极差 ?
 
-因为我是写给自己用的，当然你们可以开issue提建议或者汇报bug. 另外，1000行以内的小程序不要抱有太大的期望值。
+因为我是写给自己用的...我把自己的梯子便宜租给其他同学了，写了个工具方便管理用户信息和配置 ~~他们很喜欢上E站和DMM舔小姐姐~~
 
 ### 4. 为什么要在使用说明里面放二刺螈？
 

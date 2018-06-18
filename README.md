@@ -25,12 +25,12 @@ Or use CMake with ``CMakeLists.txt``.
 
 Parameters
 ```bash
-    -h                                                   :
-    --help                                               :
-    /?                                                   : Show help
-    load <config_file_name>                              : loads users based on the config file specified
-    unload <config_file_name>                            : unloads users based on the config file specified (Need to load first)
-    status <config_file_name> <user_port_or_process_pid> : get status of a port loaded with a specific config
+
+    -i or --input <filename>        : specify input file
+    -a or --action <action>         : specify action (status, load, unload)
+    /?, -h or --help                : show this help message
+    -e or --extra-parameter <param> : specify additional parameters, you can do things like UDP relay or HTTP/TLS OBFS here
+    -p or --port                    : specify a port for checking status
 
 ```
 

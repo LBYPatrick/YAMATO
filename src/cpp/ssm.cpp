@@ -3,6 +3,7 @@
 
 #define DEBUG_MODE 0
 
+string extra_param_;
 
 inline bool ssm::ReadFile(string filename, vector<string> &file_buffer) {
 
@@ -37,36 +38,6 @@ string ssm::MakeUserConfig(string method, string port, string password, string n
            nameserver + "\",\n"
            "\t\"redirect\" : \"" + redirect + "\"\n}";
 
-
-
-
-    /*
-    string return_buffer;
-    return_buffer += "{\n"
-                     "\t\"server\" : \"0.0.0.0\",\n"
-                     "\t\"server_port\" : ";
-    return_buffer += port;
-
-    return_buffer += ",\n"
-
-    return_buffer += password;
-
-    return_buffer += "\",\n"
-                     "\t\"timeout\" : 3600,\n"
-                     "\t\"method\" : \"";
-    return_buffer += method;
-
-    return_buffer += "\",\n"
-                     "\t\"fast_open\" : true,\n"
-                     "\t\"nameserver\" : \"";
-    return_buffer += nameserver;
-
-    return_buffer += "\",\n"
-                     "\t\"redirect\" : \"";
-    return_buffer += redirect + "\"\n}";
-
-    return return_buffer;
-    */
 }
 
 void ssm::RunConfig(string filename) {
@@ -166,7 +137,7 @@ inline void ssm::RunUsers(vector<User> &user_list, string &encryption, string &n
         writer << current_user_buffer;
         writer.close();
 
-        system(string("ss-server -c PROTECTED_USER.conf -u -f " + current_user.port + ".pid").c_str());
+        system(string("ss-server -c PROTECTED_USER.conf " + extra_param_ + " -f " + current_user.port + ".pid").c_str());
         reader.open(current_user.port + ".pid");
         reader >> pid_buffer;
         reader.close();
@@ -274,4 +245,8 @@ void ssm::CheckPort(string filename, string port) {
     }
     printf("\n"
            "=========================\n");
+}
+
+void ssm::SetExtraParam(string extra_param) {
+    extra_param_ = extra_param;
 }

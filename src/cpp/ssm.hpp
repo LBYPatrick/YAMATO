@@ -24,6 +24,7 @@ namespace ssm {
     void WritePidMap(string filename, vector<string> & pid_list,vector<string> & port_list);
     void StopConfig(string filename);
     void CheckPort(string filename, string port);
+    void SetExtraParam(string extra_param);
 };
 
 #endif //SS_MANAGER_SS_MANAGER_H
