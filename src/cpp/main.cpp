@@ -5,7 +5,7 @@
 
 #define SOFTWARE_VERSION "0.2.0"
 #define LEGACY false
-
+#define TEST true
 
 using std::vector;
 using std::string;
@@ -33,6 +33,15 @@ enum Action {
 
 int main(int argc, char*const argv[]) {
 
+# if TEST
+    vector<string> folders = util::GetFolderList(".\\");
+
+    for(string & folder : folders) {
+        printf("%s\n", folder.c_str());
+    }
+
+    return 1;
+#else
 # if LEGACY
     if(argc <= 2) {
 
@@ -185,6 +194,8 @@ int main(int argc, char*const argv[]) {
     }
 
     return 1;
+
+#endif
 
 #endif
 }

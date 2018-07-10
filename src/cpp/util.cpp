@@ -145,3 +145,15 @@ bool util::IsProcessAlive(int pid) {
 vector<string> util::GetFileList() {
     return (SysExecute("ls -1"));
 }
+
+vector<string> util::GetFolderList(string directory) {
+
+    vector<string> console_buffer = SysExecute("ls -p " + directory + " -1");
+
+    for (string & line : console_buffer) {
+        line = line.substr(0,line.size() - 1);
+    }
+
+    return console_buffer;
+}
+

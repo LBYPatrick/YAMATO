@@ -24,6 +24,7 @@ namespace util {
     int Search(string str, vector<string> match_list);
 
     vector<string> GetFileList();
+    vector<string> GetFolderList(string directory);
 
     int Search(string str, vector<string> match_list, bool precise);
 }
