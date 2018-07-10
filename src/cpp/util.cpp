@@ -150,6 +150,16 @@ vector<string> util::GetFolderList(string directory) {
 
     vector<string> console_buffer = SysExecute("ls -p " + directory + " -1");
 
-    return console_buffer;
+    vector<string> output_buffer;
+
+    for (string & line : console_buffer) {
+
+        if(line.find_last_of("/") != -1) {
+            output_buffer.push_back(line.substr(0, line.size() -1));
+        }
+
+    }
+
+    return output_buffer;
 }
 
