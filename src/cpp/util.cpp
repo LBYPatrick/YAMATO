@@ -150,7 +150,7 @@ vector<string> util::GetFileList(string directory) {
 
     for (string & line : console_buffer) {
 
-        if(line.find_last_of("/") == -1) {
+        if(line.find_last_of("/") == -1 && line.find("output.data") == -1) {
             output_buffer.push_back(line);
         }
     }
