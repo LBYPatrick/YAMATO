@@ -34,7 +34,7 @@ enum Action {
 int main(int argc, char*const argv[]) {
 
 # if TEST
-    vector<string> folders = util::GetFolderList(R"(.\)");
+    vector<string> folders = util::GetFolderList(R"(./)");
 
     for(string & folder : folders) {
         printf("%s\n", folder.c_str());
