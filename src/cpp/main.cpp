@@ -5,7 +5,7 @@
 
 #define SOFTWARE_VERSION "0.2.0"
 #define LEGACY false
-#define TEST true
+#define TEST false
 
 using std::vector;
 using std::string;
@@ -91,7 +91,8 @@ int main(int argc, char*const argv[]) {
     }
 #else
     //Temp
-    string input_file;
+    string
+            input_file;
     Action action = UNKNOWN;
     string port;
 
@@ -172,10 +173,7 @@ int main(int argc, char*const argv[]) {
     }
 
     //Finish collecting parameters, run pre-check
-    if (input_file.size() == 0) {
-        util::ReportError("Need to specify input file with -i or --input.");
-        exit(0);
-    } else if (action == UNKNOWN) {
+    if (action == UNKNOWN) {
         util::ReportError("Need to specify action with -a or --action.");
         exit(0);
     }
@@ -188,16 +186,36 @@ int main(int argc, char*const argv[]) {
                 util::ReportError("You need to specify a port for checking status");
                 exit(0);
             }
+            if(input_file.size() == 0) {
+                vector<string> file_list = util::GetFileList("./");
+
+                for(string & file : file_list) {
+                    if(file.find(".pidmap") != -1) {
+                        input_file = file.substr(file.size()-7);
+                    }
+                }
+
+                if(input_file.size() == 0) {
+                    util::ReportError("Need to specify action with -a or --action.");
+                    exit(0);
+                }
+            }
             ssm::CheckPort(input_file,port);
             break;
 
         case LOAD :
-
+            if (input_file.size() == 0) {
+                util::ReportError("Need to specify input file with -i or --input.");
+                exit(0);
+            }
             ssm::RunConfig(input_file);
             break;
 
         case UNLOAD :
-
+            if (input_file.size() == 0) {
+                util::ReportError("Need to specify input file with -i or --input.");
+                exit(0);
+            }
             ssm::StopConfig(input_file);
             break;
     }
