@@ -35,9 +35,18 @@ int main(int argc, char*const argv[]) {
 
 # if TEST
     vector<string> folders = util::GetFolderList(R"(./)");
+    vector<string> files   = util::GetFileList(R"(./)");
+
+    printf("Folders:\n");
 
     for(string & folder : folders) {
-        printf("%s\n", folder.c_str());
+        printf("\t%s\n", folder.c_str());
+    }
+
+    printf("\n\nFiles: \n");
+
+    for(string & file : files) {
+        printf("\t%s\n", file.c_str());
     }
 
     return 1;
