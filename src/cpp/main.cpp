@@ -192,7 +192,9 @@ int main(int argc, char*const argv[]) {
                 for(string & file : file_list) {
                     if(file.find(".pidmap") != -1) {
                         input_file = file.substr(0,file.size()-7);
+#if DEBUG
                         printf("INPUT_FILE: %s\n",input_file.c_str());
+#endif
                         break;
                     }
                 }
