@@ -142,6 +142,36 @@ bool util::IsProcessAlive(int pid) {
     return cmd_buffer.size() > 1;
 }
 
-vector<string> util::GetFileList() {
-    return (SysExecute("ls -1"));
+vector<string> util::GetFileList(string directory) {
+
+    vector<string> console_buffer = SysExecute("ls -p " + directory + " -1");
+
+    vector<string> output_buffer;
+
+    for (string & line : console_buffer) {
+
+        if(line.find_last_of("/") == -1 && line.find("output.data") == -1) {
+            output_buffer.push_back(line);
+        }
+    }
+
+    return output_buffer;
 }
+
+vector<string> util::GetFolderList(string directory) {
+
+    vector<string> console_buffer = SysExecute("ls -p " + directory + " -1");
+
+    vector<string> output_buffer;
+
+    for (string & line : console_buffer) {
+
+        if(line.find_last_of("/") != -1) {
+            output_buffer.push_back(line.substr(0, line.size() -1));
+        }
+
+    }
+
+    return output_buffer;
+}
+

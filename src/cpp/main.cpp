@@ -5,7 +5,7 @@
 
 #define SOFTWARE_VERSION "0.2.0"
 #define LEGACY false
-
+#define TEST false
 
 using std::vector;
 using std::string;
@@ -33,6 +33,24 @@ enum Action {
 
 int main(int argc, char*const argv[]) {
 
+# if TEST
+    vector<string> folders = util::GetFolderList(R"(./)");
+    vector<string> files   = util::GetFileList(R"(./)");
+
+    printf("Folders:\n");
+
+    for(string & folder : folders) {
+        printf("\t%s\n", folder.c_str());
+    }
+
+    printf("\n\nFiles: \n");
+
+    for(string & file : files) {
+        printf("\t%s\n", file.c_str());
+    }
+
+    return 1;
+#else
 # if LEGACY
     if(argc <= 2) {
 
@@ -73,7 +91,8 @@ int main(int argc, char*const argv[]) {
     }
 #else
     //Temp
-    string input_file;
+    string
+            input_file;
     Action action = UNKNOWN;
     string port;
 
@@ -154,10 +173,7 @@ int main(int argc, char*const argv[]) {
     }
 
     //Finish collecting parameters, run pre-check
-    if (input_file.size() == 0) {
-        util::ReportError("Need to specify input file with -i or --input.");
-        exit(0);
-    } else if (action == UNKNOWN) {
+    if (action == UNKNOWN) {
         util::ReportError("Need to specify action with -a or --action.");
         exit(0);
     }
@@ -170,21 +186,47 @@ int main(int argc, char*const argv[]) {
                 util::ReportError("You need to specify a port for checking status");
                 exit(0);
             }
+            if(input_file.size() == 0) {
+                vector<string> file_list = util::GetFileList("./");
+
+                for(string & file : file_list) {
+                    if(file.find(".pidmap") != -1) {
+                        input_file = file.substr(0,file.size()-7);
+#if DEBUG
+                        printf("INPUT_FILE: %s\n",input_file.c_str());
+#endif
+                        break;
+                    }
+                }
+
+                if(input_file.size() == 0) {
+                    util::ReportError("Need to specify action with -a or --action.");
+                    exit(0);
+                }
+            }
             ssm::CheckPort(input_file,port);
             break;
 
         case LOAD :
-
+            if (input_file.size() == 0) {
+                util::ReportError("Need to specify input file with -i or --input.");
+                exit(0);
+            }
             ssm::RunConfig(input_file);
             break;
 
         case UNLOAD :
-
+            if (input_file.size() == 0) {
+                util::ReportError("Need to specify input file with -i or --input.");
+                exit(0);
+            }
             ssm::StopConfig(input_file);
             break;
     }
 
     return 1;
+
+#endif
 
 #endif
 }
