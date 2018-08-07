@@ -5,7 +5,7 @@
 
 #define SOFTWARE_VERSION "0.2.0"
 #define LEGACY false
-#define TEST true
+#define TEST false
 
 using std::vector;
 using std::string;
