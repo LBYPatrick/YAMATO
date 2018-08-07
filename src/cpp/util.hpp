@@ -25,6 +25,10 @@ namespace util {
 
     vector<string> GetFileList(string directory);
     vector<string> GetFolderList(string directory);
+    
+    //Overloaded Methods
+    vector<string> GetFileList();
+    vector<string> GetFolderList();
 
     int Search(string str, vector<string> match_list, bool precise);
 }

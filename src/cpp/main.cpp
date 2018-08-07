@@ -5,7 +5,7 @@
 
 #define SOFTWARE_VERSION "0.2.0"
 #define LEGACY false
-#define TEST false
+#define TEST true
 
 using std::vector;
 using std::string;
@@ -48,6 +48,9 @@ int main(int argc, char*const argv[]) {
     for(string & file : files) {
         printf("\t%s\n", file.c_str());
     }
+
+    printf("IS A.conf exist: %s\n", util::IsFileExist("A.conf") ? "true" : "false");
+    printf("IS B.conf exist: %s\n", util::IsFileExist("B.conf") ? "true" : "false");
 
     return 1;
 #else

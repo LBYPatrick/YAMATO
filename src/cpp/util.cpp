@@ -80,14 +80,12 @@ void util::ShowHelp(vector<Help> option_list) {
 
 bool util::IsFileExist(string filename) {
 
-    ifstream reader;
-    bool result;
+    vector<string> file_list = GetFileList();
 
-    reader.open(filename);
-    result = reader.is_open();
-    reader.close();
-
-    return result;
+    for(string & file : file_list) {
+        if(filename == file) return 1;
+    }
+    return 0;
 
 }
 
@@ -175,3 +173,10 @@ vector<string> util::GetFolderList(string directory) {
     return output_buffer;
 }
 
+vector<string> util::GetFolderList() {
+    return GetFolderList("./");
+}
+
+vector<string> util::GetFileList() {
+    return GetFileList("./");
+}
