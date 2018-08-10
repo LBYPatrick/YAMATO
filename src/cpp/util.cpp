@@ -136,8 +136,8 @@ YAML util::GetYaml(string line)
 	out.right = line.substr(line.find(":") + 1, line.find_last_not_of(" ") + 1);
 
 	//Remove Trailing & starting spaces
-	out.left = line.substr(0, out.left.find_last_not_of(" ") + 1);
-	out.right = line.substr(out.right.find_first_not_of(" "), out.right.size());
+	out.left = out.left.substr(0, out.left.find_last_not_of(" ") + 1);
+	out.right = out.right.substr(out.right.find_first_not_of(" "), out.right.size());
 
 
 	if (out.left.find(R"(")") != -1) {
