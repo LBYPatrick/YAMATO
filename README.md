@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/LBYPatrick/ss-manager.svg?branch=master)](https://travis-ci.org/LBYPatrick/ss-manager)
 
 ![README_PIC](./resources/readme_pic.jpg)
-Artist: @Bison仓鼠
+Artist: [@四騎](https://www.pixiv.net/member.php?id=1845467)
 
 [中文说明](./README.zhCN.md)
 

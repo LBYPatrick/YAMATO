@@ -1,9 +1,9 @@
 # ss-manager
 
-Travis CI编译状态: [![Build Status](https://travis-ci.org/LBYPatrick/ss-manager.svg?branch=master)](https://travis-ci.org/LBYPatrick/ss-manager)
+Travis CI编译状态: [![Build Status](https://travis-ci.org/LBYPatrick/yamato.svg?branch=master)](https://travis-ci.org/LBYPatrick/yamato)
 
 ![README_PIC](./resources/readme_pic.jpg)
-画师~~dalao~~: @Bison仓鼠
+画师~~dalao~~: [@四騎](https://www.pixiv.net/member.php?id=)
 
 用一种优雅的方式食用shadowsocks-libev
 
@@ -40,15 +40,8 @@ g++ -std=c++11 -static src/cpp/* -o ss-manager
 
 Format:
 
-```javascript
-{
-    "<用户组名>" : "<加密方式全名>" {
-    <nameserver> : <可选项_域名解析服务器(DNS)>,
-    <redirect>     : <可选项_重定向网站(增强穿墙效果)>,
-    <用户端口1>            : <user_password>,
-    <用户端口2>            : <user_password2>
-    }
-}
+```yaml
+
 ```
 
 Example:

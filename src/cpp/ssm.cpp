@@ -94,6 +94,8 @@ string ssm::RunUser(Parser p) {
         reader.open(p.GetAttribute(REMOTE_PORT) + ".pid");
         reader >> pid_buffer;
         reader.close();
+		
+		util::RemoveFile("PROTECTED_USER.conf");
 
 		return pid_buffer;
 }
