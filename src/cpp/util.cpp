@@ -17,33 +17,6 @@ void util::RemoveLetter(string & original_string, char letter) {
     original_string = temp_buffer;
 }
 
-Json util::GetJson(string raw_json_line) {
-
-    Json return_buffer;
-
-    RemoveLetter(raw_json_line, ' ');
-    RemoveLetter(raw_json_line, ',');
-    RemoveLetter(raw_json_line, ';');
-
-    int start_position = 0;
-    int end_position = raw_json_line.find_first_of(':') -1;
-
-    //Get element
-    for (int n = start_position; n <= end_position; ++n) {
-        return_buffer.element += raw_json_line[n];
-    }
-
-    start_position = raw_json_line.find_first_of(":")+1;
-    end_position = raw_json_line.length() - 1;
-
-    //Get key
-    for (int n = start_position; n <= end_position; ++n) {
-        return_buffer.key += raw_json_line[n];
-    }
-
-    return return_buffer;
-}
-
 void util::ReportError(string message) {
     printf("[ERROR] %s\n", message.c_str());
 }
@@ -113,6 +86,25 @@ vector<string> util::SysExecute(string cmd) {
 
 }
 
+vector<string> util::ReadFile(string filename) {
+	
+	ifstream reader;
+	string in;
+	vector<string> out;
+
+	if (!IsFileExist(filename)) {
+		return out;
+	}
+
+	reader.open(filename);
+
+	while (getline(reader, in)) {
+		out.push_back(in);
+	}
+	
+	return out;
+}
+
 int util::Search(string str, vector<string> match_list, bool precise) {
     for(int i = 0; i < match_list.size(); ++i) {
 
@@ -128,7 +120,35 @@ int util::Search(string str, vector<string> match_list, bool precise) {
 }
 
 int util::Search(string str, vector<string> match_list) {
-    return Search(str,match_list,true);
+    return Search(str,match_list,false);
+}
+
+YAML util::GetYaml(string line)
+{
+	YAML out;
+
+	if (line.find(":") == -1) {
+		return YAML();
+	}
+
+	out.level = line.find_first_not_of(" ");
+	out.left = line.substr(out.level, line.find(":"));
+	out.right = line.substr(line.find(":") + 1, line.find_last_not_of(" ") + 1);
+
+	//Remove Trailing & starting spaces
+	out.left = line.substr(0, out.left.find_last_not_of(" ") + 1);
+	out.right = line.substr(out.right.find_first_not_of(" "), out.right.size());
+
+
+	if (out.left.find(R"(")") != -1) {
+		out.left = out.left.substr(1, out.left.size() - 1);
+	}
+
+	if (out.right.find(R"(")") != -1) {
+		out.right = out.right.substr(1, out.right.size() - 1);
+	}
+
+	return out;
 }
 
 
@@ -159,7 +179,6 @@ vector<string> util::GetFileList(string directory) {
 vector<string> util::GetFolderList(string directory) {
 
     vector<string> console_buffer = SysExecute("ls -p " + directory + " -1");
-
     vector<string> output_buffer;
 
     for (string & line : console_buffer) {

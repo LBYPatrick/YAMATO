@@ -3,13 +3,8 @@
 #include "util.hpp"
 #include "ssm.hpp"
 
-#define SOFTWARE_VERSION "0.2.0"
-#define LEGACY false
-#define TEST false
-
 using std::vector;
 using std::string;
-
 
 #if LEGACY
 const vector<Help> option_list = {
@@ -33,28 +28,8 @@ enum Action {
 
 int main(int argc, char*const argv[]) {
 
-# if TEST
-    vector<string> folders = util::GetFolderList(R"(./)");
-    vector<string> files   = util::GetFileList(R"(./)");
+#if LEGACY
 
-    printf("Folders:\n");
-
-    for(string & folder : folders) {
-        printf("\t%s\n", folder.c_str());
-    }
-
-    printf("\n\nFiles: \n");
-
-    for(string & file : files) {
-        printf("\t%s\n", file.c_str());
-    }
-
-    printf("IS A.conf exist: %s\n", util::IsFileExist("A.conf") ? "true" : "false");
-    printf("IS B.conf exist: %s\n", util::IsFileExist("B.conf") ? "true" : "false");
-
-    return 1;
-#else
-# if LEGACY
     if(argc <= 2) {
 
         if(argc == 2 && (util::Search(argv[1], {"--help", "-h", "/?", "-v", "--version"}) != -1)) {
@@ -93,13 +68,13 @@ int main(int argc, char*const argv[]) {
         return 0;
     }
 #else
-    //Temp
+    //Variables
     string
-            input_file;
+           input_file;
     Action action = UNKNOWN;
     string port;
 
-    //Collect parameters
+#pragma region Collect parameters
     for(int a = 1; a < argc; ++a) {
 
         if (util::Search(argv[a], {"-i", "--input"}, true) != -1) {
@@ -133,7 +108,7 @@ int main(int argc, char*const argv[]) {
         }
 
         else if (util::Search(argv[a], {"/?", "-h", "--help"}, true) != -1) {
-            printf("ss-manager " SOFTWARE_VERSION " by LBYPatrick\n");
+            printf("YAMATO " SOFTWARE_VERSION " by LBYPatrick\n");
             util::ShowHelp({
                                    {"-i or --input <filename>",        "specify input file"},
                                    {"-a or --action <action>",         "specify action (status, load, unload)"},
@@ -143,25 +118,25 @@ int main(int argc, char*const argv[]) {
 
                            });
             printf("\n");
-            exit(0);
+            return 0;
         }
 
-        else if (util::Search(argv[a], {"-e", "--extra-parameter"}, true) != -1) {
+		else if (util::Search(argv[a], { "-e", "--extra-parameter" }, true) != -1) {
 
-            if(a + 1 >= argc) {
-                util::ReportError("Your need to specify extra parameters (With quote if needed) when using -e or --extra-parameter.");
-                exit(0);
-            }
+			if (a + 1 >= argc) {
+				util::ReportError("Your need to specify extra parameters (With quote if needed) when using -e or --extra-parameter.");
+				return 0;
+			}
 
-            ssm::SetExtraParam(argv[a + 1]);
-            a += 1;
-        }
+			ssm::SetExtraParam(argv[a + 1]);
+			a += 1;
+		}
 
         else if (util::Search(argv[a], {"-p","--port"},true) != -1) {
 
             if(a+1 >= argc) {
                 util::ReportError("You need to specify a port when using -p");
-                exit(0);
+                return 0;
             }
 
             port = argv[a+1];
@@ -171,14 +146,16 @@ int main(int argc, char*const argv[]) {
 
         else {
             util::ReportError("Unknown option: " + string(argv[a]) + ".");
-            exit(0);
+            return 0;
         }
     }
+#pragma endregion
 
+#pragma region parameter check & execute
     //Finish collecting parameters, run pre-check
     if (action == UNKNOWN) {
         util::ReportError("Need to specify action with -a or --action.");
-        exit(0);
+		return 0;
     }
 
     //Start Execution
@@ -187,7 +164,7 @@ int main(int argc, char*const argv[]) {
 
             if(port.size() == 0) {
                 util::ReportError("You need to specify a port for checking status");
-                exit(0);
+				return 0;
             }
             if(input_file.size() == 0) {
                 vector<string> file_list = util::GetFileList("./");
@@ -204,7 +181,7 @@ int main(int argc, char*const argv[]) {
 
                 if(input_file.size() == 0) {
                     util::ReportError("Need to specify action with -a or --action.");
-                    exit(0);
+					return 0;
                 }
             }
             ssm::CheckPort(input_file,port);
@@ -213,7 +190,7 @@ int main(int argc, char*const argv[]) {
         case LOAD :
             if (input_file.size() == 0) {
                 util::ReportError("Need to specify input file with -i or --input.");
-                exit(0);
+				return 0;
             }
             ssm::RunConfig(input_file);
             break;
@@ -221,15 +198,14 @@ int main(int argc, char*const argv[]) {
         case UNLOAD :
             if (input_file.size() == 0) {
                 util::ReportError("Need to specify input file with -i or --input.");
-                exit(0);
+				return 0;
             }
             ssm::StopConfig(input_file);
             break;
     }
 
     return 1;
-
-#endif
+#pragma endregion
 
 #endif
 }

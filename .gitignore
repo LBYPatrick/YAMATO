@@ -105,3 +105,4 @@ src/.vs/*
 \.vscode/*
 settings.json
 src/\.vscode/*
+visual_studio/\.vs/

@@ -7,21 +7,17 @@
 #include <fstream>
 #include "util.hpp"
 #include "constants.hpp"
+#include "parser.hpp"
 
-using std::string;
-using std::vector;
-using std::ifstream;
-using std::ofstream;
+using namespace std;
 
 namespace ssm {
 	/**
 	* @param file_list:  
 	*/
 	void RunConfig(string filename);
-	bool ReadFile(string filename, vector<string> & file_buffer);
-	string MakeUserConfig(string method, string port, string password, string nameserver, string redirect);
-	void RunUsers(vector<User> & user_list, string & encryption, string & nameserver, string & redirect,vector<string> & pid_list_buffer);
-    void WritePidMap(string filename, vector<string> & pid_list,vector<string> & port_list);
+	//string MakeUserConfig(string method, string port, string password, string nameserver, string redirect);
+	string RunUser(Parser p);
     void StopConfig(string filename);
     void CheckPort(string filename, string port);
     void SetExtraParam(string extra_param);
