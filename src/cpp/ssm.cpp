@@ -87,7 +87,7 @@ string ssm::RunUser(Parser p) {
 	vector<string> config = p.GetConfig();
 	string file_buffer;
 		
-		for (string & line : config) {
+		for (string line : config) {
 			file_buffer += line + "\n";
 		}
 
