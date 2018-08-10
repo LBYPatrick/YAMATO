@@ -73,7 +73,9 @@ ssm::RunConfig(string filename) {
 
 
 	//Clean up
+#if !DEBUG
 	util::RemoveFile("PROTECTED_USER.conf");
+#endif
 }
 
 string ssm::RunUser(Parser p) {

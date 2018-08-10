@@ -33,7 +33,7 @@ vector<string> Parser::GetConfig() {
 
     if(redirect_.size() == 0) {
 
-		int index = rand() % (WEBSITES.size() - 1);
+		int index = rand() % WEBSITES.size();
 #if DEBUG
 		printf("Max Index: %d\tGenerated Index: %d\n",WEBSITES.size() - 1, index);
 #endif
@@ -49,7 +49,7 @@ vector<string> Parser::GetConfig() {
     for(string & line : return_buffer) {
         printf("%s\n", line.c_str());
     }
-    printf("\nEND");
+    printf("\nEND\n");
 #endif
 
     return vector<string>();
