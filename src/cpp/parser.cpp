@@ -52,7 +52,7 @@ vector<string> Parser::GetConfig() {
     printf("\nEND\n");
 #endif
 
-    return vector<string>();
+    return return_buffer;
 }
 
 void Parser::SetUser(string port, string pass) {
