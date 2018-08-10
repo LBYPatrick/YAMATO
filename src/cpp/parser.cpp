@@ -33,7 +33,7 @@ vector<string> Parser::GetConfig() {
 
     if(redirect_.size() == 0) {
 
-		int index = (rand() * WEBSITES.size()) % WEBSITES.size();
+		int index = rand() % (WEBSITES.size() - 1);
 #if DEBUG
 		printf("Max Index: %d\tGenerated Index: %d\n",WEBSITES.size() - 1, index);
 #endif

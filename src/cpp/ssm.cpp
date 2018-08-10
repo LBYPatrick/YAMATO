@@ -70,8 +70,10 @@ ssm::RunConfig(string filename) {
 	}
 
 	writer.close();
-    //WritePidMap(filename + ".pidmap", temp_pid_list, port_list);
 
+
+	//Clean up
+	util::RemoveFile("PROTECTED_USER.conf");
 }
 
 string ssm::RunUser(Parser p) {
@@ -81,21 +83,20 @@ string ssm::RunUser(Parser p) {
     string pid_buffer;
 		
 	vector<string> config = p.GetConfig();
-
-        writer.open("PROTECTED_USER.conf");
+	string file_buffer;
 		
 		for (string & line : config) {
-			writer << line;
+			file_buffer += line + "\n";
 		}
-        
+
+		writer.open("PROTECTED_USER.conf");
+		writer << file_buffer;
 		writer.close();
 
         system(string("ss-server -c PROTECTED_USER.conf " + extra_param_ + " -f " + p.GetAttribute(REMOTE_PORT) + ".pid").c_str());
         reader.open(p.GetAttribute(REMOTE_PORT) + ".pid");
         reader >> pid_buffer;
         reader.close();
-		
-		util::RemoveFile("PROTECTED_USER.conf");
 
 		return pid_buffer;
 }
