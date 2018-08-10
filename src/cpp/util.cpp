@@ -91,11 +91,11 @@ vector<string> util::ReadFile(string filename) {
 	ifstream reader;
 	string in;
 	vector<string> out;
-
+#if !DEBUG
 	if (!IsFileExist(filename)) {
 		return out;
 	}
-
+#endif
 	reader.open(filename);
 
 	while (getline(reader, in)) {
@@ -132,23 +132,29 @@ YAML util::GetYaml(string line)
 	}
 
 	out.level = line.find_first_not_of(" ");
-	out.left = line.substr(out.level, line.find(":"));
-	out.right = line.substr(line.find(":") + 1, line.find_last_not_of(" ") + 1);
+	out.left = SubString(line,out.level, line.find(":"));
+	out.right = SubString(line,line.find(":") + 1, line.find_last_not_of(" ") + 1);
 
 	//Remove Trailing & starting spaces
-	out.left = out.left.substr(0, out.left.find_last_not_of(" ") + 1);
-	out.right = out.right.substr(out.right.find_first_not_of(" "), out.right.size());
+	out.left = SubString(out.left,0,out.left.find_last_not_of(" ") + 1);
+	out.right = SubString(out.right,out.right.find_first_not_of(" "), out.right.size());
 
 
 	if (out.left.find(R"(")") != -1) {
-		out.left = out.left.substr(1, out.left.size() - 1);
+		out.left = SubString(out.left,1,out.left.size() - 1);
 	}
 
 	if (out.right.find(R"(")") != -1) {
-		out.right = out.right.substr(1, out.right.size() - 1);
+		out.right = SubString(out.right,1,out.right.size() - 1);
 	}
 
 	return out;
+}
+
+string
+util::SubString(string str, int left, int stop) {
+	int length = stop - left;
+	return str.substr(left,length);
 }
 
 
@@ -199,3 +205,4 @@ vector<string> util::GetFolderList() {
 vector<string> util::GetFileList() {
     return GetFileList("./");
 }
+
