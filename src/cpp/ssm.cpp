@@ -125,10 +125,11 @@ ssm::StopConfig(string filename) {
 	for (string line : config) {
 		yaml = util::GetYaml(line);
 
-		printf("PORT: %s\tPID: %s\n", yaml.left, yaml.right);
+		printf("PORT: %s\tPID: %s\n", yaml.left.c_str(), yaml.right.c_str());
 
-		if (util::IsProcessAlive(stoi(yaml.right))) {
-			system((string("kill -15 ") + yaml.right).c_str());
+		if (util::IsProcessAlive(yaml.right)) {
+			printf("kill -15 %s\n", yaml.right);
+			util::SysExecute("kill -15 " + yaml.right);
 		}
 		else {
 			fail_count++;

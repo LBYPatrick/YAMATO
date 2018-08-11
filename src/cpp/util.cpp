@@ -159,9 +159,9 @@ util::SubString(string str, int left, int stop) {
 
 
 
-bool util::IsProcessAlive(int pid) {
+bool util::IsProcessAlive(string pid) {
 
-    vector<string> cmd_buffer = SysExecute("ps -p " + to_string(pid));
+    vector<string> cmd_buffer = SysExecute("ps -p " + pid);
 
     return cmd_buffer.size() > 1;
 }

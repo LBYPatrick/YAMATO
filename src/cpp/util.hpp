@@ -17,7 +17,7 @@ namespace util {
     void RemoveFile(string filename);
     void ShowHelp(vector<Help> option_list);
     bool IsFileExist(string filename);
-    bool IsProcessAlive(int pid);
+    bool IsProcessAlive(string pid);
     vector<string> SysExecute(string cmd);
 	vector<string> ReadFile(string filename);
     vector<string> GetFileList(string directory);
