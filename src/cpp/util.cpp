@@ -91,11 +91,11 @@ vector<string> util::ReadFile(string filename) {
 	ifstream reader;
 	string in;
 	vector<string> out;
-#if !DEBUG
+
 	if (!IsFileExist(filename)) {
 		return out;
 	}
-#endif
+
 	reader.open(filename);
 
 	while (getline(reader, in)) {

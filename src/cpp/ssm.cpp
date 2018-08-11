@@ -20,6 +20,9 @@ ssm::RunConfig(string filename) {
 	//Parse YAML
 	for (string & line : yaml_content) {
 		
+		//Skip comments
+		if (line.substr(line.find_first_not_of(" "), line.size()).find("//") == 0) continue;
+
 		YAML l = util::GetYaml(line);
 
 		//If it is global level -- no user
@@ -57,25 +60,25 @@ ssm::RunConfig(string filename) {
 	
 	//Start Running processes for users
 
-	for (Parser p : users) {
+	for (Parser & p : users) {
 		pids.push_back({ RunUser(p),p.GetAttribute(REMOTE_PORT)});
 	}
 
-    //Write the pid list to a file - WIP
+    //Write the pid list to a file
+
 	ofstream writer;
 	writer.open(filename + ".pidmap");
-
-	for (PIDInfo p : pids) {
+	for (PIDInfo & p : pids) {
 		writer << p.port + ": " + p.pid + "\n";
 	}
-
 	writer.close();
 
 
 	//Clean up
-#if !DEBUG
 	util::RemoveFile("PROTECTED_USER.conf");
-#endif
+	for (Parser & p : users) {
+		util::RemoveFile(p.GetAttribute(REMOTE_PORT) + ".pid");
+	}
 }
 
 string ssm::RunUser(Parser p) {

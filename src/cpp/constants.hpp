@@ -10,7 +10,7 @@
 
 #define SOFTWARE_VERSION "1.0.0"
 #define LEGACY false
-#define DEBUG true
+#define DEBUG false
 
 using namespace std;
 
