@@ -22,14 +22,14 @@ vector<string> Parser::GetConfig() {
 
     return_buffer.push_back("{");
 
-    return_buffer.push_back("server : \"" + server_ + "\",");
-    return_buffer.push_back("server_port : \"" + remote_port_ + "\",");
-    return_buffer.push_back("local_port : \"" + local_port_ + "\",");
-    return_buffer.push_back("password : \"" + user_pass_ + "\",");
-    return_buffer.push_back("method : \"" + method_ + "\",");
-    return_buffer.push_back("fast_open : \"" + tcp_fastopen_ + "\",");
-    return_buffer.push_back("timeout : \"" + timeout_ + "\",");
-    return_buffer.push_back("nameserver : \"" + dns_ + "\",");
+    return_buffer.push_back("\"server\" : \"" + server_ + "\",");
+    return_buffer.push_back("\"server_port\" : \"" + remote_port_ + "\",");
+    return_buffer.push_back("\"local_port\" : \"" + local_port_ + "\",");
+    return_buffer.push_back("\"password\" : \"" + user_pass_ + "\",");
+    return_buffer.push_back("\"method\" : \"" + method_ + "\",");
+    return_buffer.push_back("\"fast_open\" : \"" + tcp_fastopen_ + "\",");
+    return_buffer.push_back("\"timeout\" : \"" + timeout_ + "\",");
+    return_buffer.push_back("\"nameserver\" : \"" + dns_ + "\",");
 
     if(redirect_.size() == 0) {
 
