@@ -29,7 +29,6 @@ enum Action {
 int main(int argc, char*const argv[]) {
 
 #if LEGACY
-
     if(argc <= 2) {
 
         if(argc == 2 && (util::Search(argv[1], {"--help", "-h", "/?", "-v", "--version"}) != -1)) {
@@ -94,11 +93,11 @@ int main(int argc, char*const argv[]) {
                 break;
             }
 
-            if (util::Search(argv[a + 1], {"status"}) != -1) {
+            if (util::Search(argv[a + 1], {"status"},1) != -1) {
                 action = STATUS;
-            } else if (util::Search(argv[a + 1], {"load"}) != -1) {
+            } else if (util::Search(argv[a + 1], {"load"},1) != -1) {
                 action = LOAD;
-            } else if (util::Search(argv[a + 1], {"unload"}) != -1) {
+            } else if (util::Search(argv[a + 1], {"unload"},1) != -1) {
                 action = UNLOAD;
             } else {
                 util::ReportError("Unknown action: " + string(argv[a + 1]) + ".");

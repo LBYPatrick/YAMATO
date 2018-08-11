@@ -34,9 +34,6 @@ vector<string> Parser::GetConfig() {
     if(redirect_.size() == 0) {
 
 		int index = rand() % WEBSITES.size();
-#if DEBUG
-		printf("Max Index: %d\tGenerated Index: %d\n",WEBSITES.size() - 1, index);
-#endif
         return_buffer.push_back("\"redirect\" : \"" + WEBSITES[index] + "\"");
     }
     else {
