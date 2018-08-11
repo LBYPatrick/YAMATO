@@ -37,10 +37,10 @@ vector<string> Parser::GetConfig() {
 #if DEBUG
 		printf("Max Index: %d\tGenerated Index: %d\n",WEBSITES.size() - 1, index);
 #endif
-        return_buffer.push_back("redirect : \"" + WEBSITES[index] + "\"");
+        return_buffer.push_back("\"redirect\" : \"" + WEBSITES[index] + "\"");
     }
     else {
-        return_buffer.push_back("redirect : \"" + redirect_ + "\"");
+        return_buffer.push_back("\"redirect\" : \"" + redirect_ + "\"");
     }
     return_buffer.push_back("}");
 
