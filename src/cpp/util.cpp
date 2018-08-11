@@ -80,7 +80,14 @@ vector<string> util::SysExecute(string cmd) {
     }
 
     reader.close();
-    RemoveFile("output.data");
+	
+	RemoveFile("output.data");
+
+#if DEBUG
+	for (string & line : return_buffer) {
+		printf(line.c_str());
+	}
+#endif
 
     return return_buffer;
 
