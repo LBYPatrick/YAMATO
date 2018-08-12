@@ -22,7 +22,7 @@ ssm::RunConfig(string filename) {
 
 		//Skip blanklines & comments
 		if (line.size() == 0) continue;
-		else if (line.substr(line.find_first_not_of(" "), line.size()).find("//") == 0) continue;
+		else if (util::SubString(line, line.find_first_not_of(" "), line.size()).find("//") == 0) continue;
 
 		YAML l = util::GetYaml(line);
 
