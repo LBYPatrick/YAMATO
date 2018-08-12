@@ -161,6 +161,11 @@ YAML util::GetYaml(string line)
 string
 util::SubString(string str, int left, int stop) {
 	int length = stop - left;
+	
+	//Out-of-bound fix
+	if (left < 0) left = 0;
+	if (stop > str.size()) stop = str.size();
+
 	return str.substr(left,length);
 }
 
@@ -197,7 +202,7 @@ vector<string> util::GetFolderList(string directory) {
     for (string & line : console_buffer) {
 
         if(line.find_last_of("/") != -1) {
-            output_buffer.push_back(line.substr(0, line.size() -1));
+            output_buffer.push_back(SubString(line,0, line.size() -1));
         }
 
     }
