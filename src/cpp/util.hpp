@@ -18,6 +18,8 @@ namespace util {
     void ShowHelp(vector<Help> option_list);
     bool IsFileExist(string filename);
     bool IsProcessAlive(string pid);
+	bool IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive);
+
     vector<string> SysExecute(string cmd);
 	vector<string> ReadFile(string filename);
     vector<string> GetFileList(string directory);

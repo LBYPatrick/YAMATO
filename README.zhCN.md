@@ -45,10 +45,10 @@ group: Contosco
 nameserver: 8.8.8.8
 method: chacha20-ietf
 timeout: 1440
-//有时候你得学着邪恶一点
-redirect: pornhub.com
+redirect: pornhub.com           //有时候你得学着邪恶一点
 fastopen: true
 server: 0.0.0.0
+tunnel_mode: tcp                //或者写成udp/both,注意不是原版的"tcp_and_udp"或者"udp_only"这样的，因为太智障
     8388 : "用户1的密码"
     2468 : "用户2的密码"
 
@@ -70,10 +70,10 @@ group: MSFT
 
 你怕是不知道Gaclib...
 
-### 3. Why is the user experience so bad?
+### 3. 为何XX功能如此残废？
 
-Did not count in the audience, lo siento.
+上班族砍产品经理的需求，我直接砍用户
 
-### 4. Why putting an anime picture in README?
+### 4. 为啥说明书里有伊欧娜？
 
-See, I changed the project name from ``ss-manager`` to ``YAMATO``. A picture from **Arpeggio of Blue Steel** is needed (Also I need a good one for YAMATO, now it's I-401)
+为了这个我连项目名称都从``ss-manager``改成了``yamato``, 目的够明显了吧...

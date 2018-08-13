@@ -13,8 +13,9 @@ ssm::RunConfig(string filename) {
 	Parser default_config;
 
 	//Unload sessions from the config session if loaded already
+#if !DEBUG
 	if (util::IsFileExist(filename + ".pidmap")) StopConfig(filename);
-
+#endif
 	yaml_content = util::ReadFile(filename);
 
 	//Parse YAML
@@ -22,13 +23,20 @@ ssm::RunConfig(string filename) {
 
 		//Skip blanklines & comments
 		if (line.size() == 0) continue;
-		else if (util::SubString(line, line.find_first_not_of(" "), line.size()).find("//") == 0) continue;
+		else {
+			int slash_pos = line.find("//");
+			if (slash_pos != -1) {
+				line = util::SubString(line,0,slash_pos);
+			}
+			if (line.size() == 0) continue;
+		}
+
 
 		YAML l = util::GetYaml(line);
 
 		//If it is global level -- no user
 		if (l.level == 0) {
-			switch (util::Search(l.left, { "group", "nameserver", "method","fastopen","redirect","timeout","server" })) {
+			switch (util::Search(l.left, { "group", "nameserver", "method","fastopen","redirect","timeout","server","tunnel_mode"})) {
 			case  0: break; //Don't really know how can I use group name...
 			case  1:
 				default_config.SetAttribute(DNS, l.right);
@@ -47,6 +55,9 @@ ssm::RunConfig(string filename) {
 				break;
 			case  6:
 				default_config.SetAttribute(SERVER, l.right);
+				break;
+			case  7:
+				default_config.SetAttribute(UDP_TCP, l.right);
 				break;
 			default: break;
 			}

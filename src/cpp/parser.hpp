@@ -6,6 +6,7 @@
 #define SS_MANAGER_PARSER_HPP
 
 #include "constants.hpp"
+#include "util.hpp"
 
 const int NUM_SS_OPTIONS = 9;
 
@@ -18,7 +19,14 @@ enum SSInfo {
     DNS,
     REDIRECT,
     TIMEOUT,
-    SERVER
+    SERVER,
+	UDP_TCP
+};
+
+enum TunnelMode {
+	TCP,
+	UDP,
+	BOTH
 };
 
 class Parser {
@@ -29,15 +37,17 @@ public:
 	string GetAttribute(SSInfo type);
 private:
 //Some Default Values
-    string remote_port_ = "8388",
-           local_port_ = "1080",
-           user_pass_ = "NO_PASS",
-           method_ = "chacha20-ietf",
-           dns_    = "8.8.8.8",
-           tcp_fastopen_ = "true",
-           redirect_,
-           timeout_ = "1440",
-           server_   = "0.0.0.0";
+	string remote_port_ = "8388",
+		local_port_ = "1080",
+		user_pass_ = "NO_PASS",
+		method_ = "chacha20-ietf",
+		dns_ = "8.8.8.8",
+		tcp_fastopen_ = "true",
+		redirect_,
+		timeout_ = "1440",
+		server_ = "0.0.0.0";
+
+	TunnelMode mode = TCP;
 };
 
 

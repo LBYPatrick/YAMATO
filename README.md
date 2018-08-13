@@ -32,17 +32,17 @@ Parameters
 
 ```
 
-### Config
+### Config(YAML!)
 
 ```yaml
 group: Contosco
 nameserver: 8.8.8.8
 method: chacha20-ietf
 timeout: 1440
-//You know, sometimes you have to be evil
-redirect: pornhub.com
+redirect: pornhub.com       //You might want the government to have some pleasure :p
 fastopen: true
 server: 0.0.0.0
+tunnel_mode: udp            //or you can set it to "tcp" or "both". Please keep in mind that it's NOT "tcp_only" or "tcp_and_udp" because I hate to do it that way.
     8388 : "foo"
     2468 : "bar"
 

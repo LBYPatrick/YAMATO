@@ -34,12 +34,16 @@ vector<string> Parser::GetConfig() {
     if(redirect_.size() == 0) {
 
 		int index = rand() % WEBSITES.size();
-        return_buffer.push_back("\"redirect\" : \"" + WEBSITES[index] + "\"");
+        return_buffer.push_back("\"redirect\" : \"" + WEBSITES[index] + "\",");
     }
     else {
-        return_buffer.push_back("\"redirect\" : \"" + redirect_ + "\"");
+        return_buffer.push_back("\"redirect\" : \"" + redirect_ + "\",");
     }
-    return_buffer.push_back("}");
+		
+	return_buffer.push_back("\"mode\" : \"" + GetAttribute(UDP_TCP) + "\"");
+
+
+	return_buffer.push_back("}");
 
 #if DEBUG
     printf("From GetConfig(): \n\n");
@@ -86,6 +90,17 @@ void Parser::SetAttribute(SSInfo type, string value) {
         case SERVER:
             server_ = value;
             break;
+		case UDP_TCP:
+			if (util::IsTheSame(value,"tcp",true,false)) {
+				mode = TCP;
+			}
+			else if (util::IsTheSame(value, "udp", true, false)) {
+				mode = UDP;
+			}
+			else {
+				mode = BOTH;
+			}
+			break;
     }
 }
 
@@ -118,6 +133,20 @@ string Parser::GetAttribute(SSInfo type)
 		break;
 	case SERVER:
 		return server_;
+		break;
+	case UDP_TCP:
+		switch (mode) {
+		case UDP: 
+			return "udp_only";
+			break;
+		case TCP:
+			return "tcp_only";
+			break;
+		case BOTH:
+			return "tcp_and_udp";
+			break;
+		default: break;
+		}
 		break;
 	}
 	return string();

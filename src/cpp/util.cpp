@@ -68,7 +68,9 @@ vector<string> util::SysExecute(string cmd) {
     vector<string> return_buffer;
     string read_buffer;
 
-
+#if DEBUG 
+	printf("%s\n", cmd.c_str());
+#endif
     system((cmd + "> output.data").c_str());
 
 
@@ -99,9 +101,11 @@ vector<string> util::ReadFile(string filename) {
 	string in;
 	vector<string> out;
 
+#if !DEBUG
 	if (!IsFileExist(filename)) {
 		return out;
 	}
+#endif
 
 	reader.open(filename);
 
@@ -178,7 +182,28 @@ bool util::IsProcessAlive(string pid) {
     return cmd_buffer.size() > 1;
 }
 
-vector<string> util::GetFileList(string directory) {
+bool
+util::IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive)
+{
+	if (!is_case_sensitive) {
+		for (int i = 0; i < str.size(); ++i) {
+			str[i] = toupper(str[i]);
+		}
+		for (int i = 0; i < key.size(); ++i) {
+			key[i] = toupper(key[i]);
+		}
+	}
+	
+	if (is_precise) {
+		return str == key;
+	}
+	else {
+		return (str.find(key) != -1) || (key.find(str) != -1);
+	}
+}
+
+vector<string> 
+util::GetFileList(string directory) {
 
     vector<string> console_buffer = SysExecute("ls -p " + directory + " -1");
 
@@ -194,7 +219,8 @@ vector<string> util::GetFileList(string directory) {
     return output_buffer;
 }
 
-vector<string> util::GetFolderList(string directory) {
+vector<string>
+util::GetFolderList(string directory) {
 
     vector<string> console_buffer = SysExecute("ls -p " + directory + " -1");
     vector<string> output_buffer;
@@ -210,11 +236,13 @@ vector<string> util::GetFolderList(string directory) {
     return output_buffer;
 }
 
-vector<string> util::GetFolderList() {
+vector<string>
+util::GetFolderList() {
     return GetFolderList("./");
 }
 
-vector<string> util::GetFileList() {
+vector<string>
+util::GetFileList() {
     return GetFileList("./");
 }
 
