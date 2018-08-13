@@ -29,6 +29,7 @@ enum Action {
 int main(int argc, char*const argv[]) {
 
 #if LEGACY
+
     if(argc <= 2) {
 
         if(argc == 2 && (util::Search(argv[1], {"--help", "-h", "/?", "-v", "--version"}) != -1)) {
@@ -68,8 +69,8 @@ int main(int argc, char*const argv[]) {
     }
 #else
     //Variables
-    string
-           input_file;
+    string input_file;
+
     Action action = UNKNOWN;
     string port;
 
@@ -183,6 +184,24 @@ int main(int argc, char*const argv[]) {
 					return 0;
                 }
             }
+            if(input_file.size() == 0) {
+                vector<string> file_list = util::GetFileList("./");
+
+                for(string & file : file_list) {
+                    if(file.find(".pidmap") != -1) {
+                        input_file = file.substr(0,file.size()-7);
+#if DEBUG
+                        printf("INPUT_FILE: %s\n",input_file.c_str());
+#endif
+                        break;
+                    }
+                }
+
+                if(input_file.size() == 0) {
+                    util::ReportError("Need to specify action with -a or --action.");
+                    exit(0);
+                }
+            }
             ssm::CheckPort(input_file,port);
             break;
 
@@ -205,6 +224,8 @@ int main(int argc, char*const argv[]) {
 
     return 1;
 #pragma endregion
+
+#endif
 
 #endif
 }

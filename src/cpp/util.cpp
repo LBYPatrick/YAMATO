@@ -245,4 +245,3 @@ vector<string>
 util::GetFileList() {
     return GetFileList("./");
 }
-
