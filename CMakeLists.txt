@@ -7,4 +7,8 @@ add_executable(ss_manager
         src/cpp/constants.hpp
         src/cpp/main.cpp
         src/cpp/ssm.cpp
-        src/cpp/ssm.hpp src/cpp/util.cpp src/cpp/util.hpp)
+        src/cpp/ssm.hpp
+        src/cpp/util.cpp
+        src/cpp/util.hpp
+        src/cpp/parser.cpp
+        src/cpp/parser.hpp)

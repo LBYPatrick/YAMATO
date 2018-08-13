@@ -13,20 +13,26 @@ using namespace std;
 
 namespace util {
     void RemoveLetter(string & original_string, char letter);
-    Json GetJson(string raw_json_line);
     void ReportError(string message);
     void RemoveFile(string filename);
     void ShowHelp(vector<Help> option_list);
     bool IsFileExist(string filename);
-    bool IsProcessAlive(int pid);
+    bool IsProcessAlive(string pid);
+	bool IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive);
+
     vector<string> SysExecute(string cmd);
-
-    int Search(string str, vector<string> match_list);
-
+	vector<string> ReadFile(string filename);
     vector<string> GetFileList(string directory);
     vector<string> GetFolderList(string directory);
-
+    
     int Search(string str, vector<string> match_list, bool precise);
+	
+	//Overloaded Methods
+	vector<string> GetFileList();
+	vector<string> GetFolderList();
+	int Search(string str, vector<string> match_list);
+	YAML GetYaml(string line);
+	string SubString(string str, int left, int stop);
 }
 
 #endif //SS_MANAGER_UTILS_H

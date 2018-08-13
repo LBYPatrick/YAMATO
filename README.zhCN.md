@@ -1,90 +1,79 @@
-# ss-manager
+# YAMATO
 
-Travis CI编译状态: [![Build Status](https://travis-ci.org/LBYPatrick/ss-manager.svg?branch=master)](https://travis-ci.org/LBYPatrick/ss-manager)
+[![Build Status](https://travis-ci.org/LBYPatrick/YAMATO.svg?branch=master)](https://travis-ci.org/LBYPatrick/ss-manager)
 
 ![README_PIC](./resources/readme_pic.jpg)
-画师~~dalao~~: @Bison仓鼠
+画师: [@四騎](https://www.pixiv.net/member.php?id=1845467)
 
-用一种优雅的方式食用shadowsocks-libev
+[中文说明](./README.zhCN.md)
 
-系统要求: Unix (需要支持Systemd)
-
-~~不检查配置文件语法，跑崩了不负责~~
+用YAML掌控shadowsocks-libev,就像大和引领所有IJN舰艇一样。
+Use shadowsocks-libev in a more elegant way, just like YAMATO leading all IJN ships.
 
 ## 编译
 
 ```bash
-g++ -std=c++11 -static src/cpp/* -o ss-manager
+g++ -std=c++11 -static src/cpp/*.cpp -o yamato
 ```
-
-或者你可以用根目录的``compile_release.sh``来进行编译，程序会输出到bin目录里
-
-或者配合 ``CMakeLists.txt`` 使用CMake编译.
 
 ## 使用方法
 
-### Console
+### 控制台
 
 参数
 ```bash
 
-    -i or --input <filename>        : 指定配置文件
-    -a or --action <action>         : 指定程序行为 (status 对应检查端口状态, load 对应加载配置, unload 对应卸载配置)
-    /?, -h or --help                : 显示这则帮助信息
-    -e or --extra-parameter <param> : 指定额外的ss-server参数, 你可以结合这个开启UDP转发和HTTP/TLS混淆，因为一些功能只有少数人需要，所以加了这个功能
-    -p or --port                    : 指定要检查的端口 (在-a status的时候要用到，具体行为就是显示用户进程的PID和完整的ss-server日志)
-
+    -i or --input <filename>        : specify input file
+    -a or --action <action>         : specify action (status, load, unload)
+    /?, -h or --help                : show this help message
+    -e or --extra-parameter <param> : specify additional parameters, you can do things like UDP relay or HTTP/TLS OBFS here
+    -p or --port                    : specify a port for checking status
 ```
 
-### Config
+> 因为实在不方便翻译，所以在此举个例子：
 
-Format:
+```bash
+yamato -a load -i 测试配置.yaml -e "-u" //加载测试配件.yaml并通过额外参数-u开启UDP转发
 
-```javascript
-{
-    "<用户组名>" : "<加密方式全名>" {
-    <nameserver> : <可选项_域名解析服务器(DNS)>,
-    <redirect>     : <可选项_重定向网站(增强穿墙效果)>,
-    <用户端口1>            : <user_password>,
-    <用户端口2>            : <user_password2>
-    }
-}
+yamato -a status -i 测试配置.yaml -p 8388 //检查测试配置.yaml中端口8388的系统日志
 ```
 
-Example:
+### 配置文件(YAML)
 
-```javascript
-{
+```yaml
+group: Contosco
+nameserver: 8.8.8.8
+method: chacha20-ietf
+timeout: 1440
+redirect: pornhub.com           //有时候你得学着邪恶一点
+fastopen: true
+server: 0.0.0.0
+tunnel_mode: tcp                //或者写成udp/both,注意不是原版的"tcp_and_udp"或者"udp_only"这样的，因为太智障
+    8388 : "用户1的密码"
+    2468 : "用户2的密码"
 
-    //第一组(可以使用注释)
-    "example_group" : "chacha20" : {
-        443 : "password1",
-        80  : "DoNotBruteForceMePLZ"
-    }
-
-    //第二组
-    "example_group_2" : "aes-256-cfb" {
-        "nameserver" : "8.8.8.8",
-        "redirect"   : "isSeptaFucked.com",
-        8388 : "test_account"
-    }
-}
+group: MSFT
+//其他的配置项可以留空，此时会根据上一个组使用过的信息进行配置
+//其实除了用户的端口和密码之外你都可以不写，因为我都有缺省值(但是缩进是必须的！)
+//我比较讨厌用警号注释代码，所以我支持了双斜杠注释
+    4567 : "Baz"
+    5678 : "Qux"
 ```
 
-## FA♂Q
+## FAQs
 
-### 1. 这个软件可以在Windows上跑吗？
+### 1. 这个软件可以在Windows上跑吗
 
-不行，即使Windows下能过编译也不要。除了 ``-a load``功能外，其他功能都会用到Linux的命令。
+不行，除非你大刀阔斧去改util.cpp, 让一部分的API支持Windows,因为很多功能都是靠着Linux的一些命令实现的
 
-### 2. 为什么要造轮子？
+### 2. 为什么你要造轮子？
 
-你听说过知乎大佬@vczh么？
+你怕是不知道Gaclib...
 
-### 3. 为什么使用体验极差 ?
+### 3. 为何XX功能如此残废？
 
-因为我是写给自己用的...我把自己的梯子便宜租给其他同学了，写了个工具方便管理用户信息和配置 ~~他们很喜欢上E站和DMM舔小姐姐~~
+上班族砍产品经理的需求，我直接砍用户
 
-### 4. 为什么要在使用说明里面放二刺螈？
+### 4. 为啥说明书里有伊欧娜？
 
-不喜欢萌妹纸的都是坏蜀黍，哼 (手动傲娇)
+为了这个我连项目名称都从``ss-manager``改成了``yamato``, 目的够明显了吧...

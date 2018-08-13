@@ -5,23 +5,29 @@
 
 #include <vector>
 #include <string>
+#include <array>
+#include <cstdlib>
 
-using std::vector;
-using std::string;
+#define SOFTWARE_VERSION "1.0.0"
+#define LEGACY false
+#define DEBUG false
 
-struct Json {
-    string element;
-    string key;
-};
-
-struct User {
-    string port;
-    string password;
-};
+using namespace std;
 
 struct Help {
     string option;
     string description;
+};
+
+struct YAML {
+	int level;
+	string left;
+	string right;
+};
+
+struct PIDInfo {
+	string pid;
+	string port;
 };
 
 #endif //SS_MANAGER_CONSTANTS_H
