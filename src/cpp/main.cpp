@@ -226,6 +226,4 @@ int main(int argc, char*const argv[]) {
 #pragma endregion
 
 #endif
-
-#endif
 }
