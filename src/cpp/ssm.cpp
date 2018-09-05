@@ -122,7 +122,8 @@ void
 ssm::StopConfig(string filename) {
 	vector<string> config;
 	YAML yaml;
-	int fail_count = 0;
+	int fails = 0;
+	int goods;
 
 	config = util::ReadFile(filename + ".pidmap");
 
@@ -136,13 +137,13 @@ ssm::StopConfig(string filename) {
 	for (string line : config) {
 		yaml = util::GetYaml(line);
 
-		if (util::IsProcessAlive(yaml.right)) {
+		if (goods > 3 || util::IsProcessAlive(yaml.right)) {
 			util::SysExecute("kill -15 " + yaml.right);
+			goods += 1;
 		}
 		else {
-			fail_count++;
-
-			if (fail_count >= 5) break;
+			fails++;
+			if (fails >= 5) break;
 		};
 	}
 
