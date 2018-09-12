@@ -95,26 +95,56 @@ vector<string> util::SysExecute(string cmd) {
 
 }
 
-vector<string> util::ReadFile(string filename) {
-	
-	ifstream reader;
-	string in;
-	vector<string> out;
-
-#if !DEBUG
-	if (!IsFileExist(filename)) {
-		return out;
-	}
-#endif
-
-	reader.open(filename);
-
-	while (getline(reader, in)) {
-		out.push_back(in);
-	}
-	
-	return out;
+vector<string> util::ReadFile(string path) {
+	return util::ReadFile(path, true);
 }
+
+vector<string> util::ReadFile(string path, bool is_parsed) {
+#if DEBUE == true
+	printf("READ\n");
+#endif
+	ifstream r(path.c_str());
+	stringstream read_buffer;
+	vector<string> file_buffer;
+
+	if (!r.is_open()) {
+		return vector<string>();
+	}
+	read_buffer << r.rdbuf();
+	r.close();
+
+	if (!is_parsed) return { read_buffer.str() };
+	else {
+		string temp = read_buffer.str();
+		vector<int> results = util::SearchString(temp, '\n');
+		bool is_newline_head = false;
+
+		//Quit if it's a file without "\n"
+		if (results.size() == 0) {
+			return { temp };
+		}
+
+		if (results[0] == 0) {
+			file_buffer.push_back("");
+			file_buffer.push_back(SubString(temp, 1, results[1]));
+			is_newline_head = true;
+		}
+		else {
+			file_buffer.push_back(SubString(temp, 0, results[0]));
+		}
+
+		for (int i = is_newline_head; i < results.size(); ++i) {
+			if (i + 1 <= results.size() - 1) {
+				file_buffer.push_back(SubString(temp, results[i] + 1, results[i + 1]));
+			}
+			else {
+				file_buffer.push_back(SubString(temp, results[i] + 1, results.size()));
+			}
+		}
+	}
+	return file_buffer;
+}
+
 
 int util::Search(string str, vector<string> match_list, bool precise) {
     for(int i = 0; i < match_list.size(); ++i) {
@@ -182,8 +212,7 @@ bool util::IsProcessAlive(string pid) {
     return cmd_buffer.size() > 1;
 }
 
-bool
-util::IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive)
+bool util::IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive)
 {
 	if (!is_case_sensitive) {
 		for (int i = 0; i < str.size(); ++i) {
@@ -219,8 +248,7 @@ util::GetFileList(string directory) {
     return output_buffer;
 }
 
-vector<string>
-util::GetFolderList(string directory) {
+vector<string> util::GetFolderList(string directory) {
 
     vector<string> console_buffer = SysExecute("ls -p " + directory + " -1");
     vector<string> output_buffer;
@@ -236,12 +264,41 @@ util::GetFolderList(string directory) {
     return output_buffer;
 }
 
-vector<string>
-util::GetFolderList() {
+vector<string> util::GetFolderList() {
     return GetFolderList("./");
 }
 
-vector<string>
-util::GetFileList() {
+vector<string> util::GetFileList() {
     return GetFileList("./");
+}
+
+bool util::WriteFile(string filename, vector<string> content)
+{
+	ofstream o;
+	string buf;
+
+	o.open(filename);
+
+	if (!o.is_open()) return 0;
+
+	for (int i = 0; i < content.size(); ++i) {
+		buf += content[i] + "\n";
+	}
+
+	o.write(buf.c_str(), buf.size());
+
+	o.close();
+
+	return 1;
+}
+
+vector<int> util::SearchString(string str, char key) {
+	vector<int> r;
+	for (int i = 0; i < str.size(); ++i) {
+		if (str[i] == key) {
+			r.push_back(i);
+		}
+	}
+
+	return r;
 }

@@ -21,7 +21,8 @@ namespace util {
 	bool IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive);
 
     vector<string> SysExecute(string cmd);
-	vector<string> ReadFile(string filename);
+	vector<string> ReadFile(string path);
+	vector<string> ReadFile(string path, bool is_parsed);
     vector<string> GetFileList(string directory);
     vector<string> GetFolderList(string directory);
     
@@ -29,6 +30,8 @@ namespace util {
 	
 	//Overloaded Methods
 	vector<string> GetFileList();
+	bool WriteFile(string filename, vector<string> content);
+	vector<int> SearchString(string str, char key);
 	vector<string> GetFolderList();
 	int Search(string str, vector<string> match_list);
 	YAML GetYaml(string line);

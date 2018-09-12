@@ -87,7 +87,7 @@ ssm::RunConfig(string filename) {
 
 
 	//Clean up
-	util::RemoveFile("PROTECTED_USER.conf");
+	util::RemoveFile("SS.conf");
 	for (Parser & p : users) {
 		util::RemoveFile(p.GetAttribute(REMOTE_PORT) + ".pid");
 	}
@@ -95,8 +95,6 @@ ssm::RunConfig(string filename) {
 
 string ssm::RunUser(Parser p) {
 
-	ofstream writer;
-	ifstream reader;
 	string pid_buffer;
 
 	vector<string> config = p.GetConfig();
@@ -106,16 +104,13 @@ string ssm::RunUser(Parser p) {
 		file_buffer += line + "\n";
 	}
 
-	writer.open("PROTECTED_USER.conf");
-	writer << file_buffer;
-	writer.close();
+	//Write user config
+	util::WriteFile("SS.conf", { file_buffer });
 
-	system(string("ss-server -c PROTECTED_USER.conf " + extra_param_ + " -f " + p.GetAttribute(REMOTE_PORT) + ".pid").c_str());
-	reader.open(p.GetAttribute(REMOTE_PORT) + ".pid");
-	reader >> pid_buffer;
-	reader.close();
-
-	return pid_buffer;
+	system(string("ss-server -c SS.conf " + extra_param_ + " -f " + p.GetAttribute(REMOTE_PORT) + ".pid").c_str());
+	
+	//Return pid buffer
+	return util::ReadFile(p.GetAttribute(REMOTE_PORT) + ".pid",false)[0];
 }
 
 void
