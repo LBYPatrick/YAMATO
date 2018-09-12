@@ -100,9 +100,7 @@ vector<string> util::ReadFile(string path) {
 }
 
 vector<string> util::ReadFile(string path, bool is_parsed) {
-#if DEBUE == true
-	printf("READ\n");
-#endif
+
 	ifstream r(path.c_str());
 	stringstream read_buffer;
 	vector<string> file_buffer;
@@ -138,6 +136,7 @@ vector<string> util::ReadFile(string path, bool is_parsed) {
 				file_buffer.push_back(SubString(temp, results[i] + 1, results[i + 1]));
 			}
 			else {
+				if (results[i] == temp.size() - 1) {break;}
 				file_buffer.push_back(SubString(temp, results[i] + 1, results.size()));
 			}
 		}
