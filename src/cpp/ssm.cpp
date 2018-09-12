@@ -13,9 +13,9 @@ ssm::RunConfig(string filename) {
 	Parser default_config;
 
 	//Unload sessions from the config session if loaded already
-#if !DEBUG
+
 	if (util::IsFileExist(filename + ".pidmap")) StopConfig(filename);
-#endif
+
 	yaml_content = util::ReadFile(filename);
 
 	//Parse YAML
