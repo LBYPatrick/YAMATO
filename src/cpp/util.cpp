@@ -69,7 +69,7 @@ vector<string> util::SysExecute(string cmd) {
     string read_buffer;
 
 #if DEBUG 
-	printf("%s\n", cmd.c_str());
+	printf("%s\n\n", cmd.c_str());
 #endif
     system((cmd + "> output.data").c_str());
 
@@ -87,7 +87,7 @@ vector<string> util::SysExecute(string cmd) {
 
 #if DEBUG
 	for (string & line : return_buffer) {
-		printf(line.c_str());
+		printf("%s\n",line.c_str());
 	}
 #endif
 
