@@ -132,7 +132,7 @@ vector<string> util::ReadFile(string path, bool is_parsed) {
 		}
 
 		for (int i = is_newline_head; i < results.size(); ++i) {
-			if (i + 1 <= results.size() - 1) {
+			if (i + 1 <= (results.size() - 1)) {
 				file_buffer.push_back(SubString(temp, results[i] + 1, results[i + 1]));
 			}
 			else {
