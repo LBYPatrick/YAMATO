@@ -10,8 +10,7 @@
 #include <sstream>
 
 #define SOFTWARE_VERSION "1.0.0"
-#define LEGACY false
-#define DEBUG false
+#define DEBUG true
 
 using namespace std;
 

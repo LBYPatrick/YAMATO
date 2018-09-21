@@ -36,6 +36,7 @@ namespace util {
 	int Search(string str, vector<string> match_list);
 	YAML GetYaml(string line);
 	string SubString(string str, int left, int stop);
+	string GetMachineIP();
 }
 
 #endif //SS_MANAGER_UTILS_H

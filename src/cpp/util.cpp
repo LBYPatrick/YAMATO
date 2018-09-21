@@ -202,6 +202,12 @@ util::SubString(string str, int left, int stop) {
 	return str.substr(left,length);
 }
 
+string util::GetMachineIP()
+{
+	vector<string> result = SysExecute(R"(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')");
+	return result.size() > 0? result[0] : string();
+}
+
 
 
 bool util::IsProcessAlive(string pid) {

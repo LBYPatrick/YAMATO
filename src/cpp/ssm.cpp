@@ -57,7 +57,7 @@ ssm::RunConfig(string filename) {
 				default_config.SetAttribute(SERVER, l.right);
 				break;
 			case  7:
-				default_config.SetAttribute(UDP_TCP, l.right);
+				default_config.SetAttribute(UDP_OR_TCP, l.right);
 				break;
 			default: break;
 			}
