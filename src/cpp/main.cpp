@@ -15,7 +15,7 @@ enum Action {
 
 int main(int argc, char*const argv[]) {
 
-	printf("IP: %s\n", util::GetMachineIP());
+	printf("IP: %s\n", util::GetMachineIP().c_str());
 
     //Variables
     string input_file;
