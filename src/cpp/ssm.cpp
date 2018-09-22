@@ -39,7 +39,12 @@ ssm::RunConfig(string filename) {
 			switch (util::Search(l.left, { "group", "nameserver", "method","fastopen","redirect","timeout","server","tunnel_mode"})) {
 			case  0: break; //Don't really know how can I use group name...
 			case  1:
-				default_config.SetAttribute(DNS, l.right);
+				if (util::IsTheSame("localhost", l.right, false, false) || util::IsTheSame("bind9-local", l.right, false, false)) {
+					default_config.SetAttribute(DNS, util::GetMachineIP());
+				}
+				else {
+					default_config.SetAttribute(DNS, l.right);
+				}
 				break;
 			case  2:
 				default_config.SetAttribute(METHOD, l.right);
@@ -57,7 +62,7 @@ ssm::RunConfig(string filename) {
 				default_config.SetAttribute(SERVER, l.right);
 				break;
 			case  7:
-				default_config.SetAttribute(UDP_TCP, l.right);
+				default_config.SetAttribute(UDP_OR_TCP, l.right);
 				break;
 			default: break;
 			}

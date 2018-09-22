@@ -20,7 +20,7 @@ enum SSInfo {
     REDIRECT,
     TIMEOUT,
     SERVER,
-	UDP_TCP
+	UDP_OR_TCP
 };
 
 enum TunnelMode {

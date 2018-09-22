@@ -28,7 +28,7 @@ vector<string> Parser::GetConfig() {
     return_buffer.push_back("\"password\" : \"" + user_pass_ + "\",");
     return_buffer.push_back("\"method\" : \"" + method_ + "\",");
     return_buffer.push_back("\"fast_open\" : " + tcp_fastopen_ + ",");
-    return_buffer.push_back("\"timeout\" : \"" + timeout_ + "\",");
+    return_buffer.push_back("\"timeout\" : " + timeout_ + ",");
     return_buffer.push_back("\"nameserver\" : \"" + dns_ + "\",");
 
     if(redirect_.size() == 0) {
@@ -40,7 +40,7 @@ vector<string> Parser::GetConfig() {
         return_buffer.push_back("\"redirect\" : \"" + redirect_ + "\",");
     }
 		
-	return_buffer.push_back("\"mode\" : \"" + GetAttribute(UDP_TCP) + "\"");
+	return_buffer.push_back("\"mode\" : \"" + GetAttribute(UDP_OR_TCP) + "\"");
 
 
 	return_buffer.push_back("}");
@@ -90,7 +90,7 @@ void Parser::SetAttribute(SSInfo type, string value) {
         case SERVER:
             server_ = value;
             break;
-		case UDP_TCP:
+		case UDP_OR_TCP:
 			if (util::IsTheSame(value,"tcp",true,false)) {
 				mode = TCP;
 			}
@@ -134,7 +134,7 @@ string Parser::GetAttribute(SSInfo type)
 	case SERVER:
 		return server_;
 		break;
-	case UDP_TCP:
+	case UDP_OR_TCP:
 		switch (mode) {
 		case UDP: 
 			return "udp_only";

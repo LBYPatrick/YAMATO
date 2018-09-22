@@ -9,8 +9,7 @@
 #include <cstdlib>
 #include <sstream>
 
-#define SOFTWARE_VERSION "1.0.0"
-#define LEGACY false
+#define SOFTWARE_VERSION "1.1.0"
 #define DEBUG false
 
 using namespace std;
