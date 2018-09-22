@@ -69,7 +69,7 @@ vector<string> util::SysExecute(string cmd) {
     string read_buffer;
 
 #if DEBUG 
-	printf("%s\n", cmd.c_str());
+	printf("%s\n\n", cmd.c_str());
 #endif
     system((cmd + "> output.data").c_str());
 
@@ -87,7 +87,7 @@ vector<string> util::SysExecute(string cmd) {
 
 #if DEBUG
 	for (string & line : return_buffer) {
-		printf(line.c_str());
+		printf("%s\n",line.c_str());
 	}
 #endif
 
@@ -132,7 +132,7 @@ vector<string> util::ReadFile(string path, bool is_parsed) {
 		}
 
 		for (int i = is_newline_head; i < results.size(); ++i) {
-			if (i + 1 <= results.size() - 1) {
+			if (i + 1 <= (results.size() - 1)) {
 				file_buffer.push_back(SubString(temp, results[i] + 1, results[i + 1]));
 			}
 			else {
@@ -200,6 +200,12 @@ util::SubString(string str, int left, int stop) {
 	if (stop > str.size()) stop = str.size();
 
 	return str.substr(left,length);
+}
+
+string util::GetMachineIP()
+{
+	vector<string> result = SysExecute(R"(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')");
+	return result.size() > 0? result[0] : string();
 }
 
 
