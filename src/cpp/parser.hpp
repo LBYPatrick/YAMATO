@@ -20,7 +20,8 @@ enum SSInfo {
     REDIRECT,
     TIMEOUT,
     SERVER,
-	UDP_OR_TCP
+	UDP_OR_TCP,
+	VERBOSE
 };
 
 enum TunnelMode {
@@ -45,7 +46,8 @@ private:
 		tcp_fastopen_ = "true",
 		redirect_,
 		timeout_ = "1440",
-		server_ = "0.0.0.0";
+		server_ = "0.0.0.0",
+		verbose_ = "true";
 
 	TunnelMode mode = TCP;
 };

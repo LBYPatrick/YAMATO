@@ -1,7 +1,7 @@
 #include <vector>
 #include "constants.hpp"
 #include "util.hpp"
-#include "ssm.hpp"
+#include "ymt.hpp"
 
 using std::vector;
 using std::string;
@@ -79,7 +79,7 @@ int main(int argc, char*const argv[]) {
 				return 0;
 			}
 
-			ssm::SetExtraParam(argv[a + 1]);
+			ymt::SetExtraParam(argv[a + 1]);
 			a += 1;
 		}
 
@@ -147,7 +147,7 @@ int main(int argc, char*const argv[]) {
                     exit(0);
                 }
             }
-            ssm::CheckPort(input_file,port);
+            ymt::CheckPort(input_file,port);
             break;
 
         case LOAD :
@@ -155,7 +155,7 @@ int main(int argc, char*const argv[]) {
                 util::ReportError("Need to specify input file with -i or --input.");
 				return 0;
             }
-            ssm::RunConfig(input_file);
+            ymt::RunConfig(input_file);
             break;
 
         case UNLOAD :
@@ -163,7 +163,7 @@ int main(int argc, char*const argv[]) {
                 util::ReportError("Need to specify input file with -i or --input.");
 				return 0;
             }
-            ssm::StopConfig(input_file);
+            ymt::StopConfig(input_file);
             break;
     }
 

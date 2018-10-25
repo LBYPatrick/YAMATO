@@ -101,6 +101,9 @@ void Parser::SetAttribute(SSInfo type, string value) {
 				mode = BOTH;
 			}
 			break;
+		case VERBOSE:
+			verbose_ = (value == "true"? "true" : "false");
+			break;
     }
 }
 
@@ -147,6 +150,9 @@ string Parser::GetAttribute(SSInfo type)
 			break;
 		default: break;
 		}
+		break;
+	case VERBOSE:
+		return verbose_;
 		break;
 	}
 	return string();
