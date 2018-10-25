@@ -45,7 +45,7 @@ vector<string> Parser::GetConfig() {
 
 	return_buffer.push_back("}");
 
-#if DEBUG
+#if DEBUG_CONFIG
     printf("From GetConfig(): \n\n");
     for(string & line : return_buffer) {
         printf("%s\n", line.c_str());

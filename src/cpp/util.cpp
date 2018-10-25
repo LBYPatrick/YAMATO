@@ -25,6 +25,10 @@ void util::RemoveFile(string filename) {
     remove(filename.c_str());
 }
 
+void util::AppendStringVector(vector<string>& left, vector<string>& right) {
+	left.insert(end(left), begin(right), end(right));
+}
+
 void util::ShowHelp(vector<Help> option_list) {
     int max_option_length = 0;
 
@@ -51,6 +55,29 @@ void util::ShowHelp(vector<Help> option_list) {
 
 }
 
+void util::PercentageBar(int current, int total) {
+	
+	int barLength = 50;
+	int leftPercent = double(current) / double(total) * barLength;
+	int rightPercent = barLength - leftPercent;
+	string print_buffer = "\r[";
+
+	for (int i = 0; i < leftPercent - 1; i++) {
+		print_buffer += "=";
+	}
+
+	print_buffer += ">";
+
+	for (int i = 0; i < rightPercent; i++) {
+		print_buffer += " ";
+	}
+
+	print_buffer += string("] ") + std::to_string(current) + string("/") + std::to_string(total);
+
+	if (current == total) print_buffer += "\n";
+	printf(print_buffer.c_str());
+}
+
 bool util::IsFileExist(string filename) {
 
     vector<string> file_list = GetFileList();
@@ -68,12 +95,11 @@ vector<string> util::SysExecute(string cmd) {
     vector<string> return_buffer;
     string read_buffer;
 
-#if DEBUG 
-	printf("%s\n\n", cmd.c_str());
-#endif
-    system((cmd + "> output.data").c_str());
+#if DEBUG_CMDOUT
+	printf("CMD: %s\n", cmd.c_str());
+#endif   
 
-
+	system((cmd + "> output.data").c_str());
 
     reader.open("output.data");
 
@@ -85,9 +111,12 @@ vector<string> util::SysExecute(string cmd) {
 	
 	RemoveFile("output.data");
 
-#if DEBUG
-	for (string & line : return_buffer) {
-		printf("%s\n",line.c_str());
+#if DEBUG_CMDOUT
+
+	printf("Output: \n");
+
+	for (string & i : return_buffer) {
+		printf("\t%s\n", i.c_str());
 	}
 #endif
 
@@ -101,6 +130,21 @@ vector<string> util::ReadFile(string path) {
 
 vector<string> util::ReadFile(string path, bool is_parsed) {
 
+	ifstream reader;
+	string in;
+	vector<string> out;
+
+	reader.open(path);
+
+	if (!reader.is_open()) return out;
+
+	while (getline(reader, in)) {
+		out.push_back(in);
+	}
+
+	return out;
+
+/*
 	ifstream r(path.c_str());
 	stringstream read_buffer;
 	vector<string> file_buffer;
@@ -108,6 +152,10 @@ vector<string> util::ReadFile(string path, bool is_parsed) {
 	if (!r.is_open()) {
 		return vector<string>();
 	}
+
+	
+
+
 	read_buffer << r.rdbuf();
 	r.close();
 
@@ -141,8 +189,12 @@ vector<string> util::ReadFile(string path, bool is_parsed) {
 			}
 		}
 	}
+	
 	return file_buffer;
+*/
 }
+
+
 
 
 int util::Search(string str, vector<string> match_list, bool precise) {

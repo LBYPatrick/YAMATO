@@ -1,6 +1,6 @@
 
-#ifndef SS_MANAGER_SS_MANAGER_H
-#define SS_MANAGER_SS_MANAGER_H
+#ifndef YMT_HPP
+#define YMT_HPP
 
 #include <string>
 #include <vector>
@@ -11,17 +11,48 @@
 
 using namespace std;
 
-namespace ymt {
-	/**
-	* @param file_list:  
-	*/
-	void RunConfig(string filename);
-	//string MakeUserConfig(string method, string port, string password, string nameserver, string redirect);
-	string RunUser(Parser p);
-    void StopConfig(string filename);
-    void CheckPort(string filename, string port);
-    void SetExtraParam(string extra_param);
-	vector<string> GetLog(string pid);
+struct PIDInfo {
+	string port;
+	string pid;
 };
 
-#endif //SS_MANAGER_SS_MANAGER_H
+enum YMTAttributes {
+	CONFIG_FILENAME,
+	LOG_OUTPUT_FILENAME,
+	LOG_INPUT_FILENAME,
+	EXTRA_PARAM
+};
+
+enum LogBehavior {
+	CONNECT,
+	HANDSHAKE_FAIL
+};
+
+struct SSLog {
+	string time;
+	string port;
+	string pid;
+	string destination;
+	LogBehavior behavior;
+};
+
+namespace ymt {
+
+	void RunConfig();
+	//string MakeUserConfig(string method, string port, string password, string nameserver, string redirect);
+	string RunUser(Parser p);
+    void StopConfig();
+    void CheckPort(string port);
+    void SetExtraParam(string extra_param);
+	void SetAttribute(YMTAttributes attribute, string value);
+	vector<string> GetLog(string pid);
+	vector<PIDInfo> GetPIDTable();
+	void UpdatePIDTable();
+	vector<SSLog> GetAnalyzedData();
+	vector<string> GetStringAnalyzedData();
+	void SetFileName(string filename);
+	void UpdateLog();
+	void CleanSyslog();
+};
+
+#endif //YMT_HPP

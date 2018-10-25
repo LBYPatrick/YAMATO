@@ -9,25 +9,11 @@
 #include <cstdlib>
 #include <sstream>
 
-#define SOFTWARE_VERSION "1.1.0"
-#define DEBUG false
+#define SOFTWARE_VERSION "1.2.0"
+#define DEBUG_CONFIG false
+#define DEBUG_ANALYZER true
+#define DEBUG_CMDOUT false
 
 using namespace std;
-
-struct Help {
-    string option;
-    string description;
-};
-
-struct YAML {
-	int level;
-	string left;
-	string right;
-};
-
-struct PIDInfo {
-	string pid;
-	string port;
-};
 
 #endif //SS_MANAGER_CONSTANTS_H

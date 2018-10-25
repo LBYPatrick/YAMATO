@@ -10,17 +10,16 @@ enum Action {
     STATUS,
     LOAD,
     UNLOAD,
+	ANALYZE,
     UNKNOWN
 };
 
 int main(int argc, char*const argv[]) {
 
-#if DEBUG
-	printf("IP: %s\n", util::GetMachineIP().c_str());
-#endif
-
     //Variables
     string input_file;
+	string output_log_file = "yamato_analyzed.log";
+	string input_log_file;
 
     Action action = UNKNOWN;
     string port;
@@ -51,7 +50,11 @@ int main(int argc, char*const argv[]) {
                 action = LOAD;
             } else if (util::Search(argv[a + 1], {"unload"},1) != -1) {
                 action = UNLOAD;
-            } else {
+			}
+			else if (util::Search(argv[a + 1], { "analyze" }, 1) != -1) {
+				action = ANALYZE;
+			}
+			else {
                 util::ReportError("Unknown action: " + string(argv[a + 1]) + ".");
                 break;
             }
@@ -83,6 +86,29 @@ int main(int argc, char*const argv[]) {
 			a += 1;
 		}
 
+		else if (util::Search(argv[a], { "-lo","--log-output" }, true) != -1) {
+			if (a + 1 >= argc) {
+				util::ReportError("You need to specify a filename when using -lo or --log-output.");
+				return 0;
+			}
+			
+			output_log_file = argv[a + 1];
+
+			a += 1;
+		}
+
+		else if (util::Search(argv[a], { "-li","--log-input" }, true) != -1) {
+			if (a + 1 >= argc) {
+				util::ReportError("You need to specify a filename when using -li or --log-input.");
+				return 0;
+			}
+
+			input_log_file = argv[a + 1];
+			ymt::SetAttribute(LOG_INPUT_FILENAME, input_log_file);
+			
+			a += 1;
+		}
+
         else if (util::Search(argv[a], {"-p","--port"},true) != -1) {
 
             if(a+1 >= argc) {
@@ -109,6 +135,9 @@ int main(int argc, char*const argv[]) {
 		return 0;
     }
 
+	//Set Input File Name
+	ymt::SetFileName(input_file);
+
     //Start Execution
     switch(action) {
         case STATUS :
@@ -116,21 +145,6 @@ int main(int argc, char*const argv[]) {
             if(port.size() == 0) {
                 util::ReportError("You need to specify a port for checking status");
 				return 0;
-            }
-            if(input_file.size() == 0) {
-                vector<string> file_list = util::GetFileList("./");
-
-                for(string & file : file_list) {
-                    if(file.find(".pidmap") != -1) {
-                        input_file = file.substr(0,file.size()-7);
-                        break;
-                    }
-                }
-
-                if(input_file.size() == 0) {
-                    util::ReportError("Need to specify action with -a or --action.");
-					return 0;
-                }
             }
             if(input_file.size() == 0) {
                 vector<string> file_list = util::GetFileList("./");
@@ -146,8 +160,10 @@ int main(int argc, char*const argv[]) {
                     util::ReportError("Need to specify action with -a or --action.");
                     exit(0);
                 }
+
+				ymt::SetFileName(input_file);
             }
-            ymt::CheckPort(input_file,port);
+            ymt::CheckPort(port);
             break;
 
         case LOAD :
@@ -155,7 +171,7 @@ int main(int argc, char*const argv[]) {
                 util::ReportError("Need to specify input file with -i or --input.");
 				return 0;
             }
-            ymt::RunConfig(input_file);
+            ymt::RunConfig();
             break;
 
         case UNLOAD :
@@ -163,11 +179,16 @@ int main(int argc, char*const argv[]) {
                 util::ReportError("Need to specify input file with -i or --input.");
 				return 0;
             }
-            ymt::StopConfig(input_file);
+            ymt::StopConfig();
             break;
+		case ANALYZE :
+
+			util::WriteFile(output_log_file, ymt::GetStringAnalyzedData());
+			printf("Log saved to \"%s\".\n",output_log_file.c_str());
+			break;
     }
 
-    return 1;
+	return 1;
 #pragma endregion
 
 }
