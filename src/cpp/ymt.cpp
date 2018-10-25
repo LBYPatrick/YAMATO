@@ -230,7 +230,7 @@ vector<string>  ymt::GetLog(string pid) {
 	vector<string> r;
 
 	if (journalctl_buffer.size() == 0) {
-		journalctl_buffer = util::SysExecute("journalctl");
+		journalctl_buffer = util::SysExecute("journalctl | grep \"ss-server\"");
 	}
 
 	for (string & line : journalctl_buffer) {
