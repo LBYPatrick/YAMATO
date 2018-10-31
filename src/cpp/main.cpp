@@ -10,7 +10,8 @@ enum Action {
     STATUS,
     LOAD,
     UNLOAD,
-	ANALYZE,
+	EXPORT_LOG,
+	EXPORT_STAT,
     UNKNOWN
 };
 
@@ -51,8 +52,11 @@ int main(int argc, char*const argv[]) {
             } else if (util::Search(argv[a + 1], {"unload"},1) != -1) {
                 action = UNLOAD;
 			}
-			else if (util::Search(argv[a + 1], { "analyze" }, 1) != -1) {
-				action = ANALYZE;
+			else if (util::Search(argv[a + 1], { "export-log" }, 1) != -1 || util::Search(argv[a + 1], { "el" }, 1) != -1) {
+				action = EXPORT_LOG;
+			}
+			else if (util::Search(argv[a + 1], { "export-stat" }, 1) != -1 || util::Search(argv[a + 1], { "el" }, 1) != -1) {
+				action = EXPORT_STAT;
 			}
 			else {
                 util::ReportError("Unknown action: " + string(argv[a + 1]) + ".");
@@ -181,10 +185,13 @@ int main(int argc, char*const argv[]) {
             }
             ymt::StopConfig();
             break;
-		case ANALYZE :
-
-			util::WriteFile(output_log_file, ymt::GetStringAnalyzedData());
+		case EXPORT_LOG :
+			util::WriteFile(output_log_file, ymt::GetFormattedStringData());
 			printf("Log saved to \"%s\".\n",output_log_file.c_str());
+			break;
+		case EXPORT_STAT :
+			util::WriteFile(output_log_file, ymt::GetStatisics());
+			printf("Statistics saved to \"%s\".\n", output_log_file.c_str());
 			break;
     }
 

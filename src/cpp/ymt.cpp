@@ -282,7 +282,7 @@ void ymt::UpdatePIDTable() {
 	pid_table_ = GetPIDTable();
 }
 
-vector<SSLog> ymt::GetAnalyzedData() {
+vector<SSLog> ymt::GetFormattedData() {
 	
 	vector<SSLog> log_buffer;
 	string last_pid, last_port;
@@ -293,6 +293,8 @@ vector<SSLog> ymt::GetAnalyzedData() {
 
 	//Get Log (if and only if it is the first time across the program)
 	if (log_buffer_.size() == 0) {UpdateLog();}
+
+	printf("Formatting Data...\n");
 
 	for (int i = 0; i < log_buffer_.size(); ++i) {
 
@@ -336,15 +338,91 @@ vector<SSLog> ymt::GetAnalyzedData() {
 	return log_buffer;
 }
 
-vector<string> ymt::GetStringAnalyzedData()
+vector<string> ymt::GetFormattedStringData()
 {
 	vector<string> r;
 
 	r.push_back("Time\tPort\tPID\tDestination");
 
-	for (SSLog & i : GetAnalyzedData()) {
+	for (SSLog & i : GetFormattedData()) {
 		r.push_back(i.time + "\t" + i.port + "\t" + i.pid + "\t" + i.destination);
 	}
+	return r;
+}
+
+vector<string> ymt::GetStatisics() {
+	
+	vector<SSLog> log = GetFormattedData();
+	vector<InquiryData> site_list;
+	vector<InquiryData> port_list;
+	vector<string> r;
+
+	int LOG_SIZE = log.size();
+
+	//Get website frequency data
+
+	printf("Analyzing website data...\n");
+
+	for (int i = 0; i < LOG_SIZE; ++i) {
+
+		if (i + 1 == LOG_SIZE || i % 100 == 0) {
+			util::PercentageBar(i + 1, LOG_SIZE);
+		}
+
+		bool is_website_matched = false;
+		for (int n = 0; n < site_list.size(); ++n) {
+			if (log[i].destination == site_list[n].key) {
+				site_list[n].value += 1;
+				is_website_matched = true;
+			}
+		}
+		if (is_website_matched) continue;
+		else {
+			site_list.push_back({log[i].destination,1});
+		}
+	}
+
+	//Push web frequency data
+	
+	r.push_back("Website\tInquiry Count");
+	r.push_back("");
+
+	for (InquiryData & i : site_list) {
+		r.push_back(i.key + "\t" + to_string(i.value));
+	}
+
+	r.push_back("");
+
+	//Get port frequency data
+	printf("Analyzing Port data...\n");
+
+	for (int i = 0; i < LOG_SIZE; ++i) {
+
+		if (i + 1 == LOG_SIZE || i % 100 == 0) {
+			util::PercentageBar(i + 1, LOG_SIZE);
+		}
+
+		bool is_port_matched = false;
+		for (int n = 0; n < port_list.size(); ++n) {
+			if (log[i].port == port_list[n].key) {
+				port_list[n].value += 1;
+				is_port_matched = true;
+			}
+		}
+		if (is_port_matched) continue;
+		else {
+			port_list.push_back({ log[i].port,1 });
+		}
+	}
+
+	//Push port frequency data
+	r.push_back("User Port\tInquiry Count");
+	r.push_back("");
+
+	for (InquiryData & i : port_list) {
+		r.push_back(i.key + "\t" + to_string(i.value));
+	}
+
 	return r;
 }
 

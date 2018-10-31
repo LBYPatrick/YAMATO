@@ -36,6 +36,11 @@ struct SSLog {
 	LogBehavior behavior;
 };
 
+struct InquiryData {
+	string key;
+	long int value;
+};
+
 namespace ymt {
 
 	void RunConfig();
@@ -48,8 +53,9 @@ namespace ymt {
 	vector<string> GetLog(string pid);
 	vector<PIDInfo> GetPIDTable();
 	void UpdatePIDTable();
-	vector<SSLog> GetAnalyzedData();
-	vector<string> GetStringAnalyzedData();
+	vector<SSLog> GetFormattedData();
+	vector<string> GetFormattedStringData();
+	vector<string> GetStatisics();
 	void SetFileName(string filename);
 	void UpdateLog();
 	void CleanSyslog();
