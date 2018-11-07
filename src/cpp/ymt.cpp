@@ -1,5 +1,7 @@
 
 #include "ymt.hpp"
+#include "util.hpp"
+
 
 vector<string> log_buffer_;
 string extra_param_;

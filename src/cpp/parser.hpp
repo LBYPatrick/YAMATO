@@ -1,34 +1,9 @@
 //
 // Created by LBYPatrick on 8/8/2018.
 //
+#pragma once
 
-#ifndef SS_MANAGER_PARSER_HPP
-#define SS_MANAGER_PARSER_HPP
-
-#include "constants.hpp"
-#include "util.hpp"
-
-const int NUM_SS_OPTIONS = 9;
-
-enum SSInfo {
-    REMOTE_PORT,
-    LOCAL_PORT,
-    KEY,
-    METHOD,
-    TCP_FASTOPEN,
-    DNS,
-    REDIRECT,
-    TIMEOUT,
-    SERVER,
-	UDP_OR_TCP,
-	VERBOSE
-};
-
-enum TunnelMode {
-	TCP,
-	UDP,
-	BOTH
-};
+#include "includes.hpp"
 
 class Parser {
 public:
@@ -51,6 +26,3 @@ private:
 
 	TunnelMode mode = TCP;
 };
-
-
-#endif //SS_MANAGER_PARSER_HPP

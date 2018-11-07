@@ -3,6 +3,7 @@
 //
 
 #include "parser.hpp"
+#include "util.hpp"
 
 array<string, 9> WEBSITES = {
 	"bing.com",

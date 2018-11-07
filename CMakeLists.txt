@@ -1,14 +1,16 @@
-cmake_minimum_required(VERSION 3.9)
-project(ss_manager)
+cmake_minimum_required(VERSION 3.12)
+project(YAMATO)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
-add_executable(ss_manager
-        src/cpp/constants.hpp
+include_directories(src/cpp)
+
+add_executable(YAMATO
+        src/cpp/includes.hpp
         src/cpp/main.cpp
-        src/cpp/ssm.cpp
-        src/cpp/ssm.hpp
+        src/cpp/parser.cpp
+        src/cpp/parser.hpp
         src/cpp/util.cpp
         src/cpp/util.hpp
-        src/cpp/parser.cpp
-        src/cpp/parser.hpp)
+        src/cpp/ymt.cpp
+        src/cpp/ymt.hpp)

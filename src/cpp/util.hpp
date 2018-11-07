@@ -2,26 +2,8 @@
 // Created by LBYPatrick on 2/6/2018.
 //
 
-#ifndef SS_MANAGER_UTILS_H
-#define SS_MANAGER_UTILS_H
-#include <string>
-#include "constants.hpp"
-#include <cstdio>
-#include <iostream>
-#include <fstream>
-
-using namespace std;
-
-struct Help {
-	string option;
-	string description;
-};
-
-struct YAML {
-	int level;
-	string left;
-	string right;
-};
+#pragma once
+#include "includes.hpp"
 
 namespace util {
     void RemoveLetter(string & original_string, char letter);
@@ -54,5 +36,3 @@ namespace util {
 	vector<string> GetFolderList();
 	int Search(string str, vector<string> match_list);
 }
-
-#endif //SS_MANAGER_UTILS_H

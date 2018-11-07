@@ -1,45 +1,7 @@
+#pragma once
 
-#ifndef YMT_HPP
-#define YMT_HPP
-
-#include <string>
-#include <vector>
-#include <fstream>
-#include "util.hpp"
-#include "constants.hpp"
+#include "includes.hpp"
 #include "parser.hpp"
-
-using namespace std;
-
-struct PIDInfo {
-	string port;
-	string pid;
-};
-
-enum YMTAttributes {
-	CONFIG_FILENAME,
-	LOG_OUTPUT_FILENAME,
-	LOG_INPUT_FILENAME,
-	EXTRA_PARAM
-};
-
-enum LogBehavior {
-	CONNECT,
-	HANDSHAKE_FAIL
-};
-
-struct SSLog {
-	string time;
-	string port;
-	string pid;
-	string destination;
-	LogBehavior behavior;
-};
-
-struct InquiryData {
-	string key;
-	long int value;
-};
 
 namespace ymt {
 
@@ -60,5 +22,3 @@ namespace ymt {
 	void UpdateLog();
 	void CleanSyslog();
 };
-
-#endif //YMT_HPP

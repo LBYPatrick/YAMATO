@@ -1,8 +1,7 @@
-sudo: required
 language: cpp
 compiler: gcc
 
 before_script:
 - mkdir travis
 - cd travis
-script: g++ -std=c++11 -w ../src/cpp/* -o ssm
+script: g++ -std=c++11 -w ../src/cpp/*.cpp -o ymt
