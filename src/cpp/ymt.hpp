@@ -7,11 +7,11 @@ namespace ymt {
 
 	void RunConfig();
 	//string MakeUserConfig(string method, string port, string password, string nameserver, string redirect);
-	string RunUser(Parser p);
+	string RunUser(Parser &p);
     void StopConfig();
     void CheckPort(string port);
     void SetExtraParam(string extra_param);
-	void SetAttribute(YMTAttributes attribute, string value);
+	void SetAttribute(YMTAttributes attribute, string &value);
 	vector<string> GetLog(string pid);
 	vector<PIDInfo> GetPIDTable();
 	void UpdatePIDTable();

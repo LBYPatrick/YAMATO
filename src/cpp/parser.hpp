@@ -17,7 +17,7 @@ private:
 		local_port_ = "1080",
 		user_pass_ = "NO_PASS",
 		method_ = "chacha20-ietf",
-		dns_ = "8.8.8.8",
+		dns_ = "1.1.1.1",
 		tcp_fastopen_ = "true",
 		redirect_,
 		timeout_ = "1440",

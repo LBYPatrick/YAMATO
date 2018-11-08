@@ -46,17 +46,17 @@ int main(int argc, char*const argv[]) {
                 break;
             }
 
-            if (util::Search(argv[a + 1], {"status"},1) != -1) {
+            if (util::Search(argv[a + 1], {"status"}, true) != -1) {
                 action = STATUS;
-            } else if (util::Search(argv[a + 1], {"load"},1) != -1) {
+            } else if (util::Search(argv[a + 1], {"load"}, true) != -1) {
                 action = LOAD;
-            } else if (util::Search(argv[a + 1], {"unload"},1) != -1) {
+            } else if (util::Search(argv[a + 1], {"unload"}, true) != -1) {
                 action = UNLOAD;
 			}
-			else if (util::Search(argv[a + 1], { "export-log" }, 1) != -1 || util::Search(argv[a + 1], { "el" }, 1) != -1) {
+			else if (util::Search(argv[a + 1], { "export-log" }, true) != -1 || util::Search(argv[a + 1], { "el" }, true) != -1) {
 				action = EXPORT_LOG;
 			}
-			else if (util::Search(argv[a + 1], { "export-stat" }, 1) != -1 || util::Search(argv[a + 1], { "el" }, 1) != -1) {
+			else if (util::Search(argv[a + 1], { "export-stat" }, true) != -1 || util::Search(argv[a + 1], { "el" }, true) != -1) {
 				action = EXPORT_STAT;
 			}
 			else {
@@ -147,11 +147,11 @@ int main(int argc, char*const argv[]) {
     switch(action) {
         case STATUS :
 
-            if(port.size() == 0) {
+            if(port.empty()) {
                 util::ReportError("You need to specify a port for checking status");
 				return 0;
             }
-            if(input_file.size() == 0) {
+            if(input_file.empty()) {
                 vector<string> file_list = util::GetFileList("./");
 
                 for(string & file : file_list) {
@@ -161,7 +161,7 @@ int main(int argc, char*const argv[]) {
                     }
                 }
 
-                if(input_file.size() == 0) {
+                if(input_file.empty()) {
                     util::ReportError("Need to specify action with -a or --action.");
                     exit(0);
                 }
@@ -172,7 +172,7 @@ int main(int argc, char*const argv[]) {
             break;
 
         case LOAD :
-            if (input_file.size() == 0) {
+            if (input_file.empty()) {
                 util::ReportError("Need to specify input file with -i or --input.");
 				return 0;
             }
@@ -180,7 +180,7 @@ int main(int argc, char*const argv[]) {
             break;
 
         case UNLOAD :
-            if (input_file.size() == 0) {
+            if (input_file.empty()) {
                 util::ReportError("Need to specify input file with -i or --input.");
 				return 0;
             }

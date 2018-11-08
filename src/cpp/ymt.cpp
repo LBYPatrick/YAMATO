@@ -28,13 +28,13 @@ void ymt::RunConfig() {
 	for (string & line : yaml_content) {
 
 		//Skip blanklines & comments
-		if (line.size() == 0) continue;
+		if (line.empty()) continue;
 		else {
 			int slash_pos = line.find("//");
 			if (slash_pos != -1) {
 				line = util::SubString(line, 0, slash_pos);
 			}
-			if (line.size() == 0) continue;
+			if (line.empty()) continue;
 		}
 
 
@@ -107,14 +107,14 @@ void ymt::RunConfig() {
 	}
 }
 
-string ymt::RunUser(Parser p) {
+string ymt::RunUser(Parser &p) {
 
 	string pid_buffer;
 
 	vector<string> config = p.GetConfig();
 	string file_buffer;
 
-	for (string line : config) {
+	for (const string &line : config) {
 		file_buffer += line + "\n";
 	}
 
@@ -139,13 +139,13 @@ void ymt::StopConfig() {
 	config = util::ReadFile(config_ + ".pidmap");
 
 
-	if (config.size() == 0) {
+	if (config.empty()) {
 		util::ReportError(
 			"Cannot read the pidmap for the file specified, please load the config before unload and DO NOT delete pidmap.");
 		return;
 	}
 
-	for (string line : config) {
+	for (const string &line : config) {
 		yaml = util::GetYaml(line);
 
 		if (goods > 3 || util::IsProcessAlive(yaml.right)) {
@@ -171,7 +171,7 @@ ymt::CheckPort(string port) {
 	pidmap = util::ReadFile(config_ + ".pidmap");
 
 	//Quit if cannot find the pidmap file
-	if (pidmap.size() == 0) {
+	if (pidmap.empty()) {
 		util::ReportError(
 			"Cannot read the pidmap for the file specified, please load the config before unload and DO NOT delete pidmap.");
 		return;
@@ -233,7 +233,7 @@ ymt::SetExtraParam(string extra_param) {
 	extra_param_ = extra_param;
 }
 
-void ymt::SetAttribute(YMTAttributes attribute, string value) {
+void ymt::SetAttribute(YMTAttributes attribute, string &value) {
 	switch (attribute) {
 	case CONFIG_FILENAME:
 		config_ = value;
@@ -251,7 +251,7 @@ vector<string>  ymt::GetLog(string pid) {
 
 	vector<string> r;
 
-	if (log_buffer_.size() == 0) {
+	if (log_buffer_.empty()) {
 		UpdateLog();
 	}
 
@@ -288,13 +288,13 @@ vector<SSLog> ymt::GetFormattedData() {
 	
 	vector<SSLog> log_buffer;
 	string last_pid, last_port;
-	bool is_pid_matched;
+	bool is_pid_matched = false;
 
 	//Get PID table (if and only if it is the first time across the program)
-	if (pid_table_.size() == 0) { UpdatePIDTable();}
+	if (pid_table_.empty()) { UpdatePIDTable();}
 
 	//Get Log (if and only if it is the first time across the program)
-	if (log_buffer_.size() == 0) {UpdateLog();}
+	if (log_buffer_.empty()) {UpdateLog();}
 
 	printf("Formatting Data...\n");
 
@@ -304,16 +304,16 @@ vector<SSLog> ymt::GetFormattedData() {
 			util::PercentageBar(i + 1, log_buffer_.size());
 		}
 		
-		string temp_pid = util::SubString(log_buffer_[i], log_buffer_[i].find("ss-server[") + 10, log_buffer_[i].find("]"));
+		string temp_pid = util::SubString(log_buffer_[i], log_buffer_[i].find("ss-server[") + 10, log_buffer_[i].find(']'));
 
-		if (last_pid.size() == 0 || temp_pid != last_pid) {
-			for (PIDInfo & i : pid_table_) {
-				if (i.pid == temp_pid) {
+		if (last_pid.empty() || temp_pid != last_pid) {
+			for (PIDInfo & n : pid_table_) {
+				if (n.pid == temp_pid) {
 					
 					is_pid_matched = true;
 					
-					last_port = i.port;
-					last_pid = i.pid;
+					last_port = n.port;
+					last_pid = n.pid;
 					break;
 				}
 			}
@@ -372,9 +372,9 @@ vector<string> ymt::GetStatisics() {
 		}
 
 		bool is_website_matched = false;
-		for (int n = 0; n < site_list.size(); ++n) {
-			if (log[i].destination == site_list[n].key) {
-				site_list[n].value += 1;
+		for (auto &n : site_list) {
+			if (log[i].destination == n.key) {
+                n.value += 1;
 				is_website_matched = true;
 			}
 		}
@@ -405,9 +405,9 @@ vector<string> ymt::GetStatisics() {
 		}
 
 		bool is_port_matched = false;
-		for (int n = 0; n < port_list.size(); ++n) {
-			if (log[i].port == port_list[n].key) {
-				port_list[n].value += 1;
+		for (auto &n : port_list) {
+			if (log[i].port == n.key) {
+                n.value += 1;
 				is_port_matched = true;
 			}
 		}
@@ -434,7 +434,7 @@ void ymt::SetFileName(string filename) {
 
 void ymt::UpdateLog() {
 
-	vector<string> temp = util::ReadFile((input_log_.size() == 0? "/var/log/syslog" : input_log_));
+	vector<string> temp = util::ReadFile((input_log_.empty() ? "/var/log/syslog" : input_log_));
 
 	for (string & i : temp) {
 		if (i.find("ss-server") != -1) {

@@ -5,7 +5,7 @@
 #include "parser.hpp"
 #include "util.hpp"
 
-array<string, 9> WEBSITES = {
+const vector<string> WEBSITES = {
 	"bing.com",
 	"qq.com",
 	"tmall.com",
@@ -23,25 +23,25 @@ vector<string> Parser::GetConfig() {
 
     return_buffer.push_back("{");
 
-    return_buffer.push_back("\"server\" : \"" + server_ + "\",");
-    return_buffer.push_back("\"server_port\" : \"" + remote_port_ + "\",");
-    return_buffer.push_back("\"local_port\" : \"" + local_port_ + "\",");
-    return_buffer.push_back("\"password\" : \"" + user_pass_ + "\",");
-    return_buffer.push_back("\"method\" : \"" + method_ + "\",");
+    return_buffer.push_back(R"("server" : ")" + server_ + "\",");
+    return_buffer.push_back(R"("server_port" : ")" + remote_port_ + "\",");
+    return_buffer.push_back(R"("local_port" : ")" + local_port_ + "\",");
+    return_buffer.push_back(R"("password" : ")" + user_pass_ + "\",");
+    return_buffer.push_back(R"("method" : ")" + method_ + "\",");
     return_buffer.push_back("\"fast_open\" : " + tcp_fastopen_ + ",");
     return_buffer.push_back("\"timeout\" : " + timeout_ + ",");
-    return_buffer.push_back("\"nameserver\" : \"" + dns_ + "\",");
+    return_buffer.push_back(R"("nameserver" : ")" + dns_ + "\",");
 
-    if(redirect_.size() == 0) {
+    if(redirect_.empty()) {
 
 		int index = rand() % WEBSITES.size();
-        return_buffer.push_back("\"redirect\" : \"" + WEBSITES[index] + "\",");
+        return_buffer.push_back(R"("redirect" : ")" + WEBSITES[index] + "\",");
     }
     else {
-        return_buffer.push_back("\"redirect\" : \"" + redirect_ + "\",");
+        return_buffer.push_back(R"("redirect" : ")" + redirect_ + "\",");
     }
 		
-	return_buffer.push_back("\"mode\" : \"" + GetAttribute(UDP_OR_TCP) + "\"");
+	return_buffer.push_back(R"("mode" : ")" + GetAttribute(UDP_OR_TCP) + "\"");
 
 
 	return_buffer.push_back("}");
@@ -58,7 +58,7 @@ vector<string> Parser::GetConfig() {
 }
 
 void Parser::SetUser(string port, string pass) {
-    remote_port_ = port;
+    remote_port_ = std::move(port);
     user_pass_   = pass;
 }
 

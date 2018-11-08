@@ -83,9 +83,9 @@ bool util::IsFileExist(string filename) {
     vector<string> file_list = GetFileList();
 
     for(string & file : file_list) {
-        if(filename == file) return 1;
+        if(filename == file) return true;
     }
-    return 0;
+    return false;
 
 }
 
@@ -219,24 +219,24 @@ YAML util::GetYaml(string line)
 {
 	YAML out;
 
-	if (line.find(":") == -1) {
+	if (line.find(':') == -1) {
 		return YAML();
 	}
 
-	out.level = line.find_first_not_of(" ");
-	out.left = SubString(line,out.level, line.find(":"));
-	out.right = SubString(line,line.find(":") + 1, line.find_last_not_of(" ") + 1);
+	out.level = line.find_first_not_of(' ');
+	out.left = SubString(line,out.level, line.find(':'));
+	out.right = SubString(line,line.find(':') + 1, line.find_last_not_of(' ') + 1);
 
 	//Remove Trailing & starting spaces
-	out.left = SubString(out.left,0,out.left.find_last_not_of(" ") + 1);
-	out.right = SubString(out.right,out.right.find_first_not_of(" "), out.right.size());
+	out.left = SubString(out.left,0,out.left.find_last_not_of(' ') + 1);
+	out.right = SubString(out.right,out.right.find_first_not_of(' '), out.right.size());
 
 
-	if (out.left.find(R"(")") != -1) {
+	if (out.left.find('\"') != -1) {
 		out.left = SubString(out.left,1,out.left.size() - 1);
 	}
 
-	if (out.right.find(R"(")") != -1) {
+	if (out.right.find('\"') != -1) {
 		out.right = SubString(out.right,1,out.right.size() - 1);
 	}
 
@@ -257,7 +257,7 @@ util::SubString(string str, int left, int stop) {
 string util::GetMachineIP()
 {
 	vector<string> result = SysExecute(R"(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')");
-	return result.size() > 0? result[0] : string();
+	return !result.empty() ? result[0] : string();
 }
 
 
@@ -272,11 +272,11 @@ bool util::IsProcessAlive(string pid) {
 bool util::IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive)
 {
 	if (!is_case_sensitive) {
-		for (int i = 0; i < str.size(); ++i) {
-			str[i] = toupper(str[i]);
+		for (char &i : str) {
+            i = toupper(i);
 		}
-		for (int i = 0; i < key.size(); ++i) {
-			key[i] = toupper(key[i]);
+		for (char &i : key) {
+            i = toupper(i);
 		}
 	}
 	
@@ -297,7 +297,7 @@ util::GetFileList(string directory) {
 
     for (string & line : console_buffer) {
 
-        if(line.find_last_of("/") == -1 && line.find("output.data") == -1) {
+        if(line.find_last_of('/') == -1 && line.find("output.data") == -1) {
             output_buffer.push_back(line);
         }
     }
@@ -312,7 +312,7 @@ vector<string> util::GetFolderList(string directory) {
 
     for (string & line : console_buffer) {
 
-        if(line.find_last_of("/") != -1) {
+        if(line.find_last_of('/') != -1) {
             output_buffer.push_back(SubString(line,0, line.size() -1));
         }
 
@@ -336,17 +336,17 @@ bool util::WriteFile(string filename, vector<string> content)
 
 	o.open(filename);
 
-	if (!o.is_open()) return 0;
+	if (!o.is_open()) return false;
 
-	for (int i = 0; i < content.size(); ++i) {
-		buf += content[i] + "\n";
+	for (const auto &i : content) {
+		buf += i + "\n";
 	}
 
 	o.write(buf.c_str(), buf.size());
 
 	o.close();
 
-	return 1;
+	return true;
 }
 
 vector<int> util::SearchString(string str, char key) {
