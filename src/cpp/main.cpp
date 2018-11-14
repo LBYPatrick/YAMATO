@@ -20,7 +20,7 @@ int main(int argc, char*const argv[]) {
 
     //Variables
     string input_file;
-	string output_log_file = "yamato_analyzed.log";
+	string out_file = "yamato_analyzed.log";
 	string input_log_file;
 
     Action action = UNKNOWN;
@@ -91,13 +91,13 @@ int main(int argc, char*const argv[]) {
 			a += 1;
 		}
 
-		else if (util::Search(argv[a], { "-lo","--log-output" }, true) != -1) {
+		else if (util::Search(argv[a], { "-o","--output" }, true) != -1) {
 			if (a + 1 >= argc) {
-				util::ReportError("You need to specify a filename when using -lo or --log-output.");
+				util::ReportError("You need to specify a filename when using -o or --output.");
 				return 0;
 			}
 			
-			output_log_file = argv[a + 1];
+			out_file = argv[a + 1];
 
 			a += 1;
 		}
@@ -187,12 +187,12 @@ int main(int argc, char*const argv[]) {
             ymt::StopConfig();
             break;
 		case EXPORT_LOG :
-			util::WriteFile(output_log_file, ymt::GetFormattedStringData());
-			printf("Log saved to \"%s\".\n",output_log_file.c_str());
+			util::WriteFile(out_file, ymt::GetFormattedStringData());
+			printf("Log saved to \"%s\".\n",out_file.c_str());
 			break;
 		case EXPORT_STAT :
-			util::WriteFile(output_log_file, ymt::GetStatisics());
-			printf("Statistics saved to \"%s\".\n", output_log_file.c_str());
+			util::WriteFile(out_file, ymt::GetStatisics());
+			printf("Statistics saved to \"%s\".\n", out_file.c_str());
 			break;
     }
 

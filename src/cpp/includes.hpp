@@ -20,7 +20,7 @@ using namespace std;
 
 struct InquiryData {
 	string key;
-	long int value;
+	size_t value;
 };
 
 struct Help {
@@ -77,4 +77,9 @@ struct SSLog {
 	string pid;
 	string destination;
 	LogBehavior behavior;
+};
+
+struct SortItem {
+    size_t old_index;
+    long long key;
 };

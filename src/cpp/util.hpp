@@ -35,4 +35,16 @@ namespace util {
 	vector<int> SearchString(string str, char key);
 	vector<string> GetFolderList();
 	int Search(string str, vector<string> match_list);
-}
+
+	class QuickSort {
+	public:
+
+		static void Sort(vector<SortItem> &arr, size_t low, size_t high);
+		static vector<size_t> Sort(vector<long long> & arr, size_t low, size_t high);
+		static vector<size_t> Sort(vector<long long> & arr);
+
+	private:
+		static size_t Partition(vector<SortItem> &arr, size_t low, size_t high);
+	};
+
+};

@@ -145,7 +145,7 @@ void ymt::StopConfig() {
 		return;
 	}
 
-	for (const string &line : config) {
+	for (auto &line : config) {
 		yaml = util::GetYaml(line);
 
 		if (goods > 3 || util::IsProcessAlive(yaml.right)) {
@@ -357,9 +357,11 @@ vector<string> ymt::GetStatisics() {
 	vector<SSLog> log = GetFormattedData();
 	vector<InquiryData> site_list;
 	vector<InquiryData> port_list;
+	vector<long long> temp;
 	vector<string> r;
+	vector<size_t> data_seq;
 
-	int LOG_SIZE = log.size();
+	size_t LOG_SIZE = log.size();
 
 	//Get website frequency data
 
@@ -384,13 +386,17 @@ vector<string> ymt::GetStatisics() {
 		}
 	}
 
-	//Push web frequency data
-	
-	r.push_back("Website\tInquiry Count");
-	r.push_back("");
+	for (auto & i : site_list) {
+		temp.push_back((long long)i.value);
+	}
 
-	for (InquiryData & i : site_list) {
-		r.push_back(i.key + "\t" + to_string(i.value));
+	data_seq = util::QuickSort::Sort(temp);
+
+	//Push web frequency data
+	r.push_back("Website\tInquiry Count");
+
+	for(int i = data_seq.size() - 1; i >= 0; i--) {
+		r.push_back(site_list[data_seq[i]].key + string("\t") + to_string((int)(site_list[data_seq[i]].value)));
 	}
 
 	r.push_back("");
@@ -417,12 +423,23 @@ vector<string> ymt::GetStatisics() {
 		}
 	}
 
+	//Sort Port Frequency Data
+
+	temp.clear();
+	data_seq.clear();
+
+	for (InquiryData & i : port_list) {
+		temp.push_back(i.value);
+	}
+
+	data_seq = util::QuickSort::Sort(temp);
+
 	//Push port frequency data
 	r.push_back("User Port\tInquiry Count");
 	r.push_back("");
 
-	for (InquiryData & i : port_list) {
-		r.push_back(i.key + "\t" + to_string(i.value));
+	for (int i = data_seq.size() -1; i >= 0; --i) {
+		r.push_back(port_list[data_seq[i]].key + string("\t") + to_string((int)(port_list[data_seq[i]].value)));
 	}
 
 	return r;
