@@ -32,7 +32,8 @@ namespace util {
 	//Overloaded Methods
 	vector<string> GetFileList();
 	bool WriteFile(string filename, vector<string> content);
-	vector<int> SearchString(string str, char key);
+	vector <size_t> SearchString(string str, char key);
+    vector <size_t> SearchString(string str, char key, size_t left, size_t stop);
 	vector<string> GetFolderList();
 	int Search(string str, vector<string> match_list);
 

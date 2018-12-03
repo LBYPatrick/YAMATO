@@ -340,10 +340,17 @@ bool util::WriteFile(string filename, vector <string> content) {
     return true;
 }
 
-vector<int> util::SearchString(string str, char key) {
-    vector<int> r;
-    for (int i = 0; i < str.size(); ++i) {
-        if (str[i] == key) {
+vector <size_t> util::SearchString(string str, char key) {
+    return SearchString(str, key, 0, str.size());
+}
+
+vector <size_t> util::SearchString(string str, char key, size_t left, size_t stop) {
+
+    size_t length = stop - left;
+    vector<size_t> r;
+
+    for(size_t i = left; i < stop; i+=1) {
+        if(str[i] == key) {
             r.push_back(i);
         }
     }

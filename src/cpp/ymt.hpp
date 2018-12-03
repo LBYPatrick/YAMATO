@@ -9,7 +9,7 @@ public:
     static void StopConfig();
     static void CheckPort(string port);
     static void SetExtraParam(string extra_param);
-	static void SetAttribute(YMTAttributes attribute, string &value);
+	static void SetAttribute(YMTAttributes attribute, string value);
 	static vector<string> GetLog(string pid);
 	static vector<SSLog> GetFormattedData();
 	static vector<string> GetFormattedStringData();
@@ -21,4 +21,5 @@ private:
     static void CleanSyslog();
     static vector<PIDInfo> GetPIDTable();
     static void UpdatePIDTable();
+
 };
