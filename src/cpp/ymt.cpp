@@ -401,6 +401,11 @@ vector <string> ymt::GetStatisics() {
 
     //Get website frequency data
 
+    if(LOG_SIZE == 0) {
+        printf("No enough data for this port.\n");
+        return vector<string>();
+    }
+
     printf("Analyzing website data...\n");
 
     for (int i = 0; i < LOG_SIZE; ++i) {
