@@ -7,8 +7,7 @@
 
 [中文说明](./README.zhCN.md)
 
-用YAML掌控shadowsocks-libev,就像大和引领所有IJN舰艇一样。
-Use shadowsocks-libev in a more elegant way, just like YAMATO leading all IJN ships.
+用YAML来控制shadowsocks-libev，多用户，无常驻后台，C++编写，轻便快捷
 
 ## 编译
 
@@ -65,6 +64,8 @@ group: MSFT
 ### 1. 这个软件可以在Windows上跑吗
 
 不行，除非你大刀阔斧去改util.cpp, 让一部分的API支持Windows,因为很多功能都是靠着Linux的一些命令实现的
+
+> 当然 ``1.2.0`` 之后某些暂未公开的功能实际上是支持Windows的，但经过测试发现并没有直接在服务器上跑快 (我指的是至强E3的VPS, 如果你服务器是树莓派的话当我没说)
 
 ### 2. 为什么你要造轮子？
 

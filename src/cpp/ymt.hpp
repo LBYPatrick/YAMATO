@@ -10,10 +10,11 @@ public:
     static void CheckPort(string port);
     static void SetExtraParam(string extra_param);
 	static void SetAttribute(YMTAttributes attribute, string value);
-	static vector<string> GetLog(string pid);
+	static vector<string> GetRawLog(string pid);
 	static vector<SSLog> GetFormattedData();
 	static vector<string> GetFormattedStringData();
 	static vector<string> GetStatisics();
+	static vector<SpeedData> GetSpeedData();
 	static void SetFileName(string filename);
 private:
     static string RunUser(Parser &p);

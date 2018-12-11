@@ -25,8 +25,10 @@ Parameters
 ```bash
 
     -i or --input <filename>        : specify input file
-    -a or --action <action>         : specify action (status, load, unload)
-    /?, -h or --help                : show this help message
+    -a or --action <action>         : specify action (stat, load, unload, log, raw_log)
+    /?, -h or --help                : show help message
+    -li or --log-input              : specify source syslog file (Not required, this is for analyzing log in devices other than your server)
+    -o or --output                  : specify output file name (For stat and log specified with --action, the default output filename is yamato_analyzed.log)
     -e or --extra-parameter <param> : specify additional parameters, you can do things like UDP relay or HTTP/TLS OBFS here
     -p or --port                    : specify a port for checking status
 

@@ -8,6 +8,7 @@ string config_;
 string input_log_;
 vector <PIDInfo> pid_table_;
 vector <Parser> users_;
+string port_;
 
 void ymt::RunConfig() {
 
@@ -161,8 +162,8 @@ void ymt::StopConfig() {
     util::RemoveFile(config_ + string(".pidmap"));
 }
 
-void
-ymt::CheckPort(string port) {
+//TODO: Make this to return vector<string> so that the log can be saved later instead of just printing on the screen
+void ymt::CheckPort(string port) {
 
     vector <string> pidmap;
     YAML yaml_line;
@@ -207,7 +208,7 @@ ymt::CheckPort(string port) {
         if (target_pid == "-1") { return; }
     }
 
-    vector <string> file_buffer = GetLog(target_pid);
+    vector <string> file_buffer = GetRawLog(target_pid);
 
     //Some basic info
     printf("ss-manager information\n"
@@ -234,6 +235,8 @@ ymt::SetExtraParam(string extra_param) {
 }
 
 void ymt::SetAttribute(YMTAttributes attribute, string value) {
+    
+    //Set Attributes
     switch (attribute) {
         case CONFIG_FILENAME:
             config_ = value;
@@ -244,11 +247,19 @@ void ymt::SetAttribute(YMTAttributes attribute, string value) {
         case EXTRA_PARAM:
             extra_param_ = value;
             break;
-
+        case PORT:
+            port_ = value;
+            break;
     }
 }
 
-vector <string> ymt::GetLog(string pid) {
+/**
+ * Obtain Raw Log from systemd -- Without Any Filter
+ * @param pid
+ * @return Log related to ss-server
+ */
+
+vector <string> ymt::GetRawLog(string pid) {
 
     vector <string> r;
 
@@ -265,6 +276,11 @@ vector <string> ymt::GetLog(string pid) {
     return r;
 }
 
+
+/**
+ * Obtain PID Table containing pids matching to the ports defined in user config
+ * @return PID Table with an PIDInfo vector array
+ */
 vector <PIDInfo> ymt::GetPIDTable() {
 
     vector <PIDInfo> r;
@@ -281,15 +297,25 @@ vector <PIDInfo> ymt::GetPIDTable() {
     return r;
 }
 
+/**
+ * An internal method for updating PIDTable. U Don't really need to change anything.
+ */
+
 void ymt::UpdatePIDTable() {
     pid_table_ = GetPIDTable();
 }
 
+
+/**
+ * Obtain Formatted Data (With Time, Port, PID and Destination Information
+ * @return
+ */
 vector <SSLog> ymt::GetFormattedData() {
 
     vector <SSLog> log_buffer;
     string last_pid, last_port;
     bool is_pid_matched = false;
+    const bool is_port_specified = (port_.size() != 0);
 
     //Get PID table (if and only if it is the first time across the program)
     if (pid_table_.empty()) { UpdatePIDTable(); }
@@ -336,6 +362,13 @@ vector <SSLog> ymt::GetFormattedData() {
             string destination = util::SubString(log_buffer_[i], addr_location, log_buffer_.size());
 
             //Push to log buffer
+
+            //Exclude Lines that are not for the port specified (well only if the port is specified)
+            if(is_port_specified && last_port != port_) {
+                is_pid_matched = false; //Reset Stat
+                continue;
+            }
+
             log_buffer.push_back({time, last_port, last_pid, destination, CONNECT});
         }
         is_pid_matched = false;
@@ -469,4 +502,13 @@ void ymt::CleanSyslog() {
     util::SysExecute("touch /var/log/syslog");
     util::SysExecute("chmod 755 /var/log/syslog");
     util::SysExecute("service rsyslog restart");
+}
+
+vector <SpeedData> ymt::GetSpeedData() {
+
+    SpeedData r;
+
+    //TODO: Write code here
+
+    return vector<SpeedData>();
 }

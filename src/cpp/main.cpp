@@ -8,7 +8,7 @@ using std::vector;
 using std::string;
 
 enum Action {
-    STATUS,
+    EXPORT_RAW_LOG,
     LOAD,
     UNLOAD,
 	EXPORT_LOG,
@@ -46,18 +46,20 @@ int main(int argc, char*const argv[]) {
                 break;
             }
 
-            if (util::Search(argv[a + 1], {"status"}, true) != -1) {
-                action = STATUS;
-            } else if (util::Search(argv[a + 1], {"load"}, true) != -1) {
+            if (util::Search(argv[a + 1], {"stat"}, true) != -1) {
+                action = EXPORT_STAT;
+            }
+            else if (util::Search(argv[a + 1], {"load"}, true) != -1) {
                 action = LOAD;
-            } else if (util::Search(argv[a + 1], {"unload"}, true) != -1) {
+            }
+            else if (util::Search(argv[a + 1], {"unload"}, true) != -1) {
                 action = UNLOAD;
 			}
-			else if (util::Search(argv[a + 1], { "export-log" }, true) != -1 || util::Search(argv[a + 1], { "el" }, true) != -1) {
+			else if (util::Search(argv[a + 1], {"log"}, true) != -1) {
 				action = EXPORT_LOG;
 			}
-			else if (util::Search(argv[a + 1], { "export-stat" }, true) != -1 || util::Search(argv[a + 1], { "el" }, true) != -1) {
-				action = EXPORT_STAT;
+			else if (util::Search(argv[a + 1],{"raw_log"},true) != -1) {
+			    action = EXPORT_RAW_LOG;
 			}
 			else {
                 util::ReportError("Unknown action: " + string(argv[a + 1]) + ".");
@@ -70,10 +72,12 @@ int main(int argc, char*const argv[]) {
             printf("YAMATO " SOFTWARE_VERSION " by LBYPatrick\n");
             util::ShowHelp({
                                    {"-i or --input <filename>",        "specify input file"},
-                                   {"-a or --action <action>",         "specify action (status, load, unload)"},
+                                   {"-a or --action <action>",         "specify action (raw_log,stat, load, unload,log)"},
                                    {"/?, -h or --help",                "show this help message"},
                                    {"-e or --extra-parameter <param>", "specify additional parameters, you can do things like UDP relay or HTTP/TLS OBFS here"},
-                                   {"-p or --port",                    "specify a port for checking status"}
+                                   {"-p or --port",                    "specify a port for checking status"},
+                                   {"-li or --log-input",              "specify source syslog file (Not required, this is for analyzing log in devices other than your server)"},
+                                   {"-o or --output",                  "specify output file name (For stat and log specified with --action, the default output filename is yamato_analyzed.log)"}
 
                            });
             printf("\n");
@@ -122,6 +126,7 @@ int main(int argc, char*const argv[]) {
             }
 
             port = argv[a+1];
+            ymt::SetAttribute(PORT,port);
 
             a += 1;
         }
@@ -145,7 +150,7 @@ int main(int argc, char*const argv[]) {
 
     //Start Execution
     switch(action) {
-        case STATUS :
+        case EXPORT_RAW_LOG :
 
             if(port.empty()) {
                 util::ReportError("You need to specify a port for checking status");

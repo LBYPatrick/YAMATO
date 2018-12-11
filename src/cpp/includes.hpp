@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define SOFTWARE_VERSION "1.2.0"
+#define SOFTWARE_VERSION "1.2.1"
 #define DEBUG_CONFIG false
 #define DEBUG_ANALYZER true
 #define DEBUG_CMDOUT false
@@ -62,7 +62,8 @@ struct PIDInfo {
 enum YMTAttributes {
 	CONFIG_FILENAME,
 	LOG_INPUT_FILENAME,
-	EXTRA_PARAM
+	EXTRA_PARAM,
+	PORT
 };
 
 enum LogBehavior {
@@ -81,4 +82,11 @@ struct SSLog {
 struct SortItem {
     size_t old_index;
     long long key;
+};
+
+struct SpeedData {
+    string location;
+    long up;
+    long down;
+    long latency;
 };
