@@ -122,8 +122,8 @@ string ymt::RunUser(Parser &p) {
     //Write user config
     util::WriteFile("SS.conf", {file_buffer});
 
-    system(string("ss-server -c SS.conf " + string(p.GetAttribute(VERBOSE) == "true" ? "-v" : "") + " " + extra_param_ +
-                  " -f " + p.GetAttribute(REMOTE_PORT) + ".pid").c_str());
+    util::SysExecute(("ss-server -c SS.conf " + string(p.GetAttribute(VERBOSE) == "true" ? "-v" : "") + " " + extra_param_ +
+                  " -f " + p.GetAttribute(REMOTE_PORT) + ".pid"),false);
 
     //Return pid buffer
     return util::ReadFile(p.GetAttribute(REMOTE_PORT) + ".pid", false)[0];
@@ -151,7 +151,7 @@ void ymt::StopConfig() {
         yaml = util::GetYaml(line);
 
         if (goods > 3 || util::IsProcessAlive(yaml.right)) {
-            util::SysExecute("kill -15 " + yaml.right);
+            util::SysExecute("kill -15 " + yaml.right, false);
             goods += 1;
         } else {
             fails++;
@@ -503,10 +503,10 @@ void ymt::UpdateLog() {
 }
 
 void ymt::CleanSyslog() {
-    util::SysExecute("rm /var/log/syslog");
-    util::SysExecute("touch /var/log/syslog");
-    util::SysExecute("chmod 755 /var/log/syslog");
-    util::SysExecute("service rsyslog restart");
+    util::SysExecute("rm /var/log/syslog",false);
+    util::SysExecute("touch /var/log/syslog",false);
+    util::SysExecute("chmod 755 /var/log/syslog",false);
+    util::SysExecute("service rsyslog restart",false);
 }
 
 vector <SpeedData> ymt::GetSpeedData() {

@@ -88,7 +88,11 @@ bool util::IsFileExist(string filename) {
 
 }
 
-vector <string> util::SysExecute(string cmd) {
+vector<string> util::SysExecute(string cmd) {
+    return SysExecute(cmd,true);
+}
+
+vector <string> util::SysExecute(string cmd,bool output) {
 
     ifstream reader;
     vector <string> return_buffer;
@@ -98,17 +102,22 @@ vector <string> util::SysExecute(string cmd) {
     printf("CMD: %s\n", cmd.c_str());
 #endif
 
-    system((cmd + "> output.data").c_str());
+    if(output) {
+        system((cmd + "> output.data").c_str());
+        reader.open("output.data");
 
-    reader.open("output.data");
+        while (getline(reader, read_buffer)) {
+            return_buffer.push_back(read_buffer);
+        }
 
-    while (getline(reader, read_buffer)) {
-        return_buffer.push_back(read_buffer);
+        reader.close();
+
+        RemoveFile("output.data");
     }
+    else {
+        system((cmd + "> /dev/null").c_str());
 
-    reader.close();
-
-    RemoveFile("output.data");
+    }
 
 #if DEBUG_CMDOUT
 

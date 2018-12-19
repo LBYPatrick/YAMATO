@@ -17,11 +17,12 @@ namespace util {
 	bool IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive);
 
     vector<string> SysExecute(string cmd);
+    vector<string> SysExecute(string cmd,bool output);
 	vector<string> ReadFile(string path);
 	vector<string> ReadFile(string path, bool is_parsed);
     vector<string> GetFileList(string directory);
     vector<string> GetFolderList(string directory);
-		
+
 	YAML GetYaml(string line);
 	
 	string SubString(string str, int left, int stop);
