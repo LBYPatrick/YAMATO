@@ -4,16 +4,14 @@
 #include "util.hpp"
 #include "ymt.hpp"
 
-using std::vector;
-using std::string;
-
 enum Action {
     EXPORT_RAW_LOG,
     LOAD,
     UNLOAD,
 	EXPORT_LOG,
 	EXPORT_STAT,
-    UNKNOWN
+    UNKNOWN,
+    INFO
 };
 
 int main(int argc, char*const argv[]) {
@@ -60,6 +58,9 @@ int main(int argc, char*const argv[]) {
 			}
 			else if (util::Search(argv[a + 1],{"raw_log"},true) != -1) {
 			    action = EXPORT_RAW_LOG;
+			}
+			else if (util::Search(argv[a + 1], {"info", "user-information"},true) != -1) {
+			    action = INFO;
 			}
 			else {
                 util::ReportError("Unknown action: " + string(argv[a + 1]) + ".");
@@ -132,7 +133,7 @@ int main(int argc, char*const argv[]) {
         }
 
         else {
-            util::ReportError("Unknown option: " + string(argv[a]) + ".");
+            util::ReportError("Unknown element: " + string(argv[a]) + ".");
             return 0;
         }
     }
@@ -153,12 +154,13 @@ int main(int argc, char*const argv[]) {
         case EXPORT_RAW_LOG :
 
             if(port.empty()) {
-                util::ReportError("You need to specify a port for checking status");
+                util::ReportError("You need to specify a port for obtaining raw log");
 				return 0;
             }
             if(input_file.empty()) {
                 vector<string> file_list = util::GetFileList("./");
 
+                //TODO: FIX THIS
                 for(string & file : file_list) {
                     if(file.find(".pidmap") != -1) {
                         input_file = util::SubString(file,0,file.size()-7);
@@ -167,13 +169,13 @@ int main(int argc, char*const argv[]) {
                 }
 
                 if(input_file.empty()) {
-                    util::ReportError("Need to specify action with -a or --action.");
+                    util::ReportError("Need to specify input file.");
                     exit(0);
                 }
 
 				ymt::SetFileName(input_file);
             }
-            ymt::CheckPort(port);
+            util::PrintLines(ymt::GetPortLog());
             break;
 
         case LOAD :
@@ -196,9 +198,13 @@ int main(int argc, char*const argv[]) {
 			printf("Log saved to \"%s\".\n",out_file.c_str());
 			break;
 		case EXPORT_STAT :
-			util::WriteFile(out_file, ymt::GetStatisics());
+			util::WriteFile(out_file, ymt::GetStatistics());
 			printf("Statistics saved to \"%s\".\n", out_file.c_str());
 			break;
+        case INFO :
+            util::PrintLines(ymt::GetUserInfo());
+			default: break;
+
     }
 
 	return 1;

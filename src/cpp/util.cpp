@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by LBYPatrick on 2/6/2018.
 //
@@ -28,29 +30,14 @@ void util::AppendStringVector(vector <string> &left, vector <string> &right) {
     left.insert(end(left), begin(right), end(right));
 }
 
-void util::ShowHelp(vector <Help> option_list) {
+void util::ShowHelp(vector <TableElement> option_list) {
     size_t left_len = 0;
 
-    string print_buffer;
+    vector<string> output = Make2DTable(std::move(option_list));
 
-    //Get max option length for better formatting
-    for (auto & element : option_list) {
-        left_len = element.option.length() > left_len ?
-                element.option.length() : left_len;
+    for(auto & i : output) {
+        printf("%s\n",i.c_str());
     }
-
-    for (auto & elelment : option_list) {
-        print_buffer += elelment.option;
-
-        for (int i = elelment.option.length(); i < left_len; ++i) {
-            print_buffer += ' ';
-        }
-
-        print_buffer += " : ";
-        print_buffer += elelment.description + "\n";
-    }
-
-    printf("%s", print_buffer.c_str());
 
 }
 
@@ -151,55 +138,6 @@ vector <string> util::ReadFile(string path, bool is_parsed) {
     }
 
     return out;
-
-/*
-	ifstream r(path.c_str());
-	stringstream read_buffer;
-	vector<string> file_buffer;
-
-	if (!r.is_open()) {
-		return vector<string>();
-	}
-
-	
-
-
-	read_buffer << r.rdbuf();
-	r.close();
-
-	if (!is_parsed) return { read_buffer.str() };
-	else {
-		string temp = read_buffer.str();
-		vector<int> results = util::SearchString(temp, '\n');
-		bool is_newline_head = false;
-
-		//Quit if it's a file without "\n"
-		if (results.size() == 0) {
-			return { temp };
-		}
-
-		if (results[0] == 0) {
-			file_buffer.push_back("");
-			file_buffer.push_back(SubString(temp, 1, results[1]));
-			is_newline_head = true;
-		}
-		else {
-			file_buffer.push_back(SubString(temp, 0, results[0]));
-		}
-
-		for (int i = is_newline_head; i < results.size(); ++i) {
-			if (i + 1 <= (results.size() - 1)) {
-				file_buffer.push_back(SubString(temp, results[i] + 1, results[i + 1]));
-			}
-			else {
-				if (results[i] == temp.size() - 1) {break;}
-				file_buffer.push_back(SubString(temp, results[i] + 1, results.size()));
-			}
-		}
-	}
-	
-	return file_buffer;
-*/
 }
 
 
@@ -365,6 +303,42 @@ vector <size_t> util::SearchString(string str, char key, size_t left, size_t sto
     }
 
     return r;
+}
+
+vector <string> util::Make2DTable(vector <TableElement> table) {
+
+
+    size_t left_len = 0;
+    vector<string> r;
+    string line;
+
+    //Get max l_element length for better formatting
+    for (auto & i : table) {
+        if(i.l_element.length() > left_len) {
+            left_len = i.l_element.length();
+        }
+    }
+
+    //Format Output based on left_len
+    for (auto & i : table) {
+        line = i.l_element;
+
+        for (size_t n = i.l_element.length(); n < left_len; ++n) {
+            line += ' ';
+        }
+
+        line += " : ";
+        line += i.r_element;
+        r.push_back(line);
+    }
+
+    return r;
+}
+
+void util::PrintLines(vector<string> arr) {
+    for(auto & i : arr) {
+        printf("%s\n",i.c_str());
+    }
 }
 
 void util::QuickSort::Sort(vector <SortItem> &arr, size_t low, size_t high) {

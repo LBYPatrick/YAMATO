@@ -23,9 +23,9 @@ struct InquiryData {
 	size_t value;
 };
 
-struct Help {
-	string option;
-	string description;
+struct TableElement {
+	string l_element;
+	string r_element;
 };
 
 struct YAML {
