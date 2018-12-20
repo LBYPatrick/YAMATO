@@ -57,8 +57,9 @@ string ymt::RunUser(Parser &p) {
     //Write user config
     util::WriteFile("SS.conf", {file_buffer});
 
-    util::SysExecute(("ss-server -c SS.conf " + string(p.GetAttribute(VERBOSE) == "true" ? "-v" : "") + " " + extra_param_ +
-                  " -f " + p.GetAttribute(REMOTE_PORT) + ".pid"),false);
+    util::SysExecute(
+            ("ss-server -c SS.conf " + string(p.GetAttribute(VERBOSE) == "true" ? "-v" : "") + " " + extra_param_ +
+             " -f " + p.GetAttribute(REMOTE_PORT) + ".pid"), false);
 
     //Return pid buffer
     return util::ReadFile(p.GetAttribute(REMOTE_PORT) + ".pid", false)[0];
@@ -97,25 +98,24 @@ void ymt::StopConfig() {
     util::RemoveFile(config_ + string(".pidmap"));
 }
 
-//TODO: Make this to return vector<string> so that the log can be saved later instead of just printing on the screen
-vector<string> ymt::GetPortLog() {
+vector <string> ymt::GetPortLog() {
 
     string target_pid;
     string target_port;
-    vector<string> r;
+    vector <string> r;
 
     //Obtain Raw Log
-    if(log_buffer_.empty()) UpdateLog();
+    if (log_buffer_.empty()) UpdateLog();
 
     //Return Raw Log if port/pid is not specified
-    if(port_.empty()) return log_buffer_;
+    if (port_.empty()) return log_buffer_;
 
     //Obtain PID Table
-    if(pid_table_.empty()) UpdatePIDTable();
+    if (pid_table_.empty()) UpdatePIDTable();
 
     //If user input is port
-    for(auto & i : pid_table_) {
-        if(port_ == i.port) {
+    for (auto &i : pid_table_) {
+        if (port_ == i.port) {
             target_pid = i.pid;
             target_port = i.port;
             break;
@@ -123,19 +123,19 @@ vector<string> ymt::GetPortLog() {
     }
 
     //If user input is pid
-    if(target_port.empty()) {
-        for(auto & i : pid_table_) {
-            if(port_ == i.pid) {
+    if (target_port.empty()) {
+        for (auto &i : pid_table_) {
+            if (port_ == i.pid) {
                 target_pid = i.pid;
-                target_port= i.port;
+                target_port = i.port;
             }
         }
     }
 
-    if(target_port.empty()) return r;
+    if (target_port.empty()) return r;
 
-    for(auto & i : log_buffer_) {
-        if(i.find("ss-server[" + target_pid + "]") != -1) {
+    for (auto &i : log_buffer_) {
+        if (i.find("ss-server[" + target_pid + "]") != -1) {
             r.push_back(i);
         }
     }
@@ -149,7 +149,7 @@ ymt::SetExtraParam(string extra_param) {
 }
 
 void ymt::SetAttribute(YMTAttributes attribute, string value) {
-    
+
     //Set Attributes
     switch (attribute) {
         case CONFIG_FILENAME:
@@ -242,7 +242,7 @@ vector <SSLog> ymt::GetFormattedData() {
         int context1_location = log_buffer_[i].find("connect to ");
 
 
-        vector<size_t> s_temp = util::SearchString(log_buffer_[i],' ', 0, log_buffer_[i].find("ss-server"));
+        vector <size_t> s_temp = util::SearchString(log_buffer_[i], ' ', 0, log_buffer_[i].find("ss-server"));
         int context2_location = s_temp[s_temp.size() - 2];
 
         if (context1_location != -1) {
@@ -254,7 +254,7 @@ vector <SSLog> ymt::GetFormattedData() {
             //Push to log buffer
 
             //Exclude Lines that are not for the port specified (well only if the port is specified)
-            if(is_port_specified && last_port != port_) {
+            if (is_port_specified && last_port != port_) {
                 is_pid_matched = false; //Reset Stat
                 continue;
             }
@@ -291,7 +291,7 @@ vector <string> ymt::GetStatistics() {
 
     //Get website frequency data
 
-    if(LOG_SIZE == 0) {
+    if (LOG_SIZE == 0) {
         printf("No enough data for this port.\n");
         return vector<string>();
     }
@@ -393,10 +393,10 @@ void ymt::UpdateLog() {
 }
 
 void ymt::CleanSyslog() {
-    util::SysExecute("rm /var/log/syslog",false);
-    util::SysExecute("touch /var/log/syslog",false);
-    util::SysExecute("chmod 755 /var/log/syslog",false);
-    util::SysExecute("service rsyslog restart",false);
+    util::SysExecute("rm /var/log/syslog", false);
+    util::SysExecute("touch /var/log/syslog", false);
+    util::SysExecute("chmod 755 /var/log/syslog", false);
+    util::SysExecute("service rsyslog restart", false);
 }
 
 vector <SpeedData> ymt::GetSpeedData() {
@@ -410,17 +410,17 @@ vector <SpeedData> ymt::GetSpeedData() {
 
 vector <string> ymt::GetUserInfo() {
 
-    if(pid_table_.empty()) UpdatePIDTable();
-    if(users_.empty()) UpdateUsers();
+    if (pid_table_.empty()) UpdatePIDTable();
+    if (users_.empty()) UpdateUsers();
 
     Parser target_user;
     string target_pid;
     string target_port;
     bool is_user_located = false;
-    vector<string> r;
+    vector <string> r;
 
-    for(auto & i : users_) {
-        if(port_ == i.GetAttribute(REMOTE_PORT)) {
+    for (auto &i : users_) {
+        if (port_ == i.GetAttribute(REMOTE_PORT)) {
             target_user = i;
             target_port = i.GetAttribute(REMOTE_PORT);
             is_user_located = true;
@@ -429,8 +429,8 @@ vector <string> ymt::GetUserInfo() {
     }
 
     //If user input is port
-    for(auto & i : pid_table_) {
-        if(port_ == i.port) {
+    for (auto &i : pid_table_) {
+        if (port_ == i.port) {
             target_pid = i.pid;
             target_port = i.port;
             break;
@@ -438,23 +438,23 @@ vector <string> ymt::GetUserInfo() {
     }
 
     //If user input is pid
-    if(target_port.empty()) {
-        for(auto & i : pid_table_) {
-            if(port_ == i.pid) {
+    if (target_port.empty()) {
+        for (auto &i : pid_table_) {
+            if (port_ == i.pid) {
                 target_pid = i.pid;
 
-                if(target_port != i.port) {
+                if (target_port != i.port) {
                     is_user_located = false;
                 }
 
-                target_port= i.port;
+                target_port = i.port;
             }
         }
     }
 
-    if(!is_user_located) {
-        for(auto & i : users_) {
-            if(target_port == i.GetAttribute(REMOTE_PORT)) {
+    if (!is_user_located) {
+        for (auto &i : users_) {
+            if (target_port == i.GetAttribute(REMOTE_PORT)) {
                 target_user = i;
                 is_user_located = true;
                 break;
@@ -463,22 +463,24 @@ vector <string> ymt::GetUserInfo() {
     }
 
     //No found? Give up
-    if(!is_user_located) {
+    if (!is_user_located) {
         return r;
     }
 
     //Now Push User Information In
 
     r = util::Make2DTable({
-                                  {"Remote Port", target_user.GetAttribute(REMOTE_PORT)},
-                                  {"Local  Port", target_user.GetAttribute(LOCAL_PORT)},
-                                  {"PID", (target_pid.empty() ? "(NOT RUNNING)" : target_pid)},
+                                  {"Remote Port",        target_user.GetAttribute(REMOTE_PORT)},
+                                  {"Local  Port",        target_user.GetAttribute(LOCAL_PORT)},
+                                  {"PID",                (target_pid.empty() ? "(NOT RUNNING)" : target_pid)},
                                   {"Method(Encryption)", target_user.GetAttribute(METHOD)},
-                                  {"Password", target_user.GetAttribute(KEY)},
-                                  {"TCP Fast Open",target_user.GetAttribute(TCP_FASTOPEN)},
-                                  {"Tunnel Mode", target_user.GetAttribute(UDP_OR_TCP)},
-                                  {"Timeout", target_user.GetAttribute(TIMEOUT)}
-    });
+                                  {"Password",           target_user.GetAttribute(KEY)},
+                                  {"TCP Fast Open",      target_user.GetAttribute(TCP_FASTOPEN)},
+                                  {"Tunnel Mode",        target_user.GetAttribute(UDP_OR_TCP)},
+                                  {"Timeout",            target_user.GetAttribute(TIMEOUT)},
+                                  {"Verbose",            target_user.GetAttribute(VERBOSE)},
+                                  {"UserData Available", target_user.GetAttribute(VERBOSE)}
+                          });
 
     return r;
 }
@@ -489,7 +491,7 @@ void ymt::UpdateUsers() {
     Parser default_config;
 
     //Read raw config
-    vector<string> yaml_content = util::ReadFile(config_);
+    vector <string> yaml_content = util::ReadFile(config_);
 
     //Parse YAML
     for (string &line : yaml_content) {
@@ -517,8 +519,7 @@ void ymt::UpdateUsers() {
                     if (util::IsTheSame("localhost", l.right, false, false) ||
                         util::IsTheSame("bind9-local", l.right, false, false)) {
                         default_config.SetAttribute(DNS, util::GetMachineIP());
-                    }
-                    else {
+                    } else {
                         default_config.SetAttribute(DNS, l.right);
                     }
                     break;
@@ -547,8 +548,7 @@ void ymt::UpdateUsers() {
                 default:
                     break;
             }
-        }
-        else {
+        } else {
             Parser user = default_config;
             user.SetUser(l.left, l.right);
             users_.push_back(user);
