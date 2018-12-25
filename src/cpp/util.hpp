@@ -17,6 +17,7 @@ namespace util {
     bool IsFileExist(string filename);
     bool IsProcessAlive(string pid);
 	bool IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive);
+	string GetEncodedBase64(string ascii);
 
     vector<string> SysExecute(string cmd);
     vector<string> SysExecute(string cmd,bool output);

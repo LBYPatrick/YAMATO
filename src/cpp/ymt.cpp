@@ -9,6 +9,8 @@ string input_log_;
 vector <PIDInfo> pid_table_;
 vector <Parser> users_;
 string port_;
+string server_addr_;
+string profile_name_;
 
 void ymt::RunConfig() {
 
@@ -163,6 +165,12 @@ void ymt::SetAttribute(YMTAttributes attribute, string value) {
             break;
         case PORT:
             port_ = value;
+            break;
+        case SERVER_ADDR:
+            server_addr_ = value;
+            break;
+        case PROFILE_NAME:
+            profile_name_ = value;
             break;
     }
 }
@@ -399,15 +407,6 @@ void ymt::CleanSyslog() {
     util::SysExecute("service rsyslog restart", false);
 }
 
-vector <SpeedData> ymt::GetSpeedData() {
-
-    SpeedData r;
-
-    //TODO: Write code here
-
-    return vector<SpeedData>();
-}
-
 vector <string> ymt::GetUserInfo() {
 
     if (pid_table_.empty()) UpdatePIDTable();
@@ -479,7 +478,7 @@ vector <string> ymt::GetUserInfo() {
                                   {"Tunnel Mode",        target_user.GetAttribute(UDP_OR_TCP)},
                                   {"Timeout",            target_user.GetAttribute(TIMEOUT)},
                                   {"Verbose",            target_user.GetAttribute(VERBOSE)},
-                                  {"UserData Available", target_user.GetAttribute(VERBOSE)}
+                                  {"SS Link",            GetSSShareLink(target_user)}
                           });
 
     return r;
@@ -554,4 +553,23 @@ void ymt::UpdateUsers() {
             users_.push_back(user);
         }
     }
+}
+
+string ymt::GetSSShareLink(Parser &user) {
+
+    if (server_addr_.empty()) {
+        server_addr_ = util::GetMachineIP();
+    }
+
+    if (profile_name_.empty()) {
+        profile_name_ = user.GetAttribute(GROUP_NAME) + '-' + user.GetAttribute(REMOTE_PORT);
+    }
+
+    return "ss://" + util::GetEncodedBase64(user.GetAttribute(METHOD)
+                                            + ':'
+                                            + user.GetAttribute(KEY)
+                                            + '@'
+                                            + server_addr_
+                                            + ':'
+                                            + user.GetAttribute(REMOTE_PORT)) + "#" + profile_name_;
 }

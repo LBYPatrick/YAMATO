@@ -22,7 +22,8 @@ private:
 		redirect_,
 		timeout_ = "1440",
 		server_ = "0.0.0.0",
-		verbose_ = "true";
+		verbose_ = "true",
+        group_name_ = "Default";
 
 	TunnelMode mode = TCP;
 };

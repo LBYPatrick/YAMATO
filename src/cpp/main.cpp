@@ -31,7 +31,7 @@ int main(int argc, char *const argv[]) {
             if (a + 1 < argc) input_file = argv[a + 1];
             else {
                 util::ReportError("You need to specify filename when using -i or --input.");
-                exit(0);
+                return 0;
             }
             a += 1;
         } else if (util::Search(argv[a], {"-a", "--action"}, true) != -1) {
@@ -63,7 +63,9 @@ int main(int argc, char *const argv[]) {
             printf("YAMATO " SOFTWARE_VERSION " by LBYPatrick\n");
             util::ShowHelp({
                                    {"-i or --input <filename>",        "specify input file"},
-                                   {"-a or --action <action>",         "specify action (raw_log,stat, load, unload,log)"},
+                                   {"-a or --action <action>",         "specify action (raw_log,stat, load, unload,log,info)"},
+                                   {"-pn or --profile-name",           "specify profile name(For creating sharable SS:// link)"},
+                                   {"-s or --server-address",          "Specify server address(For creating sharable SS:// link)"},
                                    {"/?, -h or --help",                "show this help message"},
                                    {"-e or --extra-parameter <param>", "specify additional parameters, you can do things like UDP relay or HTTP/TLS OBFS here"},
                                    {"-p or --port",                    "specify a port for checking status"},
@@ -113,6 +115,27 @@ int main(int argc, char *const argv[]) {
             ymt::SetAttribute(PORT, port);
 
             a += 1;
+        } else if (util::Search(argv[a], {"-pn", "--profile-name"}, true) != -1) {
+
+            if (a + 1 >= argc) {
+                util::ReportError("You need to specify a profile name when using -pn");
+                return 0;
+            }
+
+            ymt::SetAttribute(PROFILE_NAME, argv[a + 1]);
+
+            a += 1;
+        } else if (util::Search(argv[a], {"-s", "--server-address"}, true) != -1) {
+
+            if (a + 1 >= argc) {
+                util::ReportError("You need to specify a server address when using -s");
+                return 0;
+            }
+
+            ymt::SetAttribute(SERVER_ADDR, argv[a + 1]);
+
+            a += 1;
+
         } else {
             util::ReportError("Unknown element: " + string(argv[a]) + ".");
             return 0;

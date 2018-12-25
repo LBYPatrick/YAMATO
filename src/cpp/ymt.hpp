@@ -10,12 +10,12 @@ public:
     static void SetExtraParam(string extra_param);
 	static void SetAttribute(YMTAttributes attribute, string value);
 	static vector<SSLog> GetFormattedData();
-    static vector<SpeedData> GetSpeedData();
 	static vector<string> GetFormattedStringData();
 	static vector<string> GetStatistics();
 	static vector<string> GetUserInfo();
     static vector<string> GetPortLog();
 	static void SetFileName(string filename);
+	static string GetSSShareLink(Parser & user);
 private:
     static string RunUser(Parser &p);
     static void UpdateLog();

@@ -6,6 +6,8 @@
 
 #include "util.hpp"
 
+const char B64_INDEX[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
 void util::RemoveLetter(string &original_string, char letter) {
     string temp_buffer;
     bool is_in_quote = false;
@@ -338,6 +340,35 @@ void util::PrintLines(vector<string> arr) {
     for (auto &i : arr) {
         printf("%s\n", i.c_str());
     }
+}
+
+string asc2b64_seg(char c1, char c2 = 0, char c3 = 0) {
+    unsigned int buff = (c1 << 24) + (c2 << 16) + (c3 << 8);
+    string out;
+    for (int i = 0; i < 4; i++) {
+        //printf("%lu, %u\n", sizeof(unsigned int), buff >> 26);
+        out += B64_INDEX[buff >> 26];
+        buff <<= 6;
+    }
+    return out;
+}
+
+string util::GetEncodedBase64(string ascii) {
+    string base64;
+    while (ascii.length() > 2) {
+        base64 += asc2b64_seg(ascii[0], ascii[1], ascii[2]);
+        ascii = ascii.substr(3);
+    }
+    if (ascii.length() == 1) {
+        base64 += asc2b64_seg(ascii[0]);
+        base64 = base64.substr(0, base64.length() - 2) + "==";
+    }
+
+    if (ascii.length() == 2) {
+        base64 += asc2b64_seg(ascii[0], ascii[1]);
+        base64 = base64.substr(0, base64.length() - 1) + "=";
+    }
+    return base64;
 }
 
 void util::QuickSort::Sort(vector<SortItem> &arr, size_t low, size_t high) {
