@@ -1,8 +1,12 @@
+#include <utility>
+
 //
 // Created by LBYPatrick on 2/6/2018.
 //
 
 #include "util.hpp"
+
+const char B64_INDEX[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 void util::RemoveLetter(string &original_string, char letter) {
     string temp_buffer;
@@ -24,33 +28,18 @@ void util::RemoveFile(string filename) {
     remove(filename.c_str());
 }
 
-void util::AppendStringVector(vector <string> &left, vector <string> &right) {
+void util::AppendStringVector(vector<string> &left, vector<string> &right) {
     left.insert(end(left), begin(right), end(right));
 }
 
-void util::ShowHelp(vector <Help> option_list) {
+void util::ShowHelp(vector<TableElement> option_list) {
     size_t left_len = 0;
 
-    string print_buffer;
+    vector<string> output = Make2DTable(std::move(option_list));
 
-    //Get max option length for better formatting
-    for (auto & element : option_list) {
-        left_len = element.option.length() > left_len ?
-                element.option.length() : left_len;
+    for (auto &i : output) {
+        printf("%s\n", i.c_str());
     }
-
-    for (auto & elelment : option_list) {
-        print_buffer += elelment.option;
-
-        for (int i = elelment.option.length(); i < left_len; ++i) {
-            print_buffer += ' ';
-        }
-
-        print_buffer += " : ";
-        print_buffer += elelment.description + "\n";
-    }
-
-    printf("%s", print_buffer.c_str());
 
 }
 
@@ -79,7 +68,7 @@ void util::PercentageBar(int current, int total) {
 
 bool util::IsFileExist(string filename) {
 
-    vector <string> file_list = GetFileList();
+    vector<string> file_list = GetFileList();
 
     for (string &file : file_list) {
         if (filename == file) return true;
@@ -88,27 +77,35 @@ bool util::IsFileExist(string filename) {
 
 }
 
-vector <string> util::SysExecute(string cmd) {
+vector<string> util::SysExecute(string cmd) {
+    return SysExecute(cmd, true);
+}
+
+vector<string> util::SysExecute(string cmd, bool output) {
 
     ifstream reader;
-    vector <string> return_buffer;
+    vector<string> return_buffer;
     string read_buffer;
 
 #if DEBUG_CMDOUT
     printf("CMD: %s\n", cmd.c_str());
 #endif
 
-    system((cmd + "> output.data").c_str());
+    if (output) {
+        system((cmd + "> output.data").c_str());
+        reader.open("output.data");
 
-    reader.open("output.data");
+        while (getline(reader, read_buffer)) {
+            return_buffer.push_back(read_buffer);
+        }
 
-    while (getline(reader, read_buffer)) {
-        return_buffer.push_back(read_buffer);
+        reader.close();
+
+        RemoveFile("output.data");
+    } else {
+        system((cmd + "> /dev/null").c_str());
+
     }
-
-    reader.close();
-
-    RemoveFile("output.data");
 
 #if DEBUG_CMDOUT
 
@@ -123,15 +120,15 @@ vector <string> util::SysExecute(string cmd) {
 
 }
 
-vector <string> util::ReadFile(string path) {
+vector<string> util::ReadFile(string path) {
     return util::ReadFile(path, true);
 }
 
-vector <string> util::ReadFile(string path, bool is_parsed) {
+vector<string> util::ReadFile(string path, bool is_parsed) {
 
     ifstream reader;
     string in;
-    vector <string> out;
+    vector<string> out;
 
     reader.open(path);
 
@@ -142,59 +139,10 @@ vector <string> util::ReadFile(string path, bool is_parsed) {
     }
 
     return out;
-
-/*
-	ifstream r(path.c_str());
-	stringstream read_buffer;
-	vector<string> file_buffer;
-
-	if (!r.is_open()) {
-		return vector<string>();
-	}
-
-	
-
-
-	read_buffer << r.rdbuf();
-	r.close();
-
-	if (!is_parsed) return { read_buffer.str() };
-	else {
-		string temp = read_buffer.str();
-		vector<int> results = util::SearchString(temp, '\n');
-		bool is_newline_head = false;
-
-		//Quit if it's a file without "\n"
-		if (results.size() == 0) {
-			return { temp };
-		}
-
-		if (results[0] == 0) {
-			file_buffer.push_back("");
-			file_buffer.push_back(SubString(temp, 1, results[1]));
-			is_newline_head = true;
-		}
-		else {
-			file_buffer.push_back(SubString(temp, 0, results[0]));
-		}
-
-		for (int i = is_newline_head; i < results.size(); ++i) {
-			if (i + 1 <= (results.size() - 1)) {
-				file_buffer.push_back(SubString(temp, results[i] + 1, results[i + 1]));
-			}
-			else {
-				if (results[i] == temp.size() - 1) {break;}
-				file_buffer.push_back(SubString(temp, results[i] + 1, results.size()));
-			}
-		}
-	}
-	
-	return file_buffer;
-*/
 }
 
 
-int util::Search(string str, vector <string> match_list, bool precise) {
+int util::Search(string str, vector<string> match_list, bool precise) {
     for (int i = 0; i < match_list.size(); ++i) {
 
         if (precise && match_list[i] == str) {
@@ -207,7 +155,7 @@ int util::Search(string str, vector <string> match_list, bool precise) {
     return -1;
 }
 
-int util::Search(string str, vector <string> match_list) {
+int util::Search(string str, vector<string> match_list) {
     return Search(str, match_list, false);
 }
 
@@ -250,7 +198,7 @@ util::SubString(string str, int left, int stop) {
 }
 
 string util::GetMachineIP() {
-    vector <string> result = SysExecute(
+    vector<string> result = SysExecute(
             R"(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')");
     return !result.empty() ? result[0] : string();
 }
@@ -258,7 +206,7 @@ string util::GetMachineIP() {
 
 bool util::IsProcessAlive(string pid) {
 
-    vector <string> cmd_buffer = SysExecute("ps -p " + pid);
+    vector<string> cmd_buffer = SysExecute("ps -p " + pid);
 
     return cmd_buffer.size() > 1;
 }
@@ -280,12 +228,12 @@ bool util::IsTheSame(string str, string key, bool is_precise, bool is_case_sensi
     }
 }
 
-vector <string>
+vector<string>
 util::GetFileList(string directory) {
 
-    vector <string> console_buffer = SysExecute("ls -p " + directory + " -1");
+    vector<string> console_buffer = SysExecute("ls -p " + directory + " -1");
 
-    vector <string> output_buffer;
+    vector<string> output_buffer;
 
     for (string &line : console_buffer) {
 
@@ -297,10 +245,10 @@ util::GetFileList(string directory) {
     return output_buffer;
 }
 
-vector <string> util::GetFolderList(string directory) {
+vector<string> util::GetFolderList(string directory) {
 
-    vector <string> console_buffer = SysExecute("ls -p " + directory + " -1");
-    vector <string> output_buffer;
+    vector<string> console_buffer = SysExecute("ls -p " + directory + " -1");
+    vector<string> output_buffer;
 
     for (string &line : console_buffer) {
 
@@ -313,15 +261,15 @@ vector <string> util::GetFolderList(string directory) {
     return output_buffer;
 }
 
-vector <string> util::GetFolderList() {
+vector<string> util::GetFolderList() {
     return GetFolderList("./");
 }
 
-vector <string> util::GetFileList() {
+vector<string> util::GetFileList() {
     return GetFileList("./");
 }
 
-bool util::WriteFile(string filename, vector <string> content) {
+bool util::WriteFile(string filename, vector<string> content) {
     ofstream o;
     string buf;
 
@@ -340,17 +288,17 @@ bool util::WriteFile(string filename, vector <string> content) {
     return true;
 }
 
-vector <size_t> util::SearchString(string str, char key) {
+vector<size_t> util::SearchString(string str, char key) {
     return SearchString(str, key, 0, str.size());
 }
 
-vector <size_t> util::SearchString(string str, char key, size_t left, size_t stop) {
+vector<size_t> util::SearchString(string str, char key, size_t left, size_t stop) {
 
     size_t length = stop - left;
     vector<size_t> r;
 
-    for(size_t i = left; i < stop; i+=1) {
-        if(str[i] == key) {
+    for (size_t i = left; i < stop; i += 1) {
+        if (str[i] == key) {
             r.push_back(i);
         }
     }
@@ -358,7 +306,72 @@ vector <size_t> util::SearchString(string str, char key, size_t left, size_t sto
     return r;
 }
 
-void util::QuickSort::Sort(vector <SortItem> &arr, size_t low, size_t high) {
+vector<string> util::Make2DTable(vector<TableElement> table) {
+
+
+    size_t left_len = 0;
+    vector<string> r;
+    string line;
+
+    //Get max l_element length for better formatting
+    for (auto &i : table) {
+        if (i.l_element.length() > left_len) {
+            left_len = i.l_element.length();
+        }
+    }
+
+    //Format Output based on left_len
+    for (auto &i : table) {
+        line = i.l_element;
+
+        for (size_t n = i.l_element.length(); n < left_len; ++n) {
+            line += ' ';
+        }
+
+        line += " : ";
+        line += i.r_element;
+        r.push_back(line);
+    }
+
+    return r;
+}
+
+void util::PrintLines(vector<string> arr) {
+    for (auto &i : arr) {
+        printf("%s\n", i.c_str());
+    }
+}
+
+string asc2b64_seg(char c1, char c2 = 0, char c3 = 0) {
+    unsigned int buff = (c1 << 24) + (c2 << 16) + (c3 << 8);
+    string out;
+    for (int i = 0; i < 4; i++) {
+        //printf("%lu, %u\n", sizeof(unsigned int), buff >> 26);
+        out += B64_INDEX[buff >> 26];
+        buff <<= 6;
+    }
+    return out;
+}
+
+string util::GetEncodedBase64(string ascii) {
+    string base64;
+    while (ascii.length() > 2) {
+        base64 += asc2b64_seg(ascii[0], ascii[1], ascii[2]);
+        ascii = ascii.substr(3);
+    }
+    if (ascii.length() == 1) {
+        base64 += asc2b64_seg(ascii[0]);
+        base64 = base64.substr(0, base64.length() - 2) + "==";
+    }
+
+    if (ascii.length() == 2) {
+        base64 += asc2b64_seg(ascii[0], ascii[1]);
+        base64 = base64.substr(0, base64.length() - 1) + "=";
+    }
+    return base64;
+}
+
+void util::QuickSort::Sort(vector<SortItem> &arr, size_t low, size_t high) {
     if (low < high) {
         size_t pivot = Partition(arr, low, high);
         Sort(arr, low, pivot);
@@ -372,9 +385,9 @@ void util::QuickSort::Sort(vector <SortItem> &arr, size_t low, size_t high) {
  * @return vector containing indexes of sorted items
  */
 
-vector <size_t> util::QuickSort::Sort(vector <long long> &arr, size_t low, size_t high) {
-    vector <SortItem> new_arr;
-    vector <size_t> r;
+vector<size_t> util::QuickSort::Sort(vector<long long> &arr, size_t low, size_t high) {
+    vector<SortItem> new_arr;
+    vector<size_t> r;
 
     //Reserve space for efficiency
     new_arr.reserve(high - low + 1);
@@ -398,7 +411,7 @@ vector <size_t> util::QuickSort::Sort(vector <long long> &arr, size_t low, size_
  * @param arr
  * @return vector containing indexes of sorted items
  */
-vector <size_t> util::QuickSort::Sort(vector <long long> &arr) {
+vector<size_t> util::QuickSort::Sort(vector<long long> &arr) {
     return Sort(arr, 0, arr.size() - 1);
 }
 
@@ -409,7 +422,7 @@ vector <size_t> util::QuickSort::Sort(vector <long long> &arr) {
  * @param high High index.
  * @return Index of pivot
  */
-size_t util::QuickSort::Partition(vector <SortItem> &arr, size_t low, size_t high) {
+size_t util::QuickSort::Partition(vector<SortItem> &arr, size_t low, size_t high) {
     long long pivot = arr[low].key;
     size_t left_index = low - 1,
             right_index = high + 1;

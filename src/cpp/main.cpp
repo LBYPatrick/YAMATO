@@ -4,41 +4,37 @@
 #include "util.hpp"
 #include "ymt.hpp"
 
-using std::vector;
-using std::string;
-
 enum Action {
     EXPORT_RAW_LOG,
     LOAD,
     UNLOAD,
-	EXPORT_LOG,
-	EXPORT_STAT,
-    UNKNOWN
+    EXPORT_LOG,
+    EXPORT_STAT,
+    UNKNOWN,
+    INFO
 };
 
-int main(int argc, char*const argv[]) {
+int main(int argc, char *const argv[]) {
 
     //Variables
     string input_file;
-	string out_file = "yamato_analyzed.log";
-	string input_log_file;
+    string out_file = "yamato_analyzed.log";
+    string input_log_file;
 
     Action action = UNKNOWN;
     string port;
 
 #pragma region Collect parameters
-    for(int a = 1; a < argc; ++a) {
+    for (int a = 1; a < argc; ++a) {
 
         if (util::Search(argv[a], {"-i", "--input"}, true) != -1) {
             if (a + 1 < argc) input_file = argv[a + 1];
             else {
                 util::ReportError("You need to specify filename when using -i or --input.");
-                exit(0);
+                return 0;
             }
             a += 1;
-        }
-
-        else if (util::Search(argv[a], {"-a", "--action"}, true) != -1) {
+        } else if (util::Search(argv[a], {"-a", "--action"}, true) != -1) {
 
             //Parameter pre-check
             if (a + 1 >= argc) {
@@ -48,31 +44,28 @@ int main(int argc, char*const argv[]) {
 
             if (util::Search(argv[a + 1], {"stat"}, true) != -1) {
                 action = EXPORT_STAT;
-            }
-            else if (util::Search(argv[a + 1], {"load"}, true) != -1) {
+            } else if (util::Search(argv[a + 1], {"load"}, true) != -1) {
                 action = LOAD;
-            }
-            else if (util::Search(argv[a + 1], {"unload"}, true) != -1) {
+            } else if (util::Search(argv[a + 1], {"unload"}, true) != -1) {
                 action = UNLOAD;
-			}
-			else if (util::Search(argv[a + 1], {"log"}, true) != -1) {
-				action = EXPORT_LOG;
-			}
-			else if (util::Search(argv[a + 1],{"raw_log"},true) != -1) {
-			    action = EXPORT_RAW_LOG;
-			}
-			else {
+            } else if (util::Search(argv[a + 1], {"log"}, true) != -1) {
+                action = EXPORT_LOG;
+            } else if (util::Search(argv[a + 1], {"raw_log"}, true) != -1) {
+                action = EXPORT_RAW_LOG;
+            } else if (util::Search(argv[a + 1], {"info", "user-information"}, true) != -1) {
+                action = INFO;
+            } else {
                 util::ReportError("Unknown action: " + string(argv[a + 1]) + ".");
                 break;
             }
             a += 1;
-        }
-
-        else if (util::Search(argv[a], {"/?", "-h", "--help"}, true) != -1) {
+        } else if (util::Search(argv[a], {"/?", "-h", "--help"}, true) != -1) {
             printf("YAMATO " SOFTWARE_VERSION " by LBYPatrick\n");
             util::ShowHelp({
                                    {"-i or --input <filename>",        "specify input file"},
-                                   {"-a or --action <action>",         "specify action (raw_log,stat, load, unload,log)"},
+                                   {"-a or --action <action>",         "specify action (raw_log,stat, load, unload,log,info)"},
+                                   {"-pn or --profile-name",           "specify profile name(For creating sharable SS:// link)"},
+                                   {"-s or --server-address",          "Specify server address(For creating sharable SS:// link)"},
                                    {"/?, -h or --help",                "show this help message"},
                                    {"-e or --extra-parameter <param>", "specify additional parameters, you can do things like UDP relay or HTTP/TLS OBFS here"},
                                    {"-p or --port",                    "specify a port for checking status"},
@@ -82,57 +75,69 @@ int main(int argc, char*const argv[]) {
                            });
             printf("\n");
             return 0;
-        }
+        } else if (util::Search(argv[a], {"-e", "--extra-parameter"}, true) != -1) {
 
-		else if (util::Search(argv[a], { "-e", "--extra-parameter" }, true) != -1) {
+            if (a + 1 >= argc) {
+                util::ReportError(
+                        "Your need to specify extra parameters (With quote if needed) when using -e or --extra-parameter.");
+                return 0;
+            }
 
-			if (a + 1 >= argc) {
-				util::ReportError("Your need to specify extra parameters (With quote if needed) when using -e or --extra-parameter.");
-				return 0;
-			}
+            ymt::SetExtraParam(argv[a + 1]);
+            a += 1;
+        } else if (util::Search(argv[a], {"-o", "--output"}, true) != -1) {
+            if (a + 1 >= argc) {
+                util::ReportError("You need to specify a filename when using -o or --output.");
+                return 0;
+            }
 
-			ymt::SetExtraParam(argv[a + 1]);
-			a += 1;
-		}
+            out_file = argv[a + 1];
 
-		else if (util::Search(argv[a], { "-o","--output" }, true) != -1) {
-			if (a + 1 >= argc) {
-				util::ReportError("You need to specify a filename when using -o or --output.");
-				return 0;
-			}
-			
-			out_file = argv[a + 1];
+            a += 1;
+        } else if (util::Search(argv[a], {"-li", "--log-input"}, true) != -1) {
+            if (a + 1 >= argc) {
+                util::ReportError("You need to specify a filename when using -li or --log-input.");
+                return 0;
+            }
 
-			a += 1;
-		}
+            input_log_file = argv[a + 1];
+            ymt::SetAttribute(LOG_INPUT_FILENAME, input_log_file);
 
-		else if (util::Search(argv[a], { "-li","--log-input" }, true) != -1) {
-			if (a + 1 >= argc) {
-				util::ReportError("You need to specify a filename when using -li or --log-input.");
-				return 0;
-			}
+            a += 1;
+        } else if (util::Search(argv[a], {"-p", "--port"}, true) != -1) {
 
-			input_log_file = argv[a + 1];
-			ymt::SetAttribute(LOG_INPUT_FILENAME, input_log_file);
-			
-			a += 1;
-		}
-
-        else if (util::Search(argv[a], {"-p","--port"},true) != -1) {
-
-            if(a+1 >= argc) {
+            if (a + 1 >= argc) {
                 util::ReportError("You need to specify a port when using -p");
                 return 0;
             }
 
-            port = argv[a+1];
-            ymt::SetAttribute(PORT,port);
+            port = argv[a + 1];
+            ymt::SetAttribute(PORT, port);
 
             a += 1;
-        }
+        } else if (util::Search(argv[a], {"-pn", "--profile-name"}, true) != -1) {
 
-        else {
-            util::ReportError("Unknown option: " + string(argv[a]) + ".");
+            if (a + 1 >= argc) {
+                util::ReportError("You need to specify a profile name when using -pn");
+                return 0;
+            }
+
+            ymt::SetAttribute(PROFILE_NAME, argv[a + 1]);
+
+            a += 1;
+        } else if (util::Search(argv[a], {"-s", "--server-address"}, true) != -1) {
+
+            if (a + 1 >= argc) {
+                util::ReportError("You need to specify a server address when using -s");
+                return 0;
+            }
+
+            ymt::SetAttribute(SERVER_ADDR, argv[a + 1]);
+
+            a += 1;
+
+        } else {
+            util::ReportError("Unknown element: " + string(argv[a]) + ".");
             return 0;
         }
     }
@@ -142,44 +147,41 @@ int main(int argc, char*const argv[]) {
     //Finish collecting parameters, run pre-check
     if (action == UNKNOWN) {
         util::ReportError("Need to specify action with -a or --action.");
-		return 0;
+        return 0;
     }
 
-	//Set Input File Name
-	ymt::SetFileName(input_file);
+    //Set Input File Name
+    ymt::SetFileName(input_file);
 
     //Start Execution
-    switch(action) {
+    switch (action) {
         case EXPORT_RAW_LOG :
 
-            if(port.empty()) {
-                util::ReportError("You need to specify a port for checking status");
-				return 0;
-            }
-            if(input_file.empty()) {
+            if (input_file.empty()) {
                 vector<string> file_list = util::GetFileList("./");
 
-                for(string & file : file_list) {
-                    if(file.find(".pidmap") != -1) {
-                        input_file = util::SubString(file,0,file.size()-7);
+                //TODO: FIX THIS
+                for (string &file : file_list) {
+                    if (file.find(".pidmap") != -1) {
+                        input_file = util::SubString(file, 0, file.size() - 7);
                         break;
                     }
                 }
 
-                if(input_file.empty()) {
-                    util::ReportError("Need to specify action with -a or --action.");
+                if (input_file.empty()) {
+                    util::ReportError("Need to specify input file.");
                     exit(0);
                 }
 
-				ymt::SetFileName(input_file);
+                ymt::SetFileName(input_file);
             }
-            ymt::CheckPort(port);
+            util::PrintLines(ymt::GetPortLog());
             break;
 
         case LOAD :
             if (input_file.empty()) {
                 util::ReportError("Need to specify input file with -i or --input.");
-				return 0;
+                return 0;
             }
             ymt::RunConfig();
             break;
@@ -187,21 +189,26 @@ int main(int argc, char*const argv[]) {
         case UNLOAD :
             if (input_file.empty()) {
                 util::ReportError("Need to specify input file with -i or --input.");
-				return 0;
+                return 0;
             }
             ymt::StopConfig();
             break;
-		case EXPORT_LOG :
-			util::WriteFile(out_file, ymt::GetFormattedStringData());
-			printf("Log saved to \"%s\".\n",out_file.c_str());
-			break;
-		case EXPORT_STAT :
-			util::WriteFile(out_file, ymt::GetStatisics());
-			printf("Statistics saved to \"%s\".\n", out_file.c_str());
-			break;
+        case EXPORT_LOG :
+            util::WriteFile(out_file, ymt::GetFormattedStringData());
+            printf("Log saved to \"%s\".\n", out_file.c_str());
+            break;
+        case EXPORT_STAT :
+            util::WriteFile(out_file, ymt::GetStatistics());
+            printf("Statistics saved to \"%s\".\n", out_file.c_str());
+            break;
+        case INFO :
+            util::PrintLines(ymt::GetUserInfo());
+        default:
+            break;
+
     }
 
-	return 1;
+    return 1;
 #pragma endregion
 
 }

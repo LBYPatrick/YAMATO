@@ -9,84 +9,21 @@ string input_log_;
 vector <PIDInfo> pid_table_;
 vector <Parser> users_;
 string port_;
+string server_addr_;
+string profile_name_;
 
 void ymt::RunConfig() {
 
-    vector <string> yaml_content;
     vector <PIDInfo> pids;
-
-    Parser default_config;
 
     //Unload sessions from the config session if loaded already
 
     if (util::IsFileExist(config_ + ".pidmap")) StopConfig();
 
-    yaml_content = util::ReadFile(config_);
-
-    //Parse YAML
-    for (string &line : yaml_content) {
-
-        //Skip blanklines & comments
-        if (line.empty()) continue;
-        else {
-            int slash_pos = line.find("//");
-            if (slash_pos != -1) {
-                line = util::SubString(line, 0, slash_pos);
-            }
-            if (line.empty()) continue;
-        }
-
-
-        YAML l = util::GetYaml(line);
-
-        //If it is global level -- no user
-        if (l.level == 0) {
-            switch (util::Search(l.left, {"group", "nameserver", "method", "fastopen", "redirect", "timeout", "server",
-                                          "tunnel_mode", "verbose"})) {
-                case 0:
-                    break; //Don't really know how can I use group name...
-                case 1:
-                    if (util::IsTheSame("localhost", l.right, false, false) ||
-                        util::IsTheSame("bind9-local", l.right, false, false)) {
-                        default_config.SetAttribute(DNS, util::GetMachineIP());
-                    } else {
-                        default_config.SetAttribute(DNS, l.right);
-                    }
-                    break;
-                case 2:
-                    default_config.SetAttribute(METHOD, l.right);
-                    break;
-                case 3:
-                    default_config.SetAttribute(TCP_FASTOPEN, l.right);
-                    break;
-                case 4:
-                    default_config.SetAttribute(REDIRECT, l.right);
-                    break;
-                case 5:
-                    default_config.SetAttribute(TIMEOUT, l.right);
-                    break;
-                case 6:
-                    default_config.SetAttribute(SERVER, l.right);
-                    break;
-                case 7:
-                    default_config.SetAttribute(UDP_OR_TCP, l.right);
-                    break;
-                case 8:
-                    default_config.SetAttribute(VERBOSE, l.right);
-                    break;
-
-                default:
-                    break;
-            }
-        } else {
-            Parser user = default_config;
-            user.SetUser(l.left, l.right);
-            users_.push_back(user);
-        }
-    }
+    //Read User Information
+    if (users_.size() == 0) UpdateUsers();
 
     //Start Running processes for users
-
     for (Parser &p : users_) {
         pids.push_back({p.GetAttribute(REMOTE_PORT), RunUser(p)});
     }
@@ -122,8 +59,9 @@ string ymt::RunUser(Parser &p) {
     //Write user config
     util::WriteFile("SS.conf", {file_buffer});
 
-    system(string("ss-server -c SS.conf " + string(p.GetAttribute(VERBOSE) == "true" ? "-v" : "") + " " + extra_param_ +
-                  " -f " + p.GetAttribute(REMOTE_PORT) + ".pid").c_str());
+    util::SysExecute(
+            ("ss-server -c SS.conf " + string(p.GetAttribute(VERBOSE) == "true" ? "-v" : "") + " " + extra_param_ +
+             " -f " + p.GetAttribute(REMOTE_PORT) + ".pid"), false);
 
     //Return pid buffer
     return util::ReadFile(p.GetAttribute(REMOTE_PORT) + ".pid", false)[0];
@@ -151,7 +89,7 @@ void ymt::StopConfig() {
         yaml = util::GetYaml(line);
 
         if (goods > 3 || util::IsProcessAlive(yaml.right)) {
-            util::SysExecute("kill -15 " + yaml.right);
+            util::SysExecute("kill -15 " + yaml.right, false);
             goods += 1;
         } else {
             fails++;
@@ -162,71 +100,49 @@ void ymt::StopConfig() {
     util::RemoveFile(config_ + string(".pidmap"));
 }
 
-//TODO: Make this to return vector<string> so that the log can be saved later instead of just printing on the screen
-void ymt::CheckPort(string port) {
+vector <string> ymt::GetPortLog() {
 
-    vector <string> pidmap;
-    YAML yaml_line;
-    string target_pid = "-1";
+    string target_pid;
+    string target_port;
+    vector <string> r;
 
-    pidmap = util::ReadFile(config_ + ".pidmap");
+    //Obtain Raw Log
+    if (log_buffer_.empty()) UpdateLog();
 
-    //Quit if cannot find the pidmap file
-    if (pidmap.empty()) {
-        util::ReportError(
-                "Cannot read the pidmap for the file specified, please load the config before unload and DO NOT delete pidmap.");
-        return;
-    }
+    //Return Raw Log if port/pid is not specified
+    if (port_.empty()) return log_buffer_;
 
-    //Assume the "port" parameter is a port
-    for (string &line : pidmap) {
+    //Obtain PID Table
+    if (pid_table_.empty()) UpdatePIDTable();
 
-        yaml_line = util::GetYaml(line);
-
-        if (yaml_line.left == port) {
-            target_pid = yaml_line.right;
+    //If user input is port
+    for (auto &i : pid_table_) {
+        if (port_ == i.port) {
+            target_pid = i.pid;
+            target_port = i.port;
             break;
         }
     }
 
-    if (target_pid == "-1") {
-
-        //Now assume the "port parameter" is actually a PID
-        for (string &line : pidmap) {
-
-            yaml_line = util::GetYaml(line);
-
-            if (yaml_line.right == port) {
-                target_pid = yaml_line.right;
-                port = yaml_line.left;
-                break;
+    //If user input is pid
+    if (target_port.empty()) {
+        for (auto &i : pid_table_) {
+            if (port_ == i.pid) {
+                target_pid = i.pid;
+                target_port = i.port;
             }
-
         }
-
-        //Still no found...
-        if (target_pid == "-1") { return; }
     }
 
-    vector <string> file_buffer = GetRawLog(target_pid);
+    if (target_port.empty()) return r;
 
-    //Some basic info
-    printf("ss-manager information\n"
-           "=========================\n"
-           "Configuration: %s\n"
-           "Port:          %s\n"
-           "PID:           %s\n\n"
-           "Log from system about this user:\n\n",
-           config_.c_str(),
-           port.c_str(),
-           target_pid.c_str());
-
-    //Print actual log
-    for (string &line : file_buffer) {
-        printf("%s\n", line.c_str());
+    for (auto &i : log_buffer_) {
+        if (i.find("ss-server[" + target_pid + "]") != -1) {
+            r.push_back(i);
+        }
     }
-    printf("\n"
-           "=========================\n");
+
+    return r;
 }
 
 void
@@ -235,7 +151,7 @@ ymt::SetExtraParam(string extra_param) {
 }
 
 void ymt::SetAttribute(YMTAttributes attribute, string value) {
-    
+
     //Set Attributes
     switch (attribute) {
         case CONFIG_FILENAME:
@@ -250,32 +166,14 @@ void ymt::SetAttribute(YMTAttributes attribute, string value) {
         case PORT:
             port_ = value;
             break;
+        case SERVER_ADDR:
+            server_addr_ = value;
+            break;
+        case PROFILE_NAME:
+            profile_name_ = value;
+            break;
     }
 }
-
-/**
- * Obtain Raw Log from systemd -- Without Any Filter
- * @param pid
- * @return Log related to ss-server
- */
-
-vector <string> ymt::GetRawLog(string pid) {
-
-    vector <string> r;
-
-    if (log_buffer_.empty()) {
-        UpdateLog();
-    }
-
-    for (string &line : log_buffer_) {
-        if (line.find(R"(ss-server[)" + pid + ']') != -1) {
-            r.push_back(line);
-        }
-    }
-
-    return r;
-}
-
 
 /**
  * Obtain PID Table containing pids matching to the ports defined in user config
@@ -352,7 +250,7 @@ vector <SSLog> ymt::GetFormattedData() {
         int context1_location = log_buffer_[i].find("connect to ");
 
 
-        vector<size_t> s_temp = util::SearchString(log_buffer_[i],' ', 0, log_buffer_[i].find("ss-server"));
+        vector <size_t> s_temp = util::SearchString(log_buffer_[i], ' ', 0, log_buffer_[i].find("ss-server"));
         int context2_location = s_temp[s_temp.size() - 2];
 
         if (context1_location != -1) {
@@ -364,7 +262,7 @@ vector <SSLog> ymt::GetFormattedData() {
             //Push to log buffer
 
             //Exclude Lines that are not for the port specified (well only if the port is specified)
-            if(is_port_specified && last_port != port_) {
+            if (is_port_specified && last_port != port_) {
                 is_pid_matched = false; //Reset Stat
                 continue;
             }
@@ -388,7 +286,7 @@ vector <string> ymt::GetFormattedStringData() {
     return r;
 }
 
-vector <string> ymt::GetStatisics() {
+vector <string> ymt::GetStatistics() {
 
     vector <SSLog> log = GetFormattedData();
     vector <InquiryData> site_list;
@@ -401,7 +299,7 @@ vector <string> ymt::GetStatisics() {
 
     //Get website frequency data
 
-    if(LOG_SIZE == 0) {
+    if (LOG_SIZE == 0) {
         printf("No enough data for this port.\n");
         return vector<string>();
     }
@@ -495,7 +393,7 @@ void ymt::UpdateLog() {
     vector <string> temp = util::ReadFile((input_log_.empty() ? "/var/log/syslog" : input_log_));
 
     for (string &i : temp) {
-        if (i.find("ss-server") != -1) {
+        if (i.find("ss-server[") != -1) {
             log_buffer_.push_back(i);
         }
     }
@@ -503,17 +401,176 @@ void ymt::UpdateLog() {
 }
 
 void ymt::CleanSyslog() {
-    util::SysExecute("rm /var/log/syslog");
-    util::SysExecute("touch /var/log/syslog");
-    util::SysExecute("chmod 755 /var/log/syslog");
-    util::SysExecute("service rsyslog restart");
+    util::SysExecute("rm /var/log/syslog", false);
+    util::SysExecute("touch /var/log/syslog", false);
+    util::SysExecute("chmod 755 /var/log/syslog", false);
+    util::SysExecute("service rsyslog restart", false);
 }
 
-vector <SpeedData> ymt::GetSpeedData() {
+vector <string> ymt::GetUserInfo() {
 
-    SpeedData r;
+    if (pid_table_.empty()) UpdatePIDTable();
+    if (users_.empty()) UpdateUsers();
 
-    //TODO: Write code here
+    Parser target_user;
+    string target_pid;
+    string target_port;
+    bool is_user_located = false;
+    vector <string> r;
 
-    return vector<SpeedData>();
+    for (auto &i : users_) {
+        if (port_ == i.GetAttribute(REMOTE_PORT)) {
+            target_user = i;
+            target_port = i.GetAttribute(REMOTE_PORT);
+            is_user_located = true;
+            break;
+        }
+    }
+
+    //If user input is port
+    for (auto &i : pid_table_) {
+        if (port_ == i.port) {
+            target_pid = i.pid;
+            target_port = i.port;
+            break;
+        }
+    }
+
+    //If user input is pid
+    if (target_port.empty()) {
+        for (auto &i : pid_table_) {
+            if (port_ == i.pid) {
+                target_pid = i.pid;
+
+                if (target_port != i.port) {
+                    is_user_located = false;
+                }
+
+                target_port = i.port;
+            }
+        }
+    }
+
+    if (!is_user_located) {
+        for (auto &i : users_) {
+            if (target_port == i.GetAttribute(REMOTE_PORT)) {
+                target_user = i;
+                is_user_located = true;
+                break;
+            }
+        }
+    }
+
+    //No found? Give up
+    if (!is_user_located) {
+        return r;
+    }
+
+    //Now Push User Information In
+
+    r = util::Make2DTable({
+                                  {"Remote Port",        target_user.GetAttribute(REMOTE_PORT)},
+                                  {"Local  Port",        target_user.GetAttribute(LOCAL_PORT)},
+                                  {"PID",                (target_pid.empty() ? "(NOT RUNNING)" : target_pid)},
+                                  {"Method(Encryption)", target_user.GetAttribute(METHOD)},
+                                  {"Password",           target_user.GetAttribute(KEY)},
+                                  {"TCP Fast Open",      target_user.GetAttribute(TCP_FASTOPEN)},
+                                  {"Tunnel Mode",        target_user.GetAttribute(UDP_OR_TCP)},
+                                  {"Timeout",            target_user.GetAttribute(TIMEOUT)},
+                                  {"Verbose",            target_user.GetAttribute(VERBOSE)},
+                                  {"SS Link",            GetSSShareLink(target_user)}
+                          });
+
+    return r;
+}
+
+void ymt::UpdateUsers() {
+
+    //Make template configuration (Can be modified by config)
+    Parser default_config;
+
+    //Read raw config
+    vector <string> yaml_content = util::ReadFile(config_);
+
+    //Parse YAML
+    for (string &line : yaml_content) {
+
+        //Skip blanklines & comments
+        if (line.empty()) continue;
+        else {
+            int slash_pos = line.find("//");
+            if (slash_pos != -1) {
+                line = util::SubString(line, 0, slash_pos);
+            }
+            if (line.empty()) continue;
+        }
+
+
+        YAML l = util::GetYaml(line);
+
+        //If it is global level -- no user
+        if (l.level == 0) {
+            switch (util::Search(l.left, {"group", "nameserver", "method", "fastopen", "redirect", "timeout", "server",
+                                          "tunnel_mode", "verbose"})) {
+                case 0:
+                    default_config.SetAttribute(GROUP_NAME, l.right);
+                    break;
+                case 1:
+                    if (util::IsTheSame("localhost", l.right, false, false) ||
+                        util::IsTheSame("bind9-local", l.right, false, false)) {
+                        default_config.SetAttribute(DNS, util::GetMachineIP());
+                    } else {
+                        default_config.SetAttribute(DNS, l.right);
+                    }
+                    break;
+                case 2:
+                    default_config.SetAttribute(METHOD, l.right);
+                    break;
+                case 3:
+                    default_config.SetAttribute(TCP_FASTOPEN, l.right);
+                    break;
+                case 4:
+                    default_config.SetAttribute(REDIRECT, l.right);
+                    break;
+                case 5:
+                    default_config.SetAttribute(TIMEOUT, l.right);
+                    break;
+                case 6:
+                    default_config.SetAttribute(SERVER, l.right);
+                    break;
+                case 7:
+                    default_config.SetAttribute(UDP_OR_TCP, l.right);
+                    break;
+                case 8:
+                    default_config.SetAttribute(VERBOSE, l.right);
+                    break;
+
+                default:
+                    break;
+            }
+        } else {
+            Parser user = default_config;
+            user.SetUser(l.left, l.right);
+            users_.push_back(user);
+        }
+    }
+}
+
+string ymt::GetSSShareLink(Parser &user) {
+
+    if (server_addr_.empty()) {
+        server_addr_ = util::GetMachineIP();
+    }
+
+    if (profile_name_.empty()) {
+        profile_name_ = user.GetAttribute(GROUP_NAME) + '-' + user.GetAttribute(REMOTE_PORT);
+    }
+
+    return "ss://" + util::GetEncodedBase64(user.GetAttribute(METHOD)
+                                            + ':'
+                                            + user.GetAttribute(KEY)
+                                            + '@'
+                                            + server_addr_
+                                            + ':'
+                                            + user.GetAttribute(REMOTE_PORT)) + "#" + profile_name_;
 }

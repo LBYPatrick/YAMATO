@@ -24,13 +24,16 @@ Or use CMake with ``CMakeLists.txt``.
 Parameters
 ```bash
 
-    -i or --input <filename>        : specify input file
-    -a or --action <action>         : specify action (stat, load, unload, log, raw_log)
-    /?, -h or --help                : show help message
-    -li or --log-input              : specify source syslog file (Not required, this is for analyzing log in devices other than your server)
-    -o or --output                  : specify output file name (For stat and log specified with --action, the default output filename is yamato_analyzed.log)
-    -e or --extra-parameter <param> : specify additional parameters, you can do things like UDP relay or HTTP/TLS OBFS here
-    -p or --port                    : specify a port for checking status
+-i or --input <filename>        : specify input file
+-a or --action <action>         : specify action (raw_log,stat, load, unload,log,info)
+-pn or --profile-name           : specify profile name(For creating sharable SS:// link)
+-s or --server-address          : Specify server address(For creating sharable SS:// link)
+/?, -h or --help                : show this help message
+-e or --extra-parameter <param> : specify additional parameters, you can do things like UDP relay or HTTP/TLS OBFS here
+-p or --port                    : specify a port for checking status
+-li or --log-input              : specify source syslog file (Not required, this is for analyzing log in devices other than your server)
+-o or --output                  : specify output file name (For stat and log specified with --action, the default output filename is yamato_analyzed.log)
+
 
 ```
 
@@ -41,7 +44,7 @@ group: Contosco
 nameserver: 8.8.8.8
 method: chacha20-ietf
 timeout: 1440
-redirect: pornhub.com       //You might want the government to have some pleasure :p
+redirect: pornhub.com
 fastopen: true
 server: 0.0.0.0
 tunnel_mode: udp            //or you can set it to "tcp" or "both". Please keep in mind that it's NOT "tcp_only" or "tcp_and_udp" because I hate to do it that way.
