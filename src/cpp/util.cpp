@@ -199,7 +199,7 @@ util::SubString(string str, int left, int stop) {
 
 string util::GetMachineIP() {
     vector<string> result = SysExecute(
-            R"(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')");
+            R"(ip address | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')");
     return !result.empty() ? result[0] : string();
 }
 
