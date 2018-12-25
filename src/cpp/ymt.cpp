@@ -513,7 +513,8 @@ void ymt::UpdateUsers() {
             switch (util::Search(l.left, {"group", "nameserver", "method", "fastopen", "redirect", "timeout", "server",
                                           "tunnel_mode", "verbose"})) {
                 case 0:
-                    break; //Don't really know how can I use group name...
+                    default_config.SetAttribute(GROUP_NAME, l.right);
+                    break;
                 case 1:
                     if (util::IsTheSame("localhost", l.right, false, false) ||
                         util::IsTheSame("bind9-local", l.right, false, false)) {
