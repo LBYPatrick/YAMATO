@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define SOFTWARE_VERSION "1.3.0"
+#define SOFTWARE_VERSION "1.3.1"
 #define DEBUG_CONFIG false
 #define DEBUG_ANALYZER false
 #define DEBUG_CMDOUT false
