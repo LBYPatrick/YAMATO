@@ -6,6 +6,7 @@
 #define DEBUG_CONFIG false
 #define DEBUG_ANALYZER false
 #define DEBUG_CMDOUT false
+#define READ_BUFFER_SIZE 4096
 
 using namespace std;
 
@@ -13,10 +14,16 @@ using namespace std;
 #include <string>
 #include <array>
 #include <cstdlib>
-#include <sstream>
-#include <fstream>
 #include <cstdio>
+#include <cstring>
 #include <iostream>
+
+#ifdef _WIN32
+
+#define popen _popen
+#define pclose _pclose
+
+#endif
 
 struct InquiryData {
     string key;
@@ -29,7 +36,7 @@ struct TableElement {
 };
 
 struct YAML {
-    int level;
+    size_t level;
     string left;
     string right;
 };

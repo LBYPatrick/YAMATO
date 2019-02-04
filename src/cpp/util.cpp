@@ -66,15 +66,37 @@ void util::PercentageBar(int current, int total) {
     printf(print_buffer.c_str());
 }
 
-bool util::IsFileExist(string filename) {
+bool util::IsFileExist(string path) {
 
-    vector<string> file_list = GetFileList();
+    FILE * handler;
+    vector<string> r;
+    string long_buffer;
+    char buffer[READ_BUFFER_SIZE];
 
-    for (string &file : file_list) {
-        if (filename == file) return true;
+    //Convert Unix backslashes to Windows slashes
+    for (auto & i : path) {
+        if (i == '/') {
+            i = '\\';
+        }
     }
-    return false;
 
+#ifdef _WIN32
+
+    auto result = fopen_s(&handler, path.c_str(), "r");
+
+    if (result == EINVAL) {
+        return false;
+    }
+#else
+    handler = fopen(path.c_str(), "r");
+
+	if (!handler) {
+		return false;
+	}
+#endif
+
+    fclose(handler);
+    return true;
 }
 
 vector<string> util::SysExecute(string cmd) {
@@ -83,66 +105,90 @@ vector<string> util::SysExecute(string cmd) {
 
 vector<string> util::SysExecute(string cmd, bool output) {
 
-    ifstream reader;
-    vector<string> return_buffer;
-    string read_buffer;
+    FILE * handler;
+    vector<string> r;
+    string long_buffer;
+    char buffer[READ_BUFFER_SIZE];
 
-#if DEBUG_CMDOUT
-    printf("CMD: %s\n", cmd.c_str());
-#endif
+    handler = popen(cmd.c_str(), "r");
 
-    if (output) {
-        system((cmd + "> output.data").c_str());
-        reader.open("output.data");
+    if (handler && output) {
+        while (fgets(buffer, READ_BUFFER_SIZE, handler)) {
 
-        while (getline(reader, read_buffer)) {
-            return_buffer.push_back(read_buffer);
+            if (strlen(buffer) == READ_BUFFER_SIZE && buffer[READ_BUFFER_SIZE - 1] != '\n') {
+                long_buffer += buffer;
+            }
+            else if (buffer[strlen(buffer) - 1] == '\n') {
+                r.push_back(long_buffer + string(buffer).substr(0, strlen(buffer) - 1));
+                long_buffer = "";
+            }
+            else {
+                r.push_back(long_buffer + string(buffer));
+                long_buffer = "";
+            }
         }
-
-        reader.close();
-
-        RemoveFile("output.data");
-    } else {
-        system((cmd + "> /dev/null").c_str());
-
+        r.push_back(long_buffer);
     }
+    pclose(handler);
 
-#if DEBUG_CMDOUT
-
-    printf("Output: \n");
-
-    for (string & i : return_buffer) {
-        printf("\t%s\n", i.c_str());
-    }
-#endif
-
-    return return_buffer;
-
+    return r;
 }
 
 vector<string> util::ReadFile(string path) {
-    return util::ReadFile(path, true);
+    return util::ReadFile(std::move(path), true);
 }
 
 vector<string> util::ReadFile(string path, bool is_parsed) {
 
-    ifstream reader;
-    string in;
-    vector<string> out;
+    FILE * handler;
+    vector<string> r;
+    string long_buffer;
+    char buffer[READ_BUFFER_SIZE];
 
-    reader.open(path);
+    //Convert Unix backslashes to Windows slashes
+    for (auto & i : path) {
+        if (i == '/') {
+            i = '\\';
+        }
+    }
+#ifdef _WIN32
 
-    if (!reader.is_open()) return out;
+    auto result = fopen_s(&handler, path.c_str(), "r");
 
-    while (getline(reader, in)) {
-        out.push_back(in);
+    if (result == EINVAL) {
+        return r;
+    }
+#else
+    handler = fopen(path.c_str(), "r");
+
+	if (!handler) {
+		return r;
+	}
+#endif
+
+    while (fgets(buffer, READ_BUFFER_SIZE, handler)) {
+
+        if (strlen(buffer) == READ_BUFFER_SIZE && buffer[READ_BUFFER_SIZE - 1] != '\n') {
+            long_buffer += buffer;
+        }
+        else if (buffer[strlen(buffer) - 1] == '\n') {
+            r.push_back(long_buffer + string(buffer).substr(0, strlen(buffer) - 1));
+            long_buffer = "";
+        }
+        else {
+            r.push_back(long_buffer + string(buffer));
+            long_buffer = "";
+        }
     }
 
-    return out;
+    r.push_back(long_buffer);
+    fclose(handler);
+
+    return r;
 }
 
 
-int util::Search(string str, vector<string> match_list, bool precise) {
+int util::MatchWithWords(string str, vector<string> match_list, bool precise) {
     for (int i = 0; i < match_list.size(); ++i) {
 
         if (precise && match_list[i] == str) {
@@ -155,11 +201,11 @@ int util::Search(string str, vector<string> match_list, bool precise) {
     return -1;
 }
 
-int util::Search(string str, vector<string> match_list) {
-    return Search(str, match_list, false);
+int util::MatchWithWords(string str, vector<string> match_list) {
+    return MatchWithWords(str, match_list, false);
 }
 
-YAML util::GetYaml(string line) {
+YAML util::DecodeYamlLine(string line) {
     YAML out;
 
     if (line.find(':') == -1) {
@@ -187,7 +233,7 @@ YAML util::GetYaml(string line) {
 }
 
 string
-util::SubString(string str, int left, int stop) {
+util::SubString(string str, size_t left, size_t stop) {
     size_t length = stop - left;
 
     //Out-of-bound fix
@@ -270,20 +316,36 @@ vector<string> util::GetFileList() {
 }
 
 bool util::WriteFile(string filename, vector<string> content) {
-    ofstream o;
-    string buf;
 
-    o.open(filename);
+    FILE*handler;
 
-    if (!o.is_open()) return false;
-
-    for (const auto &i : content) {
-        buf += i + "\n";
+    //Convert Unix backslashes to Windows slashes
+    for (auto & i : filename) {
+        if (i == '/') {
+            i = '\\';
+        }
     }
 
-    o.write(buf.c_str(), buf.size());
+#ifdef _WIN32
 
-    o.close();
+    auto result = fopen_s(&handler, filename.c_str(), "w");
+
+    if (result == EINVAL) return false; //Fail to open file
+#else
+
+    handler = fopen(filename.c_str(), "w");
+
+	if (handler) return false; //Fail to open file
+#endif
+
+    string write_buffer;
+
+    for (auto & i : content) {
+        write_buffer += i;
+    }
+
+    fputs(write_buffer.c_str(), handler);
+    fclose(handler);
 
     return true;
 }
@@ -386,22 +448,26 @@ void util::QuickSort::Sort(vector<SortItem> &arr, size_t low, size_t high) {
  */
 
 vector<size_t> util::QuickSort::Sort(vector<long long> &arr, size_t low, size_t high) {
-    vector<SortItem> new_arr;
+
+    auto * new_arr = new vector<SortItem>();
+
     vector<size_t> r;
 
     //Reserve space for efficiency
-    new_arr.reserve(high - low + 1);
+    new_arr->reserve(high - low + 1);
     r.reserve(high - low + 1);
 
     for (size_t i = low; i <= high; ++i) {
-        new_arr.push_back({i, arr[i]});
+        new_arr->push_back({i, arr[i]});
     }
 
-    Sort(new_arr, low, high);
+    Sort(*new_arr, low, high);
 
-    for (auto &element : new_arr) {
+    for (auto &element : *new_arr) {
         r.push_back(element.old_index);
     }
+
+    delete new_arr;
 
     return r;
 }

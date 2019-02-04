@@ -27,14 +27,14 @@ int main(int argc, char *const argv[]) {
 #pragma region Collect parameters
     for (int a = 1; a < argc; ++a) {
 
-        if (util::Search(argv[a], {"-i", "--input"}, true) != -1) {
+        if (util::MatchWithWords(argv[a], {"-i", "--input"}, true) != -1) {
             if (a + 1 < argc) input_file = argv[a + 1];
             else {
                 util::ReportError("You need to specify filename when using -i or --input.");
                 return 0;
             }
             a += 1;
-        } else if (util::Search(argv[a], {"-a", "--action"}, true) != -1) {
+        } else if (util::MatchWithWords(argv[a], {"-a", "--action"}, true) != -1) {
 
             //Parameter pre-check
             if (a + 1 >= argc) {
@@ -42,24 +42,24 @@ int main(int argc, char *const argv[]) {
                 break;
             }
 
-            if (util::Search(argv[a + 1], {"stat"}, true) != -1) {
+            if (util::MatchWithWords(argv[a + 1], {"stat"}, true) != -1) {
                 action = EXPORT_STAT;
-            } else if (util::Search(argv[a + 1], {"load"}, true) != -1) {
+            } else if (util::MatchWithWords(argv[a + 1], {"load"}, true) != -1) {
                 action = LOAD;
-            } else if (util::Search(argv[a + 1], {"unload"}, true) != -1) {
+            } else if (util::MatchWithWords(argv[a + 1], {"unload"}, true) != -1) {
                 action = UNLOAD;
-            } else if (util::Search(argv[a + 1], {"log"}, true) != -1) {
+            } else if (util::MatchWithWords(argv[a + 1], {"log"}, true) != -1) {
                 action = EXPORT_LOG;
-            } else if (util::Search(argv[a + 1], {"raw_log"}, true) != -1) {
+            } else if (util::MatchWithWords(argv[a + 1], {"raw_log"}, true) != -1) {
                 action = EXPORT_RAW_LOG;
-            } else if (util::Search(argv[a + 1], {"info", "user-information"}, true) != -1) {
+            } else if (util::MatchWithWords(argv[a + 1], {"info", "user-information"}, true) != -1) {
                 action = INFO;
             } else {
                 util::ReportError("Unknown action: " + string(argv[a + 1]) + ".");
                 break;
             }
             a += 1;
-        } else if (util::Search(argv[a], {"/?", "-h", "--help"}, true) != -1) {
+        } else if (util::MatchWithWords(argv[a], {"/?", "-h", "--help"}, true) != -1) {
             printf("YAMATO " SOFTWARE_VERSION " by LBYPatrick\n");
             util::ShowHelp({
                                    {"-i or --input <filename>",        "specify input file"},
@@ -75,7 +75,7 @@ int main(int argc, char *const argv[]) {
                            });
             printf("\n");
             return 0;
-        } else if (util::Search(argv[a], {"-e", "--extra-parameter"}, true) != -1) {
+        } else if (util::MatchWithWords(argv[a], {"-e", "--extra-parameter"}, true) != -1) {
 
             if (a + 1 >= argc) {
                 util::ReportError(
@@ -85,7 +85,7 @@ int main(int argc, char *const argv[]) {
 
             ymt::SetExtraParam(argv[a + 1]);
             a += 1;
-        } else if (util::Search(argv[a], {"-o", "--output"}, true) != -1) {
+        } else if (util::MatchWithWords(argv[a], {"-o", "--output"}, true) != -1) {
             if (a + 1 >= argc) {
                 util::ReportError("You need to specify a filename when using -o or --output.");
                 return 0;
@@ -94,7 +94,7 @@ int main(int argc, char *const argv[]) {
             out_file = argv[a + 1];
 
             a += 1;
-        } else if (util::Search(argv[a], {"-li", "--log-input"}, true) != -1) {
+        } else if (util::MatchWithWords(argv[a], {"-li", "--log-input"}, true) != -1) {
             if (a + 1 >= argc) {
                 util::ReportError("You need to specify a filename when using -li or --log-input.");
                 return 0;
@@ -104,7 +104,7 @@ int main(int argc, char *const argv[]) {
             ymt::SetAttribute(LOG_INPUT_FILENAME, input_log_file);
 
             a += 1;
-        } else if (util::Search(argv[a], {"-p", "--port"}, true) != -1) {
+        } else if (util::MatchWithWords(argv[a], {"-p", "--port"}, true) != -1) {
 
             if (a + 1 >= argc) {
                 util::ReportError("You need to specify a port when using -p");
@@ -115,7 +115,7 @@ int main(int argc, char *const argv[]) {
             ymt::SetAttribute(PORT, port);
 
             a += 1;
-        } else if (util::Search(argv[a], {"-pn", "--profile-name"}, true) != -1) {
+        } else if (util::MatchWithWords(argv[a], {"-pn", "--profile-name"}, true) != -1) {
 
             if (a + 1 >= argc) {
                 util::ReportError("You need to specify a profile name when using -pn");
@@ -125,7 +125,7 @@ int main(int argc, char *const argv[]) {
             ymt::SetAttribute(PROFILE_NAME, argv[a + 1]);
 
             a += 1;
-        } else if (util::Search(argv[a], {"-s", "--server-address"}, true) != -1) {
+        } else if (util::MatchWithWords(argv[a], {"-s", "--server-address"}, true) != -1) {
 
             if (a + 1 >= argc) {
                 util::ReportError("You need to specify a server address when using -s");

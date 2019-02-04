@@ -14,7 +14,7 @@ string profile_name_;
 
 void ymt::RunConfig() {
 
-    vector <PIDInfo> pids;
+    auto * pids = new vector<PIDInfo>();
 
     //Unload sessions from the config session if loaded already
 
@@ -25,24 +25,22 @@ void ymt::RunConfig() {
 
     //Start Running processes for users
     for (Parser &p : users_) {
-        pids.push_back({p.GetAttribute(REMOTE_PORT), RunUser(p)});
+        pids->push_back({p.GetAttribute(REMOTE_PORT), RunUser(p)});
     }
 
     //Write the pid list to a file
-
-    ofstream writer;
-    writer.open(config_ + ".pidmap");
-    for (PIDInfo &p : pids) {
-        writer << p.port + ": " + p.pid + "\n";
+    auto * file = new vector<string>();
+    for (auto &p : *pids) {
+        file->push_back(p.port + ": " + p.pid);
     }
-    writer.close();
-
-
+    util::WriteFile(config_ + "pidmap",*file);
     //Clean up
     util::RemoveFile("SS.conf");
     for (Parser &p : users_) {
         util::RemoveFile(p.GetAttribute(REMOTE_PORT) + ".pid");
     }
+    delete file;
+    delete pids;
 }
 
 string ymt::RunUser(Parser &p) {
@@ -50,14 +48,8 @@ string ymt::RunUser(Parser &p) {
     string pid_buffer;
 
     vector <string> config = p.GetConfig();
-    string file_buffer;
-
-    for (const string &line : config) {
-        file_buffer += line + "\n";
-    }
-
     //Write user config
-    util::WriteFile("SS.conf", {file_buffer});
+    util::WriteFile("SS.conf", config);
 
     util::SysExecute(
             ("ss-server -c SS.conf " + string(p.GetAttribute(VERBOSE) == "true" ? "-v" : "") + " " + extra_param_ +
@@ -86,7 +78,7 @@ void ymt::StopConfig() {
     }
 
     for (auto &line : config) {
-        yaml = util::GetYaml(line);
+        yaml = util::DecodeYamlLine(line);
 
         if (goods > 3 || util::IsProcessAlive(yaml.right)) {
             util::SysExecute("kill -15 " + yaml.right, false);
@@ -102,8 +94,8 @@ void ymt::StopConfig() {
 
 vector <string> ymt::GetPortLog() {
 
-    string target_pid;
-    string target_port;
+    auto * target_pid = new string();
+    auto * target_port = new string();
     vector <string> r;
 
     //Obtain Raw Log
@@ -118,29 +110,32 @@ vector <string> ymt::GetPortLog() {
     //If user input is port
     for (auto &i : pid_table_) {
         if (port_ == i.port) {
-            target_pid = i.pid;
-            target_port = i.port;
+            *target_pid = i.pid;
+            *target_port = i.port;
             break;
         }
     }
 
     //If user input is pid
-    if (target_port.empty()) {
+    if (target_port->empty()) {
         for (auto &i : pid_table_) {
             if (port_ == i.pid) {
-                target_pid = i.pid;
-                target_port = i.port;
+                *target_pid = i.pid;
+                *target_port = i.port;
             }
         }
     }
 
-    if (target_port.empty()) return r;
+    if (target_port->empty()) return r;
 
     for (auto &i : log_buffer_) {
-        if (i.find("ss-server[" + target_pid + "]") != -1) {
+        if (i.find("ss-server[" + *target_pid + "]") != -1) {
             r.push_back(i);
         }
     }
+
+    delete target_pid;
+    delete target_port;
 
     return r;
 }
@@ -187,7 +182,7 @@ vector <PIDInfo> ymt::GetPIDTable() {
     YAML yaml_buffer;
 
     for (string &line : file_buffer) {
-        yaml_buffer = util::GetYaml(line);
+        yaml_buffer = util::DecodeYamlLine(line);
 
         r.push_back({yaml_buffer.left, yaml_buffer.right});
     }
@@ -247,14 +242,14 @@ vector <SSLog> ymt::GetFormattedData() {
 
         if (!is_pid_matched) continue;
 
-        int context1_location = log_buffer_[i].find("connect to ");
+        size_t context1_location = log_buffer_[i].find("connect to ");
 
 
         vector <size_t> s_temp = util::SearchString(log_buffer_[i], ' ', 0, log_buffer_[i].find("ss-server"));
-        int context2_location = s_temp[s_temp.size() - 2];
+        size_t context2_location = s_temp[s_temp.size() - 2];
 
         if (context1_location != -1) {
-            int addr_location = context1_location + 11;
+            size_t addr_location = context1_location + 11;
 
             string time = util::SubString(log_buffer_[i], 0, context2_location);
             string destination = util::SubString(log_buffer_[i], addr_location, log_buffer_.size());
@@ -506,11 +501,12 @@ void ymt::UpdateUsers() {
         }
 
 
-        YAML l = util::GetYaml(line);
+        YAML l = util::DecodeYamlLine(line);
 
         //If it is global level -- no user
         if (l.level == 0) {
-            switch (util::Search(l.left, {"group", "nameserver", "method", "fastopen", "redirect", "timeout", "server",
+            switch (util::MatchWithWords(l.left,
+                                         {"group", "nameserver", "method", "fastopen", "redirect", "timeout", "server",
                                           "tunnel_mode", "verbose"})) {
                 case 0:
                     default_config.SetAttribute(GROUP_NAME, l.right);

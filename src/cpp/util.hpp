@@ -14,7 +14,7 @@ namespace util {
     void ShowHelp(vector<TableElement> option_list);
     vector<string> Make2DTable(vector<TableElement> table);
 	void PercentageBar(int current, int total);
-    bool IsFileExist(string filename);
+    bool IsFileExist(string path);
     bool IsProcessAlive(string pid);
 	bool IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive);
 	string GetEncodedBase64(string ascii);
@@ -26,12 +26,12 @@ namespace util {
     vector<string> GetFileList(string directory);
     vector<string> GetFolderList(string directory);
 
-	YAML GetYaml(string line);
+	YAML DecodeYamlLine(string line);
 	
-	string SubString(string str, int left, int stop);
+	string SubString(string str, size_t left, size_t stop);
 	string GetMachineIP();
 
-    int Search(string str, vector<string> match_list, bool precise);
+    int MatchWithWords(string str, vector <string> match_list, bool precise);
 	
 	//Overloaded Methods
 	vector<string> GetFileList();
@@ -39,7 +39,7 @@ namespace util {
 	vector <size_t> SearchString(string str, char key);
     vector <size_t> SearchString(string str, char key, size_t left, size_t stop);
 	vector<string> GetFolderList();
-	int Search(string str, vector<string> match_list);
+	int MatchWithWords(string str, vector <string> match_list);
 
 	class QuickSort {
 	public:
