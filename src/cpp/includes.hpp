@@ -4,6 +4,7 @@
 
 #define SOFTWARE_VERSION "1.3.1"
 #define DEBUG_CONFIG false
+#define DEBUG_IO false
 #define DEBUG_ANALYZER false
 #define DEBUG_CMDOUT false
 #define READ_BUFFER_SIZE 4096

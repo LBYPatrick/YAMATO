@@ -33,7 +33,7 @@ void ymt::RunConfig() {
     for (auto &p : *pids) {
         file->push_back(p.port + ": " + p.pid);
     }
-    util::WriteFile(config_ + "pidmap",*file);
+    util::WriteFile(config_ + ".pidmap",*file);
     //Clean up
     util::RemoveFile("SS.conf");
     for (Parser &p : users_) {

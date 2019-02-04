@@ -73,14 +73,14 @@ bool util::IsFileExist(string path) {
     string long_buffer;
     char buffer[READ_BUFFER_SIZE];
 
+#ifdef _WIN32
+
     //Convert Unix backslashes to Windows slashes
     for (auto & i : path) {
         if (i == '/') {
             i = '\\';
         }
     }
-
-#ifdef _WIN32
 
     auto result = fopen_s(&handler, path.c_str(), "r");
 
@@ -113,6 +113,9 @@ vector<string> util::SysExecute(string cmd, bool output) {
     handler = popen(cmd.c_str(), "r");
 
     if (handler && output) {
+
+        if(DEBUG_CMDOUT) printf("Running %s\n", cmd.c_str());
+
         while (fgets(buffer, READ_BUFFER_SIZE, handler)) {
 
             if (strlen(buffer) == READ_BUFFER_SIZE && buffer[READ_BUFFER_SIZE - 1] != '\n') {
@@ -145,13 +148,14 @@ vector<string> util::ReadFile(string path, bool is_parsed) {
     string long_buffer;
     char buffer[READ_BUFFER_SIZE];
 
+#ifdef _WIN32
+
     //Convert Unix backslashes to Windows slashes
     for (auto & i : path) {
         if (i == '/') {
             i = '\\';
         }
     }
-#ifdef _WIN32
 
     auto result = fopen_s(&handler, path.c_str(), "r");
 
@@ -162,6 +166,7 @@ vector<string> util::ReadFile(string path, bool is_parsed) {
     handler = fopen(path.c_str(), "r");
 
 	if (!handler) {
+	    if(DEBUG_IO) printf("Failed to read file \"%s\" \n", path.c_str());
 		return r;
 	}
 #endif
@@ -319,14 +324,14 @@ bool util::WriteFile(string filename, vector<string> content) {
 
     FILE*handler;
 
+#ifdef _WIN32
+
     //Convert Unix backslashes to Windows slashes
     for (auto & i : filename) {
         if (i == '/') {
             i = '\\';
         }
     }
-
-#ifdef _WIN32
 
     auto result = fopen_s(&handler, filename.c_str(), "w");
 
@@ -335,13 +340,16 @@ bool util::WriteFile(string filename, vector<string> content) {
 
     handler = fopen(filename.c_str(), "w");
 
-	if (handler) return false; //Fail to open file
+	if (!handler) {
+	    if(DEBUG_IO) printf("Failed to write file \"%s\" \n",filename.c_str());
+	    return false;
+	} //Fail to open file
 #endif
 
     string write_buffer;
 
     for (auto & i : content) {
-        write_buffer += i;
+        write_buffer += i + '\n';
     }
 
     fputs(write_buffer.c_str(), handler);
