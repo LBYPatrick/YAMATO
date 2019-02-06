@@ -186,7 +186,7 @@ vector<string> util::ReadFile(string path, bool is_parsed) {
         }
     }
 
-    r.push_back(long_buffer);
+    if(!long_buffer.empty()) r.push_back(long_buffer);
     fclose(handler);
 
     return r;
