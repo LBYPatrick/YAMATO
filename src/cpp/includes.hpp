@@ -94,3 +94,8 @@ struct SortItem {
     size_t old_index;
     long long key;
 };
+
+struct FileFilter {
+	string key;
+	bool is_include;
+};

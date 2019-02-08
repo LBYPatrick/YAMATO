@@ -12,17 +12,18 @@ namespace util {
 	void AppendStringVector(vector<string> & left, vector<string> & right);
 	void PrintLines(vector<string> arr);
     void ShowHelp(vector<TableElement> option_list);
-    vector<string> Make2DTable(vector<TableElement> table);
 	void PercentageBar(int current, int total);
     bool IsFileExist(string path);
     bool IsProcessAlive(string pid);
 	bool IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive);
+	bool IsLineVaild(string & line, FileFilter filter);
 	string GetEncodedBase64(string ascii);
 
-    vector<string> SysExecute(string cmd);
-    vector<string> SysExecute(string cmd,bool output);
+	vector<string> Make2DTable(vector<TableElement> table);
+    vector<string> & SysExecute(string cmd);
+    vector<string> & SysExecute(string cmd,bool output);
 	vector<string> ReadFile(string path);
-	vector<string> ReadFile(string path, bool is_parsed);
+	vector<string> ReadFile(string path, FileFilter filter);
     vector<string> GetFileList(string directory);
     vector<string> GetFolderList(string directory);
 

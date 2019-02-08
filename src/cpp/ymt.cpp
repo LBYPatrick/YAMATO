@@ -56,7 +56,7 @@ string ymt::RunUser(Parser &p) {
              " -f " + p.GetAttribute(REMOTE_PORT) + ".pid"), false);
 
     //Return pid buffer
-    return util::ReadFile(p.GetAttribute(REMOTE_PORT) + ".pid", false)[0];
+    return util::ReadFile(p.GetAttribute(REMOTE_PORT) + ".pid")[0];
 }
 
 void ymt::StopConfig() {
