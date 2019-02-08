@@ -224,8 +224,8 @@ vector <SSLog> ymt::GetFormattedData() {
             util::PercentageBar(i + 1, log_buffer_.size());
         }
 
-        string temp_pid = util::SubString(log_buffer_[i], log_buffer_[i].find_first_of("ss-server[") + 10,
-                                          log_buffer_[i].find_first_of(']'));
+        string temp_pid = util::SubString(log_buffer_[i], log_buffer_[i].find("ss-server[") + 10,
+                                          log_buffer_[i].find(']'));
 
         if (last_pid.empty() || temp_pid != last_pid) {
             for (PIDInfo &n : pid_table_) {
