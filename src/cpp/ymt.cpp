@@ -385,13 +385,7 @@ void ymt::SetFileName(string filename) {
 
 void ymt::UpdateLog() {
 
-    vector <string> temp = util::ReadFile((input_log_.empty() ? "/var/log/syslog" : input_log_));
-
-    for (string &i : temp) {
-        if (i.find("ss-server[") != -1) {
-            log_buffer_.push_back(i);
-        }
-    }
+	log_buffer_ = util::ReadFile((input_log_.empty() ? "/var/log/syslog" : input_log_), {"ss-server[",true});
 
 }
 
