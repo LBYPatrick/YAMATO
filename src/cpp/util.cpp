@@ -138,7 +138,7 @@ vector<string> & util::SysExecute(string cmd, bool output) {
 }
 
 vector<string> util::ReadFile(string path) {
-	return util::ReadFile(std::move(path), {});
+	return util::ReadFile(std::move(path), {"",true});
 }
 
 vector<string> util::ReadFile(string path, FileFilter filter) {
@@ -199,7 +199,7 @@ vector<string> util::ReadFile(string path, FileFilter filter) {
         }
     }
 
-	if (long_buffer->empty()) {
+	if (!long_buffer->empty()) {
 		
 		if (has_filter) {
 			if (IsLineVaild(*long_buffer, filter)) r.push_back(*long_buffer);
