@@ -6,7 +6,7 @@
 #include "util.hpp"
 
 const vector<string> WEBSITES = {
-        "bing.com",
+        "cn.bing.com",
         "qq.com",
         "tmall.com",
         "amazon.cn",
@@ -14,7 +14,18 @@ const vector<string> WEBSITES = {
         "music.163.com",
         "bilibili.com",
         "bilibilijj.com",
-        "baidu.com"
+        "baidu.com",
+		"zhmb.gov.cn",
+		"x3cn.com",
+		"y.qq.com",
+		"ipip.net",
+		"zh.moegirl.org",
+		"ja.moegirl.org",
+		"dmm.com",
+		"dmm.co.jp",
+		"sohu.com",
+		"taobao.com",
+		"jd.com"
 };
 
 vector<string> Parser::GetConfig() {

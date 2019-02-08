@@ -2,12 +2,13 @@
 
 #pragma once
 
-#define SOFTWARE_VERSION "1.3.1"
+#define SOFTWARE_VERSION "1.3.2"
+
 #define DEBUG_CONFIG false
 #define DEBUG_IO false
 #define DEBUG_ANALYZER false
 #define DEBUG_CMDOUT false
-#define READ_BUFFER_SIZE 4096
+#define READ_BUFFER_SIZE 64 * 1024 //64K
 
 using namespace std;
 
@@ -93,4 +94,9 @@ struct SSLog {
 struct SortItem {
     size_t old_index;
     long long key;
+};
+
+struct FileFilter {
+	string key;
+	bool is_include;
 };

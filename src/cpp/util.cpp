@@ -99,14 +99,14 @@ bool util::IsFileExist(string path) {
     return true;
 }
 
-vector<string> util::SysExecute(string cmd) {
+vector<string> & util::SysExecute(string cmd) {
     return SysExecute(cmd, true);
 }
 
-vector<string> util::SysExecute(string cmd, bool output) {
+vector<string> & util::SysExecute(string cmd, bool output) {
 
     FILE * handler;
-    vector<string> r;
+    auto * r = new vector<string>();
     string long_buffer;
     char buffer[READ_BUFFER_SIZE];
 
@@ -122,30 +122,33 @@ vector<string> util::SysExecute(string cmd, bool output) {
                 long_buffer += buffer;
             }
             else if (buffer[strlen(buffer) - 1] == '\n') {
-                r.push_back(long_buffer + string(buffer).substr(0, strlen(buffer) - 1));
+                r->push_back(long_buffer + string(buffer).substr(0, strlen(buffer) - 1));
                 long_buffer = "";
             }
             else {
-                r.push_back(long_buffer + string(buffer));
+                r->push_back(long_buffer + string(buffer));
                 long_buffer = "";
             }
         }
-        r.push_back(long_buffer);
+        if(!long_buffer.empty()) r->push_back(long_buffer);
     }
     pclose(handler);
 
-    return r;
+    return *r;
 }
 
 vector<string> util::ReadFile(string path) {
-    return util::ReadFile(std::move(path), true);
+	return util::ReadFile(std::move(path), {"",true});
 }
 
-vector<string> util::ReadFile(string path, bool is_parsed) {
-
+vector<string> util::ReadFile(string path, FileFilter filter) {
+	
+	bool has_filter = (filter.key == "");
+	bool is_line_vaild = !has_filter;
     FILE * handler;
     vector<string> r;
-    string long_buffer;
+    string * long_buffer = new string();
+	string * push_buffer = new string();
     char buffer[READ_BUFFER_SIZE];
 
 #ifdef _WIN32
@@ -174,20 +177,42 @@ vector<string> util::ReadFile(string path, bool is_parsed) {
     while (fgets(buffer, READ_BUFFER_SIZE, handler)) {
 
         if (strlen(buffer) == READ_BUFFER_SIZE && buffer[READ_BUFFER_SIZE - 1] != '\n') {
-            long_buffer += buffer;
-        }
-        else if (buffer[strlen(buffer) - 1] == '\n') {
-            r.push_back(long_buffer + string(buffer).substr(0, strlen(buffer) - 1));
-            long_buffer = "";
+            *long_buffer += buffer;
         }
         else {
-            r.push_back(long_buffer + string(buffer));
-            long_buffer = "";
+
+			if (buffer[strlen(buffer) - 1] == '\n') {
+				*push_buffer = *long_buffer + string(buffer).substr(0, strlen(buffer) - 1);
+			}
+			else {
+				*push_buffer = *long_buffer + string(buffer);
+			}
+
+			if (has_filter) {
+				if (IsLineVaild(*push_buffer, filter)) r.push_back(*push_buffer);
+			}
+			else {
+				r.push_back(*push_buffer);
+			}
+
+			*long_buffer = "";
         }
     }
 
-    if(!long_buffer.empty()) r.push_back(long_buffer);
+	if (!long_buffer->empty()) {
+		
+		if (has_filter) {
+			if (IsLineVaild(*long_buffer, filter)) r.push_back(*long_buffer);
+		}
+		else {
+			r.push_back(*long_buffer);
+		}
+	}
+
     fclose(handler);
+
+	delete push_buffer;
+	delete long_buffer;
 
     return r;
 }
@@ -239,13 +264,18 @@ YAML util::DecodeYamlLine(string line) {
 
 string
 util::SubString(string str, size_t left, size_t stop) {
-    size_t length = stop - left;
+
+    //size_t length = stop - left;
+
+    if(left > stop) {
+        std::swap(left,stop);
+    }
 
     //Out-of-bound fix
     if (left < 0) left = 0;
     if (stop > str.size()) stop = str.size();
 
-    return str.substr(left, length);
+    return str.substr(left, stop-left);
 }
 
 string util::GetMachineIP() {
@@ -263,12 +293,13 @@ bool util::IsProcessAlive(string pid) {
 }
 
 bool util::IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive) {
+
     if (!is_case_sensitive) {
         for (char &i : str) {
-            i = toupper(i);
+            i = (char)toupper(i);
         }
         for (char &i : key) {
-            i = toupper(i);
+            i = (char)toupper(i);
         }
     }
 
@@ -277,6 +308,11 @@ bool util::IsTheSame(string str, string key, bool is_precise, bool is_case_sensi
     } else {
         return (str.find(key) != -1) || (key.find(str) != -1);
     }
+}
+
+bool util::IsLineVaild(string & line, FileFilter filter) {
+
+	return ((line.find(filter.key) != -1) == filter.is_include);
 }
 
 vector<string>

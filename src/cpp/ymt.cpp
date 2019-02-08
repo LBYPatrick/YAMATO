@@ -56,7 +56,7 @@ string ymt::RunUser(Parser &p) {
              " -f " + p.GetAttribute(REMOTE_PORT) + ".pid"), false);
 
     //Return pid buffer
-    return util::ReadFile(p.GetAttribute(REMOTE_PORT) + ".pid", false)[0];
+    return util::ReadFile(p.GetAttribute(REMOTE_PORT) + ".pid")[0];
 }
 
 void ymt::StopConfig() {
@@ -385,13 +385,7 @@ void ymt::SetFileName(string filename) {
 
 void ymt::UpdateLog() {
 
-    vector <string> temp = util::ReadFile((input_log_.empty() ? "/var/log/syslog" : input_log_));
-
-    for (string &i : temp) {
-        if (i.find("ss-server[") != -1) {
-            log_buffer_.push_back(i);
-        }
-    }
+	log_buffer_ = util::ReadFile((input_log_.empty() ? "/var/log/syslog" : input_log_), {"ss-server[",true});
 
 }
 
@@ -493,7 +487,7 @@ void ymt::UpdateUsers() {
         //Skip blanklines & comments
         if (line.empty()) continue;
         else {
-            int slash_pos = line.find("//");
+            size_t slash_pos = line.find("//");
             if (slash_pos != -1) {
                 line = util::SubString(line, 0, slash_pos);
             }
