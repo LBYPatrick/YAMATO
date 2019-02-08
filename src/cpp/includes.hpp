@@ -2,12 +2,12 @@
 
 #pragma once
 
-#define SOFTWARE_VERSION "1.3.1"
+#define SOFTWARE_VERSION "1.3.2"
 #define DEBUG_CONFIG false
-#define DEBUG_IO true
+#define DEBUG_IO false
 #define DEBUG_ANALYZER false
-#define DEBUG_CMDOUT true
-#define READ_BUFFER_SIZE 4096
+#define DEBUG_CMDOUT false
+#define READ_BUFFER_SIZE 2048
 
 using namespace std;
 
