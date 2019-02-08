@@ -264,13 +264,18 @@ YAML util::DecodeYamlLine(string line) {
 
 string
 util::SubString(string str, size_t left, size_t stop) {
-    size_t length = stop - left;
+
+    //size_t length = stop - left;
+
+    if(left > stop) {
+        std::swap(left,stop);
+    }
 
     //Out-of-bound fix
     if (left < 0) left = 0;
     if (stop > str.size()) stop = str.size();
 
-    return str.substr(left, length);
+    return str.substr(left, stop-left);
 }
 
 string util::GetMachineIP() {
@@ -288,12 +293,13 @@ bool util::IsProcessAlive(string pid) {
 }
 
 bool util::IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive) {
+
     if (!is_case_sensitive) {
         for (char &i : str) {
-            i = toupper(i);
+            i = (char)toupper(i);
         }
         for (char &i : key) {
-            i = toupper(i);
+            i = (char)toupper(i);
         }
     }
 

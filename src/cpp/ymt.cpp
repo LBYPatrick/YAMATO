@@ -487,7 +487,7 @@ void ymt::UpdateUsers() {
         //Skip blanklines & comments
         if (line.empty()) continue;
         else {
-            int slash_pos = line.find("//");
+            size_t slash_pos = line.find("//");
             if (slash_pos != -1) {
                 line = util::SubString(line, 0, slash_pos);
             }
