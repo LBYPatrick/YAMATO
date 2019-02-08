@@ -130,7 +130,7 @@ vector<string> util::SysExecute(string cmd, bool output) {
                 long_buffer = "";
             }
         }
-        r.push_back(long_buffer);
+        if(!long_buffer.empty()) r.push_back(long_buffer);
     }
     pclose(handler);
 
