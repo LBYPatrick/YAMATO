@@ -18,11 +18,13 @@ int main(int argc, char *const argv[]) {
 
     //Variables
     string input_file;
-    string out_file = "yamato_analyzed.log";
+	string out_file;
     string input_log_file;
-
+	vector<string> out_temp;
     Action action = UNKNOWN;
     string port;
+	bool is_developer_mode = false;
+	bool is_quiet_mode = false;
 
 #pragma region Collect parameters
     for (int a = 1; a < argc; ++a) {
@@ -62,15 +64,17 @@ int main(int argc, char *const argv[]) {
         } else if (util::MatchWithWords(argv[a], {"/?", "-h", "--help"}, true) != -1) {
             printf("YAMATO " SOFTWARE_VERSION " by LBYPatrick\n");
             util::ShowHelp({
-                                   {"-i or --input <filename>",        "specify input file"},
-                                   {"-a or --action <action>",         "specify action (raw_log,stat, load, unload,log,info)"},
-                                   {"-pn or --profile-name",           "specify profile name(For creating sharable SS:// link)"},
+                                   {"-i or --input <filename>",        "Specify input file"},
+                                   {"-a or --action <action>",         "Specify action (raw_log,stat, load, unload,log,info)"},
+                                   {"-pn or --profile-name",           "Specify profile name(For creating sharable SS:// link)"},
                                    {"-s or --server-address",          "Specify server address(For creating sharable SS:// link)"},
-                                   {"/?, -h or --help",                "show this help message"},
-                                   {"-e or --extra-parameter <param>", "specify additional parameters, you can do things like UDP relay or HTTP/TLS OBFS here"},
-                                   {"-p or --port",                    "specify a port for checking status"},
-                                   {"-li or --log-input",              "specify source syslog file (Not required, this is for analyzing log in devices other than your server)"},
-                                   {"-o or --output",                  "specify output file name (For stat and log specified with --action, the default output filename is yamato_analyzed.log)"}
+                                   {"/?, -h or --help",                "Show this help message"},
+                                   {"-e or --extra-parameter <param>", "Specify additional parameters, you can do things like UDP relay or HTTP/TLS OBFS here"},
+                                   {"-p or --port",                    "Specify a port for checking status"},
+                                   {"-li or --log-input",              "Specify source syslog file (Not required, this is for analyzing log in devices other than your server)"},
+                                   {"-o or --output",                  "Specify output file name (For stat and log specified with --action)"},
+								   {"-d or --dev",					   "Enable Developer Mode (Only log would be printed)"},
+								   {"-q or --quiet",				   "Enable Quiet Mode (No output would be printed)"}
 
                            });
             printf("\n");
@@ -125,18 +129,27 @@ int main(int argc, char *const argv[]) {
             ymt::SetAttribute(PROFILE_NAME, argv[a + 1]);
 
             a += 1;
-        } else if (util::MatchWithWords(argv[a], {"-s", "--server-address"}, true) != -1) {
+		} else if (util::MatchWithWords(argv[a], { "-s", "--server-address" }, true) != -1) {
 
-            if (a + 1 >= argc) {
-                util::ReportError("You need to specify a server address when using -s");
-                return 0;
-            }
+			if (a + 1 >= argc) {
+				util::ReportError("You need to specify a server address when using -s");
+				return 0;
+			}
 
-            ymt::SetAttribute(SERVER_ADDR, argv[a + 1]);
+			ymt::SetAttribute(SERVER_ADDR, argv[a + 1]);
 
-            a += 1;
+			a += 1;
+		} else if (util::MatchWithWords(argv[a], { "-q", "--quiet" }, true) != -1) {
+			
+			util::SetVisualizing(false);
+			is_quiet_mode = true;
 
-        } else {
+		} else if (util::MatchWithWords(argv[a], { "-d","--dev"}, true) != -1) {
+			
+			util::SetVisualizing(false);
+			is_developer_mode = true;
+
+		} else {
             util::ReportError("Unknown element: " + string(argv[a]) + ".");
             return 0;
         }
@@ -194,12 +207,24 @@ int main(int argc, char *const argv[]) {
             ymt::StopConfig();
             break;
         case EXPORT_LOG :
-            util::WriteFile(out_file, ymt::GetFormattedStringData());
-            printf("Log saved to \"%s\".\n", out_file.c_str());
+			out_temp = ymt::GetFormattedStringData();
+			if (out_file.empty()) {
+				util::PrintLines(out_temp);
+			}
+			else {
+				util::WriteFile(out_file, out_temp);
+				util::Print("Log saved to \"" + out_file + "\".\n");
+			}
             break;
         case EXPORT_STAT :
-            util::WriteFile(out_file, ymt::GetStatistics());
-            printf("Statistics saved to \"%s\".\n", out_file.c_str());
+			out_temp = ymt::GetStatistics();
+			if (out_file.empty()) {
+				util::PrintLines(out_temp);
+			}
+			else {
+				util::WriteFile(out_file, out_temp);
+				util::Print("Statistics saved to \"" + out_file + "\".\n");
+			}
             break;
         case INFO :
             util::PrintLines(ymt::GetUserInfo());
@@ -207,6 +232,12 @@ int main(int argc, char *const argv[]) {
             break;
 
     }
+
+	//Developer Mode Output (It is a hacking-like way)
+	if (out_file.empty() && is_developer_mode && !is_quiet_mode) {
+		util::SetVisualizing(true);
+		util::PrintLines(out_temp);
+	}
 
     return 1;
 #pragma endregion

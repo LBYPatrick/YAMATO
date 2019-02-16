@@ -7,6 +7,7 @@
 #include "util.hpp"
 
 const char B64_INDEX[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+bool is_visualizing = true;
 
 void util::RemoveLetter(string &original_string, char letter) {
     string temp_buffer;
@@ -45,6 +46,8 @@ void util::ShowHelp(vector<TableElement> option_list) {
 
 void util::PercentageBar(int current, int total) {
 
+	if (!is_visualizing) return;
+	
     int barLength = 50;
     int leftPercent = double(current) / double(total) * barLength;
     int rightPercent = barLength - leftPercent;
@@ -64,6 +67,10 @@ void util::PercentageBar(int current, int total) {
 
     if (current == total) print_buffer += "\n";
     printf(print_buffer.c_str());
+}
+
+void util::SetVisualizing(bool isEnable) {
+	is_visualizing = isEnable;
 }
 
 bool util::IsFileExist(string path) {
@@ -99,14 +106,14 @@ bool util::IsFileExist(string path) {
     return true;
 }
 
-vector<string> & util::SysExecute(string cmd) {
+vector<string> util::SysExecute(string cmd) {
     return SysExecute(cmd, true);
 }
 
-vector<string> & util::SysExecute(string cmd, bool output) {
+vector<string> util::SysExecute(string cmd, bool output) {
 
     FILE * handler;
-    auto * r = new vector<string>();
+	vector<string> r;
     string long_buffer;
     char buffer[READ_BUFFER_SIZE];
 
@@ -122,19 +129,19 @@ vector<string> & util::SysExecute(string cmd, bool output) {
                 long_buffer += buffer;
             }
             else if (buffer[strlen(buffer) - 1] == '\n') {
-                r->push_back(long_buffer + string(buffer).substr(0, strlen(buffer) - 1));
+                r.push_back(long_buffer + string(buffer).substr(0, strlen(buffer) - 1));
                 long_buffer = "";
             }
             else {
-                r->push_back(long_buffer + string(buffer));
+                r.push_back(long_buffer + string(buffer));
                 long_buffer = "";
             }
         }
-        if(!long_buffer.empty()) r->push_back(long_buffer);
+        if(!long_buffer.empty()) r.push_back(long_buffer);
     }
     pclose(handler);
 
-    return *r;
+    return r;
 }
 
 vector<string> util::ReadFile(string path) {
@@ -443,9 +450,18 @@ vector<string> util::Make2DTable(vector<TableElement> table) {
 }
 
 void util::PrintLines(vector<string> arr) {
+	
+	if (!is_visualizing) return;
+
     for (auto &i : arr) {
         printf("%s\n", i.c_str());
     }
+}
+
+void util::Print(string str) {
+	if (!is_visualizing) return;
+
+	printf(str.c_str());
 }
 
 string asc2b64_seg(char c1, char c2 = 0, char c3 = 0) {
@@ -493,25 +509,23 @@ void util::QuickSort::Sort(vector<SortItem> &arr, size_t low, size_t high) {
 
 vector<size_t> util::QuickSort::Sort(vector<long long> &arr, size_t low, size_t high) {
 
-    auto * new_arr = new vector<SortItem>();
+	vector<SortItem> new_arr;
 
     vector<size_t> r;
 
     //Reserve space for efficiency
-    new_arr->reserve(high - low + 1);
+    new_arr.reserve(high - low + 1);
     r.reserve(high - low + 1);
 
     for (size_t i = low; i <= high; ++i) {
-        new_arr->push_back({i, arr[i]});
+        new_arr.push_back({i, arr[i]});
     }
 
-    Sort(*new_arr, low, high);
+    Sort(new_arr, low, high);
 
-    for (auto &element : *new_arr) {
+    for (auto &element : new_arr) {
         r.push_back(element.old_index);
     }
-
-    delete new_arr;
 
     return r;
 }

@@ -14,7 +14,7 @@ string profile_name_;
 
 void ymt::RunConfig() {
 
-    auto * pids = new vector<PIDInfo>();
+    vector<PIDInfo> pids;
 
     //Unload sessions from the config session if loaded already
 
@@ -23,24 +23,26 @@ void ymt::RunConfig() {
     //Read User Information
     if (users_.size() == 0) UpdateUsers();
 
+	pids.reserve(users_.size());
+
     //Start Running processes for users
     for (Parser &p : users_) {
-        pids->push_back({p.GetAttribute(REMOTE_PORT), RunUser(p)});
+        pids.push_back({p.GetAttribute(REMOTE_PORT), RunUser(p)});
     }
 
     //Write the pid list to a file
-    auto * file = new vector<string>();
-    for (auto &p : *pids) {
-        file->push_back(p.port + ": " + p.pid);
+    vector<string> file(pids.size());
+
+    for (auto &p : pids) {
+        file.push_back(p.port + ": " + p.pid);
     }
-    util::WriteFile(config_ + ".pidmap",*file);
+
+    util::WriteFile(config_ + ".pidmap",file);
     //Clean up
     util::RemoveFile("SS.conf");
     for (Parser &p : users_) {
         util::RemoveFile(p.GetAttribute(REMOTE_PORT) + ".pid");
     }
-    delete file;
-    delete pids;
 }
 
 string ymt::RunUser(Parser &p) {
@@ -60,7 +62,7 @@ string ymt::RunUser(Parser &p) {
 }
 
 void ymt::StopConfig() {
-    vector <string> config;
+    vector<string> config;
     YAML yaml;
     int fails = 0;
     int goods = 0;
@@ -94,8 +96,8 @@ void ymt::StopConfig() {
 
 vector <string> ymt::GetPortLog() {
 
-    auto * target_pid = new string();
-    auto * target_port = new string();
+    string target_pid;
+    string target_port;
     vector <string> r;
 
     //Obtain Raw Log
@@ -110,32 +112,29 @@ vector <string> ymt::GetPortLog() {
     //If user input is port
     for (auto &i : pid_table_) {
         if (port_ == i.port) {
-            *target_pid = i.pid;
-            *target_port = i.port;
+            target_pid = i.pid;
+            target_port = i.port;
             break;
         }
     }
 
     //If user input is pid
-    if (target_port->empty()) {
+    if (target_port.empty()) {
         for (auto &i : pid_table_) {
             if (port_ == i.pid) {
-                *target_pid = i.pid;
-                *target_port = i.port;
+                target_pid = i.pid;
+                target_port = i.port;
             }
         }
     }
 
-    if (target_port->empty()) return r;
+    if (target_port.empty()) return r;
 
     for (auto &i : log_buffer_) {
-        if (i.find("ss-server[" + *target_pid + "]") != -1) {
+        if (i.find("ss-server[" + target_pid + "]") != -1) {
             r.push_back(i);
         }
     }
-
-    delete target_pid;
-    delete target_port;
 
     return r;
 }
@@ -195,7 +194,9 @@ vector <PIDInfo> ymt::GetPIDTable() {
  */
 
 void ymt::UpdatePIDTable() {
+	util::Print("Reading PID Table...");
     pid_table_ = GetPIDTable();
+	util::Print("Done\n");
 }
 
 
@@ -205,10 +206,11 @@ void ymt::UpdatePIDTable() {
  */
 vector <SSLog> ymt::GetFormattedData() {
 
-    vector <SSLog> log_buffer;
+    vector <SSLog> r;
     string last_pid, last_port;
     bool is_pid_matched = false;
     const bool is_port_specified = (port_.size() != 0);
+	size_t STEP_LENGTH;
 
     //Get PID table (if and only if it is the first time across the program)
     if (pid_table_.empty()) { UpdatePIDTable(); }
@@ -216,11 +218,13 @@ vector <SSLog> ymt::GetFormattedData() {
     //Get Log (if and only if it is the first time across the program)
     if (log_buffer_.empty()) { UpdateLog(); }
 
-    printf("Formatting Data...\n");
+	STEP_LENGTH = log_buffer_.size() / 20;
+
+    util::Print("Formatting Data...\n");
 
     for (int i = 0; i < log_buffer_.size(); ++i) {
 
-        if (i + 1 == log_buffer_.size() || i % 100 == 0) {
+        if (i + 1 == log_buffer_.size() || i % STEP_LENGTH < 2) {
             util::PercentageBar(i + 1, log_buffer_.size());
         }
 
@@ -254,20 +258,19 @@ vector <SSLog> ymt::GetFormattedData() {
             string time = util::SubString(log_buffer_[i], 0, context2_location);
             string destination = util::SubString(log_buffer_[i], addr_location, log_buffer_.size());
 
-            //Push to log buffer
-
             //Exclude Lines that are not for the port specified (well only if the port is specified)
             if (is_port_specified && last_port != port_) {
                 is_pid_matched = false; //Reset Stat
                 continue;
             }
 
-            log_buffer.push_back({time, last_port, last_pid, destination, CONNECT});
+			//Push to log buffer
+            r.push_back({time, last_port, last_pid, destination, CONNECT});
         }
         is_pid_matched = false;
     }
 
-    return log_buffer;
+    return r;
 }
 
 vector <string> ymt::GetFormattedStringData() {
@@ -291,19 +294,20 @@ vector <string> ymt::GetStatistics() {
     vector <size_t> data_seq;
 
     size_t LOG_SIZE = log.size();
+	size_t STEP_LENGTH = LOG_SIZE / 20;
 
     //Get website frequency data
 
     if (LOG_SIZE == 0) {
-        printf("No enough data for this port.\n");
+        util::Print("No enough data for this port.\n");
         return vector<string>();
     }
 
-    printf("Analyzing website data...\n");
+    util::Print("Analyzing website data...\n");
 
     for (int i = 0; i < LOG_SIZE; ++i) {
 
-        if (i + 1 == LOG_SIZE || i % 100 == 0) {
+        if (i + 1 == LOG_SIZE || i % STEP_LENGTH < 2) {
             util::PercentageBar(i + 1, LOG_SIZE);
         }
 
@@ -320,27 +324,33 @@ vector <string> ymt::GetStatistics() {
         }
     }
 
+	temp.reserve(site_list.size());
+
     for (auto &i : site_list) {
         temp.push_back((long long) i.value);
     }
-
+	
+	util::Print("Sorting website data...");
     data_seq = util::QuickSort::Sort(temp);
+	util::Print("Done.\n");
 
     //Push web frequency data
     r.push_back("Website\tInquiry Count");
 
     for (int i = data_seq.size() - 1; i >= 0; i--) {
-        r.push_back(site_list[data_seq[i]].key + string("\t") + to_string((int) (site_list[data_seq[i]].value)));
+        r.push_back(site_list[data_seq[i]].key 
+			+ string("\t") 
+			+ to_string((int) (site_list[data_seq[i]].value)));
     }
 
     r.push_back("");
 
     //Get port frequency data
-    printf("Analyzing Port data...\n");
+    util::Print("Analyzing Port data...\n");
 
     for (int i = 0; i < LOG_SIZE; ++i) {
 
-        if (i + 1 == LOG_SIZE || i % 100 == 0) {
+        if (i + 1 == LOG_SIZE || i % STEP_LENGTH < 2) {
             util::PercentageBar(i + 1, LOG_SIZE);
         }
 
@@ -360,20 +370,24 @@ vector <string> ymt::GetStatistics() {
     //Sort Port Frequency Data
 
     temp.clear();
-    data_seq.clear();
+	temp.reserve(port_list.size());
 
     for (InquiryData &i : port_list) {
         temp.push_back(i.value);
     }
 
+	util::Print("Sorting Port Frequency Data...");
     data_seq = util::QuickSort::Sort(temp);
+	util::Print("Done.\n");
 
     //Push port frequency data
     r.push_back("User Port\tInquiry Count");
     r.push_back("");
 
     for (int i = data_seq.size() - 1; i >= 0; --i) {
-        r.push_back(port_list[data_seq[i]].key + string("\t") + to_string((int) (port_list[data_seq[i]].value)));
+        r.push_back(port_list[data_seq[i]].key 
+			+ string("\t") 
+			+ to_string((int) (port_list[data_seq[i]].value)));
     }
 
     return r;
@@ -385,7 +399,11 @@ void ymt::SetFileName(string filename) {
 
 void ymt::UpdateLog() {
 
+	util::Print("Reading log...");
+
 	log_buffer_ = util::ReadFile((input_log_.empty() ? "/var/log/syslog" : input_log_), {"ss-server[",true});
+
+	util::Print("Done.\n");
 
 }
 
@@ -500,8 +518,15 @@ void ymt::UpdateUsers() {
         //If it is global level -- no user
         if (l.level == 0) {
             switch (util::MatchWithWords(l.left,
-                                         {"group", "nameserver", "method", "fastopen", "redirect", "timeout", "server",
-                                          "tunnel_mode", "verbose"})) {
+                                         {"group", 
+										  "nameserver",
+										  "method",
+										  "fastopen",
+										  "redirect",
+										  "timeout",
+										  "server",
+                                          "tunnel_mode",
+										  "verbose"})) {
                 case 0:
                     default_config.SetAttribute(GROUP_NAME, l.right);
                     break;
