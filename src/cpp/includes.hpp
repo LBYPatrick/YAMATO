@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define SOFTWARE_VERSION "1.3.2"
+#define SOFTWARE_VERSION "1.4.0"
 
 #define DEBUG_CONFIG false
 #define DEBUG_IO false

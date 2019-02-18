@@ -227,6 +227,10 @@ int main(int argc, char *const argv[]) {
 			}
             break;
         case INFO :
+			//Edgecase in developer mode: Devs needs output when using this feature
+			if (is_developer_mode) {
+				util::SetVisualizing(true);
+			}
             util::PrintLines(ymt::GetUserInfo());
         default:
             break;

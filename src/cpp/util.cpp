@@ -477,18 +477,22 @@ string asc2b64_seg(char c1, char c2 = 0, char c3 = 0) {
 
 string util::GetEncodedBase64(string ascii) {
     string base64;
-    while (ascii.length() > 2) {
-        base64 += asc2b64_seg(ascii[0], ascii[1], ascii[2]);
-        ascii = ascii.substr(3);
+	size_t left = 0;
+	size_t right = ascii.length();
+
+    while ((right-left) > 2) {
+		base64 += asc2b64_seg(ascii[left], ascii[left + 1], ascii[left + 2]);
+		left += 3;
     }
-    if (ascii.length() == 1) {
-        base64 += asc2b64_seg(ascii[0]);
-        base64 = base64.substr(0, base64.length() - 2) + "==";
+    if ((right - left) == 1) {
+        base64 += asc2b64_seg(ascii[left]);
+		base64[base64.length() - 1] = '=';
+		base64[base64.length() - 2] = '=';
     }
 
-    if (ascii.length() == 2) {
-        base64 += asc2b64_seg(ascii[0], ascii[1]);
-        base64 = base64.substr(0, base64.length() - 1) + "=";
+    if ((right - left) == 2) {
+        base64 += asc2b64_seg(ascii[left], ascii[left + 1]);
+		base64[base64.length() - 1] = '=';
     }
     return base64;
 }

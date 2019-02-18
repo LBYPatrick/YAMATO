@@ -23,5 +23,4 @@ private:
     static void UpdateUsers();
     static vector<PIDInfo> GetPIDTable();
     static void UpdatePIDTable();
-
 };

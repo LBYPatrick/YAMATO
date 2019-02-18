@@ -31,7 +31,9 @@ void ymt::RunConfig() {
     }
 
     //Write the pid list to a file
-    vector<string> file(pids.size());
+    vector<string> file;
+
+	file.reserve(pids.size());
 
     for (auto &p : pids) {
         file.push_back(p.port + ": " + p.pid);
@@ -194,11 +196,8 @@ vector <PIDInfo> ymt::GetPIDTable() {
  */
 
 void ymt::UpdatePIDTable() {
-	util::Print("Reading PID Table...");
     pid_table_ = GetPIDTable();
-	util::Print("Done\n");
 }
-
 
 /**
  * Obtain Formatted Data (With Time, Port, PID and Destination Information
@@ -330,9 +329,7 @@ vector <string> ymt::GetStatistics() {
         temp.push_back((long long) i.value);
     }
 	
-	util::Print("Sorting website data...");
     data_seq = util::QuickSort::Sort(temp);
-	util::Print("Done.\n");
 
     //Push web frequency data
     r.push_back("Website\tInquiry Count");
@@ -376,9 +373,7 @@ vector <string> ymt::GetStatistics() {
         temp.push_back(i.value);
     }
 
-	util::Print("Sorting Port Frequency Data...");
     data_seq = util::QuickSort::Sort(temp);
-	util::Print("Done.\n");
 
     //Push port frequency data
     r.push_back("User Port\tInquiry Count");
@@ -399,11 +394,7 @@ void ymt::SetFileName(string filename) {
 
 void ymt::UpdateLog() {
 
-	util::Print("Reading log...");
-
 	log_buffer_ = util::ReadFile((input_log_.empty() ? "/var/log/syslog" : input_log_), {"ss-server[",true});
-
-	util::Print("Done.\n");
 
 }
 
