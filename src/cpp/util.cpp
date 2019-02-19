@@ -154,8 +154,8 @@ vector<string> util::ReadFile(string path, FileFilter filter) {
 	bool is_line_vaild = !has_filter;
     FILE * handler;
     vector<string> r;
-    string * long_buffer = new string();
-	string * push_buffer = new string();
+	string long_buffer;
+	string push_buffer;
     char buffer[READ_BUFFER_SIZE];
 
 #ifdef _WIN32
@@ -184,42 +184,40 @@ vector<string> util::ReadFile(string path, FileFilter filter) {
     while (fgets(buffer, READ_BUFFER_SIZE, handler)) {
 
         if (strlen(buffer) == READ_BUFFER_SIZE && buffer[READ_BUFFER_SIZE - 1] != '\n') {
-            *long_buffer += buffer;
+            long_buffer += buffer;
         }
         else {
 
 			if (buffer[strlen(buffer) - 1] == '\n') {
-				*push_buffer = *long_buffer + string(buffer).substr(0, strlen(buffer) - 1);
+				push_buffer = long_buffer + string(buffer).substr(0, strlen(buffer) - 1);
 			}
 			else {
-				*push_buffer = *long_buffer + string(buffer);
+				push_buffer = long_buffer + string(buffer);
 			}
 
 			if (has_filter) {
-				if (IsLineVaild(*push_buffer, filter)) r.push_back(*push_buffer);
+				if (IsLineVaild(push_buffer, filter)) r.push_back(push_buffer);
 			}
 			else {
-				r.push_back(*push_buffer);
+				r.push_back(push_buffer);
 			}
 
-			*long_buffer = "";
+			long_buffer = "";
         }
     }
 
-	if (!long_buffer->empty()) {
+	if (!long_buffer.empty()) {
 		
 		if (has_filter) {
-			if (IsLineVaild(*long_buffer, filter)) r.push_back(*long_buffer);
+			if (IsLineVaild(long_buffer, filter)) r.push_back(long_buffer);
 		}
 		else {
-			r.push_back(*long_buffer);
+			r.push_back(long_buffer);
 		}
 	}
 
     fclose(handler);
 
-	delete push_buffer;
-	delete long_buffer;
 
     return r;
 }
