@@ -5,11 +5,12 @@
 #include "ymt.hpp"
 
 enum Action {
-    EXPORT_RAW_LOG,
+    RAW_LOG,
     LOAD,
     UNLOAD,
-    EXPORT_LOG,
-    EXPORT_STAT,
+    SORTED_LOG,
+    STATISTICS,
+	BACKUP_LOG,
     UNKNOWN,
     INFO
 };
@@ -45,18 +46,21 @@ int main(int argc, char *const argv[]) {
             }
 
             if (util::MatchWithWords(argv[a + 1], {"stat"}, true) != -1) {
-                action = EXPORT_STAT;
+                action = STATISTICS;
             } else if (util::MatchWithWords(argv[a + 1], {"load"}, true) != -1) {
                 action = LOAD;
             } else if (util::MatchWithWords(argv[a + 1], {"unload"}, true) != -1) {
                 action = UNLOAD;
             } else if (util::MatchWithWords(argv[a + 1], {"log"}, true) != -1) {
-                action = EXPORT_LOG;
+                action = SORTED_LOG;
             } else if (util::MatchWithWords(argv[a + 1], {"raw_log"}, true) != -1) {
-                action = EXPORT_RAW_LOG;
+                action = RAW_LOG;
             } else if (util::MatchWithWords(argv[a + 1], {"info", "user-information"}, true) != -1) {
                 action = INFO;
-            } else {
+			} else if (util::MatchWithWords(argv[a + 1], {"backup_log"},true) != -1) {
+				action = BACKUP_LOG;
+			}
+			else {
                 util::ReportError("Unknown action: " + string(argv[a + 1]) + ".");
                 break;
             }
@@ -168,7 +172,7 @@ int main(int argc, char *const argv[]) {
 
     //Start Execution
     switch (action) {
-        case EXPORT_RAW_LOG :
+        case RAW_LOG :
 
             if (input_file.empty()) {
                 vector<string> file_list = util::GetFileList("./");
@@ -206,8 +210,9 @@ int main(int argc, char *const argv[]) {
             }
             ymt::StopConfig();
             break;
-        case EXPORT_LOG :
-			out_temp = ymt::GetFormattedStringData();
+        case SORTED_LOG :
+		case BACKUP_LOG :	
+			out_temp = ymt::GetFormattedStringData(action == SORTED_LOG ? 1 : 0);
 			if (out_file.empty()) {
 				util::PrintLines(out_temp);
 			}
@@ -216,7 +221,7 @@ int main(int argc, char *const argv[]) {
 				util::Print("Log saved to \"" + out_file + "\".\n");
 			}
             break;
-        case EXPORT_STAT :
+        case STATISTICS :
 			out_temp = ymt::GetStatistics();
 			if (out_file.empty()) {
 				util::PrintLines(out_temp);
@@ -227,11 +232,9 @@ int main(int argc, char *const argv[]) {
 			}
             break;
         case INFO :
-			//Edgecase in developer mode: Devs needs output when using this feature
-			if (is_developer_mode) {
-				util::SetVisualizing(true);
-			}
-            util::PrintLines(ymt::GetUserInfo());
+			out_temp = ymt::GetUserInfo();
+            util::PrintLines(out_temp);
+			break;
         default:
             break;
 

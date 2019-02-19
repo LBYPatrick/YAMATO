@@ -203,7 +203,7 @@ void ymt::UpdatePIDTable() {
  * Obtain Formatted Data (With Time, Port, PID and Destination Information
  * @return
  */
-vector <SSLog> ymt::GetFormattedData() {
+vector<SSLog> ymt::GetFormattedData() {
 
     vector <SSLog> r;
     string last_pid, last_port;
@@ -217,13 +217,13 @@ vector <SSLog> ymt::GetFormattedData() {
     //Get Log (if and only if it is the first time across the program)
     if (log_buffer_.empty()) { UpdateLog(); }
 
-	STEP_LENGTH = log_buffer_.size() / 20;
+	STEP_LENGTH = log_buffer_.size() / 50;
 
     util::Print("Formatting Data...\n");
 
     for (int i = 0; i < log_buffer_.size(); ++i) {
 
-        if (i + 1 == log_buffer_.size() || i % STEP_LENGTH < 2) {
+        if (i + 1 == log_buffer_.size() || i % STEP_LENGTH < 5) {
             util::PercentageBar(i + 1, log_buffer_.size());
         }
 
@@ -272,14 +272,31 @@ vector <SSLog> ymt::GetFormattedData() {
     return r;
 }
 
-vector <string> ymt::GetFormattedStringData() {
-    vector <string> r;
+vector<string> ymt::GetFormattedStringData() {
+	return GetFormattedStringData(true);
+}
 
-    r.push_back("Time\tPort\tPID\tDestination");
+vector <string> ymt::GetFormattedStringData(bool is_readable) {
+    vector<string> r;
+	vector<SSLog> data = GetFormattedData();
 
-    for (SSLog &i : GetFormattedData()) {
-        r.push_back(i.time + "\t" + i.port + "\t" + i.pid + "\t" + i.destination);
-    }
+	if (is_readable) {
+
+		r.reserve(data.size() + 1);
+
+		r.push_back("Time\tPort\tPID\tDestination");
+
+		for (SSLog &i : data) {
+			r.push_back(i.time + "\t" + i.port + "\t" + i.pid + "\t" + i.destination);
+		}
+	}
+	else {
+		r.reserve(data.size());
+
+		for (SSLog & i : data) {
+			r.push_back(i.time + "," + i.port + "," + i.pid + "," + i.destination);
+		}
+	}
     return r;
 }
 
@@ -293,7 +310,7 @@ vector <string> ymt::GetStatistics() {
     vector <size_t> data_seq;
 
     size_t LOG_SIZE = log.size();
-	size_t STEP_LENGTH = LOG_SIZE / 20;
+	size_t STEP_LENGTH = LOG_SIZE / 50;
 
     //Get website frequency data
 

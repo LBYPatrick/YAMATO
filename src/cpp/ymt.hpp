@@ -11,6 +11,7 @@ public:
 	static void SetAttribute(YMTAttributes attribute, string value);
 	static vector<SSLog> GetFormattedData();
 	static vector<string> GetFormattedStringData();
+	static vector<string> GetFormattedStringData(bool is_readable);
 	static vector<string> GetStatistics();
 	static vector<string> GetUserInfo();
     static vector<string> GetPortLog();
