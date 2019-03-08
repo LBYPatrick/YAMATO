@@ -10,15 +10,19 @@ namespace util {
     void ReportError(string message);
     void RemoveFile(string filename);
 	void AppendStringVector(vector<string> & left, vector<string> & right);
-	void PrintLines(vector<string> arr);
+	void PrintLines(vector<string> & arr);
+	bool PrintFile(YFile file);
+	bool DirectWriteFile(YFile file, string target_path);
 	void Print(string str);
     void ShowHelp(vector<TableElement> option_list);
 	void PercentageBar(int current, int total);
 	void SetVisualizing(bool is_enable);
 	bool IsFileExist(string path);
     bool IsProcessAlive(string pid);
+	bool IsPathReady(bool is_read, string path);
 	bool IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive);
 	bool IsLineVaild(string & line, FileFilter filter);
+	bool GetNextValidLine(ifstream & i, string & buffer, FileFilter & filter);
 	string GetEncodedBase64(string ascii);
 
 	vector<string> Make2DTable(vector<TableElement> table);

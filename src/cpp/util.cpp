@@ -66,7 +66,7 @@ void util::PercentageBar(int current, int total) {
     print_buffer += string("] ") + std::to_string(current) + string("/") + std::to_string(total);
 
     if (current == total) print_buffer += "\n";
-    printf(print_buffer.c_str());
+    Print(print_buffer);
 }
 
 void util::SetVisualizing(bool isEnable) {
@@ -74,36 +74,8 @@ void util::SetVisualizing(bool isEnable) {
 }
 
 bool util::IsFileExist(string path) {
-
-    FILE * handler;
-    vector<string> r;
-    string long_buffer;
-    char buffer[READ_BUFFER_SIZE];
-
-#ifdef _WIN32
-
-    //Convert Unix backslashes to Windows slashes
-    for (auto & i : path) {
-        if (i == '/') {
-            i = '\\';
-        }
-    }
-
-    auto result = fopen_s(&handler, path.c_str(), "r");
-
-    if (result == EINVAL) {
-        return false;
-    }
-#else
-    handler = fopen(path.c_str(), "r");
-
-	if (!handler) {
-		return false;
-	}
-#endif
-
-    fclose(handler);
-    return true;
+	ifstream i(path);
+	return i.is_open();
 }
 
 vector<string> util::SysExecute(string cmd) {
@@ -145,81 +117,32 @@ vector<string> util::SysExecute(string cmd, bool output) {
 }
 
 vector<string> util::ReadFile(string path) {
-	return util::ReadFile(std::move(path), {"",true});
+	return ReadFile(path, FileFilter());
 }
 
 vector<string> util::ReadFile(string path, FileFilter filter) {
 	
-	bool has_filter = (filter.key == "");
-	bool is_line_vaild = !has_filter;
-    FILE * handler;
-    vector<string> r;
-	string long_buffer;
-	string push_buffer;
-    char buffer[READ_BUFFER_SIZE];
+	ifstream i;
+	string line_buffer;
+	bool has_filter = (!filter.key.empty());
+	vector<string> r;
 
-#ifdef _WIN32
+	i.open(path);
 
-    //Convert Unix backslashes to Windows slashes
-    for (auto & i : path) {
-        if (i == '/') {
-            i = '\\';
-        }
-    }
-
-    auto result = fopen_s(&handler, path.c_str(), "r");
-
-    if (result == EINVAL) {
-        return r;
-    }
-#else
-    handler = fopen(path.c_str(), "r");
-
-	if (!handler) {
-	    if(DEBUG_IO) printf("Failed to read file \"%s\" \n", path.c_str());
-		return r;
-	}
-#endif
-
-    while (fgets(buffer, READ_BUFFER_SIZE, handler)) {
-
-        if (strlen(buffer) == READ_BUFFER_SIZE && buffer[READ_BUFFER_SIZE - 1] != '\n') {
-            long_buffer += buffer;
-        }
-        else {
-
-			if (buffer[strlen(buffer) - 1] == '\n') {
-				push_buffer = long_buffer + string(buffer).substr(0, strlen(buffer) - 1);
-			}
-			else {
-				push_buffer = long_buffer + string(buffer);
-			}
-
-			if (has_filter) {
-				if (IsLineVaild(push_buffer, filter)) r.push_back(push_buffer);
-			}
-			else {
-				r.push_back(push_buffer);
-			}
-
-			long_buffer = "";
-        }
-    }
-
-	if (!long_buffer.empty()) {
-		
+	if (i.is_open()) {
 		if (has_filter) {
-			if (IsLineVaild(long_buffer, filter)) r.push_back(long_buffer);
+			while (GetNextValidLine(i, line_buffer, filter)) {
+				r.push_back(line_buffer);
+			}
 		}
 		else {
-			r.push_back(long_buffer);
+			while (getline(i, line_buffer)) {
+				r.push_back(line_buffer);
+			}
 		}
 	}
 
-    fclose(handler);
-
-
-    return r;
+	return r;
 }
 
 
@@ -297,6 +220,18 @@ bool util::IsProcessAlive(string pid) {
     return cmd_buffer.size() > 1;
 }
 
+bool util::IsPathReady(bool is_read, string path) {
+	
+	if (is_read) {
+		ifstream i(path);
+		return i.is_open();
+	}
+	else {
+		ofstream o(path);
+		return o.is_open();
+	}
+}
+
 bool util::IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive) {
 
     if (!is_case_sensitive) {
@@ -320,8 +255,18 @@ bool util::IsLineVaild(string & line, FileFilter filter) {
 	return ((line.find(filter.key) != -1) == filter.is_include);
 }
 
-vector<string>
-util::GetFileList(string directory) {
+bool util::GetNextValidLine(ifstream & i, string & buffer, FileFilter & filter) {
+	
+	if (!i.is_open()) return false;
+
+	while (getline(i, buffer)) {
+		if (IsLineVaild(buffer, filter)) return true;
+	}
+
+	return false;
+}
+
+vector<string> util::GetFileList(string directory) {
 
     vector<string> console_buffer = SysExecute("ls -p " + directory + " -1");
 
@@ -447,26 +392,54 @@ vector<string> util::Make2DTable(vector<TableElement> table) {
     return r;
 }
 
-void util::PrintLines(vector<string> arr) {
+void util::PrintLines(vector<string> & arr) {
 	
 	if (!is_visualizing) return;
 
     for (auto &i : arr) {
-        printf("%s\n", i.c_str());
+		cout << i + "\n";
     }
+}
+
+bool util::PrintFile(YFile file) {
+	ifstream i(file.filename);
+	string read_buffer;
+
+	if (!i.is_open()) return false;
+	
+	while (GetNextValidLine(i, read_buffer, file.filter)) {
+		util::Print(read_buffer + "\n");
+	}
+
+	return true;
+	
+}
+
+bool util::DirectWriteFile(YFile file, string target_path) {
+
+	ifstream i(file.filename);
+	ofstream o(target_path);
+	string read_buffer;
+
+	if (!i.is_open() || !o.is_open()) return false;
+
+	while (GetNextValidLine(i, read_buffer, file.filter)) {
+		o << read_buffer + "\n";
+	}
+
+	return true;
 }
 
 void util::Print(string str) {
 	if (!is_visualizing) return;
 
-	printf(str.c_str());
+	cout << str;
 }
 
 string asc2b64_seg(char c1, char c2 = 0, char c3 = 0) {
     unsigned int buff = (c1 << 24) + (c2 << 16) + (c3 << 8);
     string out;
     for (int i = 0; i < 4; i++) {
-        //printf("%lu, %u\n", sizeof(unsigned int), buff >> 26);
         out += B64_INDEX[buff >> 26];
         buff <<= 6;
     }

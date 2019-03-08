@@ -2,12 +2,12 @@
 #include "ymt.hpp"
 #include "util.hpp"
 
-vector <string> log_buffer_;
 string extra_param_;
 string config_;
 string input_log_;
 vector <PIDInfo> pid_table_;
 vector <Parser> users_;
+YFile log_file;
 string port_;
 string server_addr_;
 string profile_name_;
@@ -96,17 +96,18 @@ void ymt::StopConfig() {
     util::RemoveFile(config_ + string(".pidmap"));
 }
 
-vector <string> ymt::GetPortLog() {
+bool ymt::GetPortLog(YFile & buffer) {
 
     string target_pid;
     string target_port;
-    vector <string> r;
 
-    //Obtain Raw Log
-    if (log_buffer_.empty()) UpdateLog();
+	if (!UpdateLog()) return false;
+	
+	//Make a copy of the object
+	buffer = YFile(log_file);
 
     //Return Raw Log if port/pid is not specified
-    if (port_.empty()) return log_buffer_;
+	if (port_.empty()) return true;
 
     //Obtain PID Table
     if (pid_table_.empty()) UpdatePIDTable();
@@ -130,15 +131,11 @@ vector <string> ymt::GetPortLog() {
         }
     }
 
-    if (target_port.empty()) return r;
+	if (!target_port.empty()) {
+		buffer.filter = FileFilter("ss-server[" + target_pid + "]");
+	};
 
-    for (auto &i : log_buffer_) {
-        if (i.find("ss-server[" + target_pid + "]") != -1) {
-            r.push_back(i);
-        }
-    }
-
-    return r;
+    return true;
 }
 
 void
@@ -207,28 +204,24 @@ vector<SSLog> ymt::GetFormattedData() {
 
     vector <SSLog> r;
     string last_pid, last_port;
+	string read_buffer;
     bool is_pid_matched = false;
     const bool is_port_specified = (port_.size() != 0);
-	size_t STEP_LENGTH;
+	ifstream reader;
 
     //Get PID table (if and only if it is the first time across the program)
     if (pid_table_.empty()) { UpdatePIDTable(); }
 
-    //Get Log (if and only if it is the first time across the program)
-    if (log_buffer_.empty()) { UpdateLog(); }
-
-	STEP_LENGTH = log_buffer_.size() / 50;
+	if (!UpdateLog()) { return r; }
 
     util::Print("Formatting Data...\n");
 
-    for (int i = 0; i < log_buffer_.size(); ++i) {
+	reader = ifstream(log_file.filename);
 
-        if (i + 1 == log_buffer_.size() || i % STEP_LENGTH < 5) {
-            util::PercentageBar(i + 1, log_buffer_.size());
-        }
+    while(util::GetNextValidLine(reader, read_buffer, log_file.filter)) {
 
-        string temp_pid = util::SubString(log_buffer_[i], log_buffer_[i].find("ss-server[") + 10,
-                                          log_buffer_[i].find(']'));
+        string temp_pid = util::SubString(read_buffer, read_buffer.find("ss-server[") + 10,
+                                          read_buffer.find(']'));
 
         if (last_pid.empty() || temp_pid != last_pid) {
             for (PIDInfo &n : pid_table_) {
@@ -245,17 +238,16 @@ vector<SSLog> ymt::GetFormattedData() {
 
         if (!is_pid_matched) continue;
 
-        size_t context1_location = log_buffer_[i].find("connect to ");
+        size_t context1_location = read_buffer.find("connect to ");
 
-
-        vector <size_t> s_temp = util::SearchString(log_buffer_[i], ' ', 0, log_buffer_[i].find("ss-server"));
+        vector <size_t> s_temp = util::SearchString(read_buffer, ' ', 0, read_buffer.find("ss-server"));
         size_t context2_location = s_temp[s_temp.size() - 2];
 
         if (context1_location != -1) {
             size_t addr_location = context1_location + 11;
 
-            string time = util::SubString(log_buffer_[i], 0, context2_location);
-            string destination = util::SubString(log_buffer_[i], addr_location, log_buffer_.size());
+            string time = util::SubString(read_buffer, 0, context2_location);
+            string destination = util::SubString(read_buffer, addr_location, read_buffer.size());
 
             //Exclude Lines that are not for the port specified (well only if the port is specified)
             if (is_port_specified && last_port != port_) {
@@ -407,12 +399,6 @@ vector <string> ymt::GetStatistics() {
 
 void ymt::SetFileName(string filename) {
     config_ = filename;
-}
-
-void ymt::UpdateLog() {
-
-	log_buffer_ = util::ReadFile((input_log_.empty() ? "/var/log/syslog" : input_log_), {"ss-server[",true});
-
 }
 
 void ymt::CleanSyslog() {
@@ -577,6 +563,19 @@ void ymt::UpdateUsers() {
             users_.push_back(user);
         }
     }
+}
+
+bool ymt::UpdateLog() {
+	
+	string filename = input_log_.empty() ? "/var/log/syslog" : input_log_;
+
+	if (!util::IsFileExist(filename)) return false;
+
+	log_file = YFile(input_log_.empty() ? "/var/log/syslog" : input_log_);
+
+	log_file.filter = FileFilter("ss-server[");
+
+	return true;
 }
 
 string ymt::GetSSShareLink(Parser &user) {

@@ -19,6 +19,7 @@ using namespace std;
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <fstream>
 
 #ifdef _WIN32
 
@@ -92,11 +93,33 @@ struct SSLog {
 };
 
 struct SortItem {
-    size_t old_index;
-    long long key;
+	size_t old_index;
+	long long key;
 };
 
 struct FileFilter {
 	string key;
 	bool is_include;
+
+	FileFilter(string key) {
+		this->key = key;
+		is_include = true;
+	}
+	FileFilter() {
+
+	}
+};
+
+struct YFile {
+	string filename;
+	FileFilter filter;
+
+	YFile(string filename) {
+		this->filename = filename;
+	}
+	YFile() {}
+	YFile(YFile& another) {
+		this->filename = another.filename;
+		this->filter = another.filter;
+	}
 };

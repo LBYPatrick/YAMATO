@@ -14,14 +14,14 @@ public:
 	static vector<string> GetFormattedStringData(bool is_readable);
 	static vector<string> GetStatistics();
 	static vector<string> GetUserInfo();
-    static vector<string> GetPortLog();
+    static bool GetPortLog(YFile & buffer);
 	static void SetFileName(string filename);
 	static string GetSSShareLink(Parser & user);
 private:
     static string RunUser(Parser &p);
-    static void UpdateLog();
     static void CleanSyslog();
     static void UpdateUsers();
+	static bool UpdateLog();
     static vector<PIDInfo> GetPIDTable();
     static void UpdatePIDTable();
 };

@@ -17,12 +17,15 @@ enum Action {
 
 int main(int argc, char *const argv[]) {
 
+	std::ios_base::sync_with_stdio(false);
+
     //Variables
     string input_file;
 	string out_file;
     string input_log_file;
 	vector<string> out_temp;
     Action action = UNKNOWN;
+	YFile file_buffer;
     string port;
 	bool is_developer_mode = false;
 	bool is_quiet_mode = false;
@@ -174,25 +177,14 @@ int main(int argc, char *const argv[]) {
     switch (action) {
         case RAW_LOG :
 
-            if (input_file.empty()) {
-                vector<string> file_list = util::GetFileList("./");
-
-                //TODO: FIX THIS
-                for (string &file : file_list) {
-                    if (file.find(".pidmap") != -1) {
-                        input_file = util::SubString(file, 0, file.size() - 7);
-                        break;
-                    }
-                }
-
-                if (input_file.empty()) {
-                    util::ReportError("Need to specify input file.");
-                    exit(0);
-                }
-
-                ymt::SetFileName(input_file);
-            }
-            util::PrintLines(ymt::GetPortLog());
+			if (ymt::GetPortLog(file_buffer)) {
+				if (out_file.empty()) { 
+					util::PrintFile(file_buffer); 
+				}
+				else {
+					util::DirectWriteFile(file_buffer, out_file);
+				}
+			}
             break;
 
         case LOAD :
