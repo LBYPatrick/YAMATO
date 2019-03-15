@@ -11,6 +11,7 @@ YFile log_file;
 string port_;
 string server_addr_;
 string profile_name_;
+ofstream format_data_writer;
 
 void ymt::RunConfig() {
 
@@ -46,6 +47,13 @@ void ymt::RunConfig() {
         util::RemoveFile(p.GetAttribute(REMOTE_PORT) + ".pid");
     }
 }
+
+/**
+	A function that starts a ss-server with a user configuration.
+	@param A Parser object (Containing user information)
+	@return the PID of the user process 
+	
+*/
 
 string ymt::RunUser(Parser &p) {
 
@@ -215,6 +223,9 @@ vector<SSLog> ymt::GetFormattedData() {
 	if (!UpdateLog()) { return r; }
 
     util::Print("Formatting Data...\n");
+	
+	//Force output
+	cout.flush();
 
 	reader = ifstream(log_file.filename);
 
@@ -268,7 +279,8 @@ vector<string> ymt::GetFormattedStringData() {
 	return GetFormattedStringData(true);
 }
 
-vector <string> ymt::GetFormattedStringData(bool is_readable) {
+//Deprecated
+vector<string> ymt::GetFormattedStringData(bool is_readable) {
     vector<string> r;
 	vector<SSLog> data = GetFormattedData();
 
@@ -290,6 +302,90 @@ vector <string> ymt::GetFormattedStringData(bool is_readable) {
 		}
 	}
     return r;
+}
+
+bool ymt::PrintFormattedData(bool is_readable, string output_filename) {
+	format_data_writer = ofstream(output_filename);
+
+	if (!format_data_writer.is_open()) return false;
+
+	return PrintFormattedData(is_readable, true);
+}
+
+bool ymt::PrintFormattedData(bool is_readable) {
+	return PrintFormattedData(is_readable, false);
+}
+
+bool ymt::PrintFormattedData(bool is_readable, bool is_write) {
+
+	vector<SSLog> data = GetFormattedData();
+
+	if (data.empty()) return false;
+
+	if (is_readable) {
+
+		const size_t time_column_length = data[0].time.length() + 2; //"Time"
+		const size_t port_column_length = 7; //"Port"
+		const size_t pid_column_length = 6; //"PID" 
+
+		string head_line = "Time";
+		string space = " ";
+
+		util::AppendDuplicateString(head_line, space, time_column_length - 4);
+
+		head_line += "Port";
+
+		util::AppendDuplicateString(head_line, space, port_column_length - 4);
+
+		head_line += "PID";
+
+		util::AppendDuplicateString(head_line, space, pid_column_length - 3);
+		head_line += "Destination";
+		head_line += '\n';
+
+		if (is_write) {
+			format_data_writer << head_line;
+		}
+		else {
+			util::Print(head_line);
+		}
+		for (SSLog & i : data) {
+			string line = i.time;
+			util::AppendDuplicateString(line, space, 2);
+			
+			line += i.port;
+			util::AppendDuplicateString(line, space, port_column_length - i.port.length());
+
+			line += i.pid;
+			util::AppendDuplicateString(line, space, pid_column_length - i.pid.length());
+
+			line += i.destination;
+
+			line += '\n';
+			
+			if (is_write) {
+				format_data_writer << line;
+			}
+			else {
+				util::Print(line);
+			}
+		}
+	}
+	else {
+		for (SSLog & i : data) {
+			string line = i.time + "," + i.port + "," + i.pid + "," + i.destination + '\n';
+			if (is_write) {
+				format_data_writer << line;
+			}
+			else {
+				util::Print(line);
+			}
+		}
+	}
+
+	format_data_writer.close();
+
+	return true;
 }
 
 vector <string> ymt::GetStatistics() {

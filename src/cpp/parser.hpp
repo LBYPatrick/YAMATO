@@ -8,6 +8,7 @@
 class Parser {
 public:
     vector<string> GetConfig();
+	bool WriteConfig(string filename);
     void SetUser(string port, string pass);
     void SetAttribute(SSInfo type, string value);
 	string GetAttribute(SSInfo type);

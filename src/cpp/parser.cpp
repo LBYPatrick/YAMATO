@@ -67,6 +67,22 @@ vector<string> Parser::GetConfig() {
     return return_buffer;
 }
 
+bool Parser::WriteConfig(string filename) {
+
+	ofstream o(filename);
+
+	if (!o.is_open()) {
+		return false;
+	}
+
+	for (string & line : GetConfig()) {
+		o << line << "\n";
+	}
+
+	//I don't really need to close the ofstream because it would close itself after the destructor is called
+	return true;
+}
+
 void Parser::SetUser(string port, string pass) {
     remote_port_ = std::move(port);
     user_pass_ = pass;

@@ -8,7 +8,7 @@ enum Action {
     RAW_LOG,
     LOAD,
     UNLOAD,
-    SORTED_LOG,
+    READABLE_LOG,
     STATISTICS,
 	BACKUP_LOG,
     UNKNOWN,
@@ -55,7 +55,7 @@ int main(int argc, char *const argv[]) {
             } else if (util::MatchWithWords(argv[a + 1], {"unload"}, true) != -1) {
                 action = UNLOAD;
             } else if (util::MatchWithWords(argv[a + 1], {"log"}, true) != -1) {
-                action = SORTED_LOG;
+                action = READABLE_LOG;
             } else if (util::MatchWithWords(argv[a + 1], {"raw_log"}, true) != -1) {
                 action = RAW_LOG;
             } else if (util::MatchWithWords(argv[a + 1], {"info", "user-information"}, true) != -1) {
@@ -202,15 +202,19 @@ int main(int argc, char *const argv[]) {
             }
             ymt::StopConfig();
             break;
-        case SORTED_LOG :
+        case READABLE_LOG :
 		case BACKUP_LOG :	
-			out_temp = ymt::GetFormattedStringData(action == SORTED_LOG ? 1 : 0);
+
 			if (out_file.empty()) {
-				util::PrintLines(out_temp);
+				ymt::PrintFormattedData(action == READABLE_LOG ? 1 : 0);
 			}
 			else {
-				util::WriteFile(out_file, out_temp);
-				util::Print("Log saved to \"" + out_file + "\".\n");
+				if (ymt::PrintFormattedData(action == READABLE_LOG ? 1 : 0, out_file)) {
+					util::Print("Log saved to \"" + out_file + "\".\n");
+				}
+				else {
+					util::Print("Failed to save to \"" + out_file + "\". Please check file access and try again\n");
+				}
 			}
             break;
         case STATISTICS :

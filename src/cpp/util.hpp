@@ -6,7 +6,7 @@
 #include "includes.hpp"
 
 namespace util {
-    void RemoveLetter(string & original_string, char letter);
+    inline void RemoveLetter(string & original_string, char letter);
     void ReportError(string message);
     void RemoveFile(string filename);
 	void AppendStringVector(vector<string> & left, vector<string> & right);
@@ -22,7 +22,9 @@ namespace util {
 	bool IsPathReady(bool is_read, string path);
 	bool IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive);
 	bool IsLineVaild(string & line, FileFilter filter);
+	bool AppendDuplicateString(string & str, string & add, size_t num);
 	bool GetNextValidLine(ifstream & i, string & buffer, FileFilter & filter);
+	void RemoveFileAsync(string filename);
 	string GetEncodedBase64(string ascii);
 
 	vector<string> Make2DTable(vector<TableElement> table);
