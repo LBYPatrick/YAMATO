@@ -1,80 +1,121 @@
 # YAMATO
 
-[![Build Status](https://travis-ci.org/LBYPatrick/YAMATO.svg?branch=master)](https://travis-ci.org/LBYPatrick/ss-manager)
-
-![README_PIC](./resources/readme_pic.jpg)
-画师: [@四騎](https://www.pixiv.net/member.php?id=1845467)
-
 [中文说明](./README.zhCN.md)
 
-用YAML来控制shadowsocks-libev，多用户，无常驻后台，C++编写，轻便快捷
+一个用来代替ss一键安装脚本的魔法软件，甚至还能分析和统计用户数据
 
-## 编译
+## I. 安装
 
-```bash
-g++ -std=c++11 -static src/cpp/*.cpp -o yamato
-```
-
-## 使用方法
-
-### 控制台
-
-参数
-```bash
-
-    -i or --input <filename>        : specify input file
-    -a or --action <action>         : specify action (status, load, unload)
-    /?, -h or --help                : show this help message
-    -e or --extra-parameter <param> : specify additional parameters, you can do things like UDP relay or HTTP/TLS OBFS here
-    -p or --port                    : specify a port for checking status
-```
-
-> 因为实在不方便翻译，所以在此举个例子：
+1. 安装 **shadowsocks-libev** 和其他必备组件
 
 ```bash
-yamato -a load -i 测试配置.yaml -e "-u" //加载测试配件.yaml并通过额外参数-u开启UDP转发
 
-yamato -a status -i 测试配置.yaml -p 8388 //检查测试配置.yaml中端口8388的系统日志
+echo deb http://deb.debian.org/debian stretch-backports main >> /etc/apt/sources.list
+apt update
+apt install -t stretch-backports -y shadowsocks-libev g++ git
+
 ```
 
-### 配置文件(YAML)
+2. 克隆并编译YAMATO
+
+```bash
+git clone https://github.com/LBYPatrick/YAMATO.git
+cd YAMATO
+sh build_linux.sh
+mv bin/yamato ../
+```
+
+1. 编写一个配置文件(见第三部分)。这里我们以``tutorial.yml``举例:
+
+```yaml
+//tutorial.yml
+
+group: group_one
+method: chacha20-ietf
+tunnel_mode: both
+    1234 : "Password1"
+    2234 : "Password2"
+
+```
+4. 使用创建好的配置文件运行YAMATO
+
+```bash
+./yamato -a load -i tutorial.yml
+```
+
+5. 到这一步其实已经可以用了，但如果你想简化在客户端上的配置流程，你还可以这么做(比如说我们要获取端口1234的信息)
+
+```bash
+./yamato -a info -i tutorial.yml -p 1234
+```
+
+这个时候YAMATO会输出以下内容:
+
+```bash
+Remote Port        : 1234
+Local  Port        : 1080
+PID                : 10411
+Method(Encryption) : chacha20-ietf
+Password           : Password1
+TCP Fast Open      : true
+Tunnel Mode        : tcp_and_udp
+Timeout            : 1440
+Verbose            : true
+SS Link            : ss://Y2hhY2hhMjAtaWV0ZjpQYXNzd29yZDFAZ29vZ2xlLmNvbToxMjM0#group_one-1234
+```
+
+看到``SS Link``了吗? 这个链接可以在很多Shadowsocks客户端里快速导入配置(在土豆丝和shadowsocks-qt5里面这个功能叫URI), 直接复制粘贴就可以用了
+
+> 注: 范例里面的URI是用不了的，因为我指向的服务器是google.com而不是你真实的服务器地址，但在你服务器上获得的新链接是可以用的
+
+## II. 用法
+
+### Bash
+
+一些可以使用的参数(鸟语预警):
+```bash
+
+-i or --input <filename>        : specify input file
+-a or --action <action>         : specify action (raw_log,stat, load, unload,log,info)
+-pn or --profile-name           : specify profile name(For creating SS:// URI)
+-s or --server-address          : Specify server address(For creating SS:// URI)
+/?, -h or --help                : show this help message
+-e or --extra-parameter <param> : specify additional parameters, you can do things like UDP relay or HTTP/TLS OBFS here
+-p or --port                    : specify a port for checking status
+-li or --log-input              : specify source syslog file (Not required, this is for analyzing log in devices other than your server)
+-o or --output                  : specify output file name (For stat and log specified with --action, the default output filename is yamato_analyzed.log)
+
+
+```
+
+### III. 配置范例
 
 ```yaml
 group: Contosco
 nameserver: 8.8.8.8
 method: chacha20-ietf
 timeout: 1440
-redirect: pornhub.com           //有时候你得学着邪恶一点
+redirect: pornhub.com
 fastopen: true
 server: 0.0.0.0
-tunnel_mode: tcp                //或者写成udp/both,注意不是原版的"tcp_and_udp"或者"udp_only"这样的，因为太智障
-    8388 : "用户1的密码"
-    2468 : "用户2的密码"
+tunnel_mode: both            //or you can set it to "tcp" or "both". Please keep in mind that it's NOT "tcp_only" or "tcp_and_udp" because I hate to do it that way.
+    8388 : "foo"
+    2468 : "bar"
 
 group: MSFT
-//其他的配置项可以留空，此时会根据上一个组使用过的信息进行配置
-//其实除了用户的端口和密码之外你都可以不写，因为我都有缺省值(但是缩进是必须的！)
-//我比较讨厌用警号注释代码，所以我支持了双斜杠注释
+method: chacha20
     4567 : "Baz"
     5678 : "Qux"
 ```
 
-## FAQs
+## 疑难解惑
 
-### 1. 这个软件可以在Windows上跑吗
+### 1. 我可以在Windows上直接跑吗？
 
-不行，除非你大刀阔斧去改util.cpp, 让一部分的API支持Windows,因为很多功能都是靠着Linux的一些命令实现的
+部分功能是可以用的. 你可以导出在你服务器上的 ``/var/log/syslog`` 和 **yamato加载配置文件后生成的pidmap** 然后使用 ``-li`` 来指向你导出的syslog文件。 最后把pidmap和配置文件本体都放在和yamato同一个目录下就可以了
 
-> 当然 ``1.2.0`` 之后某些暂未公开的功能实际上是支持Windows的，但经过测试发现并没有直接在服务器上跑快 (我指的是至强E3的VPS, 如果你服务器是树莓派的话当我没说)
+>到目前为止，除了 **load** 和 **unload** 以外的功能都是可以用的 (linux分支和MacOS我都没有测试过，使用时请自己承担风险，但应该问题不大)
 
-### 2. 为什么你要造轮子？
+### 2. 你为什么要做这个软件？
 
-你怕是不知道Gaclib...
-
-### 3. 为何XX功能如此残废？
-
-上班族砍产品经理的需求，我直接砍用户
-
-### 4. 为啥说明书里有伊欧娜？
-
-为了这个我连项目名称都从``ss-manager``改成了``yamato``, 目的够明显了吧...
+因为我个人需要快速迁移和同步用户信息(比如你服务器被墙了，这个时候你就需要找新的服务器，但你又不想花太多时间配置)，市面上已有的类似软件都太臃肿，然后我刚好想练练手，于是就用C++写了一个出来(杀鸡用牛刀了...)
