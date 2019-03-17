@@ -1,7 +1,14 @@
+sudo: required
 language: cpp
-compiler: gcc
+
+addons:
+  apt:
+    sources:
+    - sourceline: 'deb http://deb.debian.org/debian stretch-backports main'
+    update: true
 
 before_script:
 - mkdir travis
 - cd travis
-script: g++ -std=c++11 -w ../src/cpp/*.cpp -o ymt
+- sudo apt -t stretch-backports install g++ -y
+script: g++ -std=c++17 -w ../src/cpp/*.cpp -o ymt
