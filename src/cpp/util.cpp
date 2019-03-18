@@ -7,9 +7,10 @@
 #include "util.hpp"
 
 const char B64_INDEX[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-bool is_visualizing = true;
+bool is_visualizing_ = true;
+vector<string> delete_queue_;
 
-inline void util::RemoveLetter(string &original_string, char letter) {
+void util::RemoveLetter(string &original_string, char letter) {
 	string temp_buffer;
 	bool is_in_quote = false;
 	for (char i : original_string) {
@@ -23,7 +24,7 @@ inline void util::RemoveLetter(string &original_string, char letter) {
 }
 
 void util::ReportError(string message) {
-	printf("[ERROR] %s\n", message.c_str());
+	cout << "[ERROR]" << message <<"\n";
 }
 
 void util::RemoveFile(string filename) {
@@ -47,7 +48,7 @@ void util::ShowHelp(vector<TableElement> option_list) {
 
 void util::PercentageBar(int current, int total) {
 
-	if (!is_visualizing) return;
+	if (!is_visualizing_) return;
 
 	int barLength = 50;
 	int leftPercent = double(current) / double(total) * barLength;
@@ -71,7 +72,7 @@ void util::PercentageBar(int current, int total) {
 }
 
 void util::SetVisualizing(bool isEnable) {
-	is_visualizing = isEnable;
+	is_visualizing_ = isEnable;
 }
 
 bool util::IsFileExist(string path) {
@@ -234,6 +235,20 @@ bool util::IsPathReady(bool is_read, string path) {
 	}
 }
 
+bool util::GetRandomString(string & buffer, int len) {
+
+	buffer = string();
+	buffer.reserve(len);
+
+	for (int i = 0; i < len; ++i) {
+		int rand_index = rand() % 62;
+
+		buffer += B64_INDEX[rand_index];
+	}
+	
+	return true;
+}
+
 bool util::IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive) {
 
 	if (!is_case_sensitive) {
@@ -269,8 +284,22 @@ bool util::GetNextValidLine(ifstream & i, string & buffer, FileFilter & filter) 
 	return false;
 }
 
-void util::RemoveFileAsync(string filename) {
+void util::PushToDeleteQueue(string & filename) {
+	delete_queue_.push_back(filename);
+}
 
+void util::FlushDeleteQueue() {
+
+	for (auto & i : delete_queue_) {
+		RemoveFile(i);
+	}
+
+	delete_queue_.clear();
+}
+
+vector<string> & util::GetDeleteQueue()
+{
+	return delete_queue_;
 }
 
 vector<string> util::GetFileList(string directory) {
@@ -401,7 +430,7 @@ vector<string> util::Make2DTable(vector<TableElement> table) {
 
 void util::PrintLines(vector<string> & arr) {
 
-	if (!is_visualizing) return;
+	if (!is_visualizing_) return;
 
 	for (auto &i : arr) {
 		cout << i + "\n";
@@ -438,7 +467,7 @@ bool util::DirectWriteFile(YFile file, string target_path) {
 }
 
 void util::Print(string str) {
-	if (!is_visualizing) return;
+	if (!is_visualizing_) return;
 
 	cout << str;
 }

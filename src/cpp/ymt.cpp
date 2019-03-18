@@ -42,10 +42,7 @@ void ymt::RunConfig() {
 
     util::WriteFile(config_ + ".pidmap",file);
     //Clean up
-    util::RemoveFile("SS.conf");
-    for (Parser &p : users_) {
-        util::RemoveFile(p.GetAttribute(REMOTE_PORT) + ".pid");
-    }
+	util::FlushDeleteQueue();
 }
 
 /**
@@ -59,16 +56,29 @@ string ymt::RunUser(Parser &p) {
 
     string pid_buffer;
 
+	string obfs_filename;
+	string conf_path;
+	string pid_path;
+
+	util::GetRandomString(obfs_filename, 5);
+
     vector <string> config = p.GetConfig();
-    //Write user config
-    util::WriteFile("SS.conf", config);
+    
+	conf_path = "/dev/shm/" + obfs_filename + ".conf";
+	pid_path = "/dev/shm/" + obfs_filename + ".pid";
+
+	//Write user config
+    util::WriteFile(conf_path, config);
 
     util::SysExecute(
-            ("ss-server -c SS.conf " + string(p.GetAttribute(VERBOSE) == "true" ? "-v" : "") + " " + extra_param_ +
-             " -f " + p.GetAttribute(REMOTE_PORT) + ".pid"), false);
+            ("ss-server -c " + conf_path + " " + string(p.GetAttribute(VERBOSE) == "true" ? "-v" : "") + " " + extra_param_ +
+             " -f " + pid_path), false);
+	
+	util::PushToDeleteQueue(conf_path);
+	util::PushToDeleteQueue(pid_path);
 
     //Return pid buffer
-    return util::ReadFile(p.GetAttribute(REMOTE_PORT) + ".pid")[0];
+    return util::ReadFile(pid_path)[0];
 }
 
 void ymt::StopConfig() {
@@ -285,7 +295,6 @@ vector<string> ymt::GetFormattedStringData(bool is_readable) {
 	vector<SSLog> data = GetFormattedData();
 
 	if (is_readable) {
-
 		r.reserve(data.size() + 1);
 
 		r.push_back("Time\tPort\tPID\tDestination");
