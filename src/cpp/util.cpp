@@ -24,7 +24,8 @@ void util::RemoveLetter(string &original_string, char letter) {
 }
 
 void util::ReportError(string message) {
-	cout << "[ERROR]" << message <<"\n";
+
+	if(is_visualizing_) cout << "[ERROR]" << message <<"\n";
 }
 
 void util::RemoveFile(string filename) {
@@ -41,7 +42,7 @@ void util::ShowHelp(vector<TableElement> option_list) {
 	vector<string> output = Make2DTable(std::move(option_list));
 
 	for (auto &i : output) {
-		printf("%s\n", i.c_str());
+		cout << i << "\n";
 	}
 
 }

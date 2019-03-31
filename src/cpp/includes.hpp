@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define SOFTWARE_VERSION "1.4.0"
+#define SOFTWARE_VERSION "1.4.1"
 
 #define DEBUG_CONFIG false
 #define DEBUG_IO false
@@ -20,6 +20,7 @@ using namespace std;
 #include <cstring>
 #include <iostream>
 #include <fstream>
+#include <chrono>
 
 #ifdef _WIN32
 
@@ -71,12 +72,13 @@ struct PIDInfo {
 };
 
 enum YMTAttributes {
-    CONFIG_FILENAME,
-    LOG_INPUT_FILENAME,
-    EXTRA_PARAM,
-    PORT,
-    SERVER_ADDR,
-    PROFILE_NAME
+	CONFIG_FILENAME,
+	LOG_INPUT_FILENAME,
+	EXTRA_PARAM,
+	PORT,
+	SERVER_ADDR,
+	PROFILE_NAME,
+	NEED_DUMP_BEFORE_LOAD
 };
 
 enum LogBehavior {

@@ -10,8 +10,6 @@ public:
     static void SetExtraParam(string extra_param);
 	static void SetAttribute(YMTAttributes attribute, string value);
 	static vector<SSLog> GetFormattedData();
-	static vector<string> GetFormattedStringData();
-	static vector<string> GetFormattedStringData(bool is_readable);
 	static bool PrintFormattedData(bool is_readable);
 	static bool PrintFormattedData(bool is_readable, string output_filename);
 	static vector<string> GetStatistics();

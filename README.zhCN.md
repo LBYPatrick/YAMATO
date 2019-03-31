@@ -75,15 +75,17 @@ SS Link            : ss://Y2hhY2hhMjAtaWV0ZjpQYXNzd29yZDFAZ29vZ2xlLmNvbToxMjM0#g
 一些可以使用的参数(鸟语预警):
 ```bash
 
--i or --input <filename>        : specify input file
--a or --action <action>         : specify action (raw_log,stat, load, unload,log,info)
--pn or --profile-name           : specify profile name(For creating SS:// URI)
--s or --server-address          : Specify server address(For creating SS:// URI)
-/?, -h or --help                : show this help message
--e or --extra-parameter <param> : specify additional parameters, you can do things like UDP relay or HTTP/TLS OBFS here
--p or --port                    : specify a port for checking status
--li or --log-input              : specify source syslog file (Not required, this is for analyzing log in devices other than your server)
--o or --output                  : specify output file name (For stat and log specified with --action, the default output filename is yamato_analyzed.log)
+-i or --input <filename>        : Specify input file
+-a or --action <action>         : Specify action (raw_log,stat, load, unload,log,info,backup_log)
+-pn or --profile-name           : Specify profile name(For creating sharable SS:// link)
+-s or --server-address          : Specify server address(For creating sharable SS:// link)
+/?, -h or --help                : Show this help message
+-e or --extra-parameter <param> : Specify additional parameters, you can do things like UDP relay or HTTP/TLS OBFS here
+-p or --port                    : Specify a port for checking status
+-li or --log-input              : Specify source syslog file (Not required, this is for analyzing log in devices other than your server)
+-o or --output                  : Specify output file name (For stat and log specified with --action)
+-q or --quiet                   : Enable Quiet Mode (No output, even including error notifications)
+-d or --dump                    : Dump log when stopping a configuration
 
 
 ```
