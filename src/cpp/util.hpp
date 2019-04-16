@@ -11,12 +11,17 @@ namespace util {
     void RemoveFile(string filename);
 	void AppendStringVector(vector<string> & left, vector<string> & right);
 	void PrintLines(vector<string> & arr);
+	void PrintLines(vector<string> & arr, bool force_output);
 	bool PrintFile(YFile file);
 	bool DirectWriteFile(YFile file, string target_path);
 	void Print(string str);
+	void Print(string str, bool force_output);
     void ShowHelp(vector<TableElement> option_list);
 	void PercentageBar(int current, int total);
 	void SetVisualizing(bool is_enable);
+	std::chrono::duration<double> GetElaspedTime();
+	double GetElapsedSeconds();
+	void ReportEvent(string msg, bool force_output);
 	bool IsFileExist(string path);
     bool IsProcessAlive(string pid);
 	bool IsPathReady(bool is_read, string path);

@@ -1,5 +1,3 @@
-#include <utility>
-
 //
 // Created by LBYPatrick on 2/6/2018.
 //
@@ -9,6 +7,32 @@
 const char B64_INDEX[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 bool is_visualizing_ = true;
 vector<string> delete_queue_;
+
+std::chrono::time_point<std::chrono::system_clock> * current_time;
+
+void util::Print(string str) {
+	Print(str, false);
+}
+
+std::chrono::duration<double> util::GetElaspedTime() {
+	if(!current_time) {
+		current_time = new std::chrono::time_point<std::chrono::system_clock>();
+		*current_time = std::chrono::system_clock::now();
+		return (*current_time) - (*current_time); 
+	}
+	else {
+		return chrono::system_clock::now() - (*current_time);
+	}
+}
+
+double util::GetElapsedSeconds() {
+	return GetElaspedTime().count();
+}
+
+void util::ReportEvent(string msg, bool force_output) {
+
+	Print(to_string(GetElapsedSeconds()) + "s " + msg + "\n",force_output);
+}
 
 void util::RemoveLetter(string &original_string, char letter) {
 	string temp_buffer;
@@ -430,8 +454,12 @@ vector<string> util::Make2DTable(vector<TableElement> table) {
 }
 
 void util::PrintLines(vector<string> & arr) {
+	PrintLines(arr, false);
+}
 
-	if (!is_visualizing_) return;
+void util::PrintLines(vector<string> & arr, bool force_output) {
+
+	if (!is_visualizing_ || !force_output) return;
 
 	for (auto &i : arr) {
 		cout << i + "\n";
@@ -467,10 +495,10 @@ bool util::DirectWriteFile(YFile file, string target_path) {
 	return true;
 }
 
-void util::Print(string str) {
-	if (!is_visualizing_) return;
-
-	cout << str;
+void util::Print(string str, bool force_output) {
+	if (is_visualizing_ || force_output ) {
+		cout << str;
+	}
 }
 
 string asc2b64_seg(char c1, char c2 = 0, char c3 = 0) {

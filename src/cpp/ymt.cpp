@@ -278,7 +278,7 @@ vector<SSLog> ymt::GetFormattedData() {
 
 	if (!UpdateLog()) { return r; }
 
-	util::Print("Formatting Data...\n");
+	util::ReportEvent("Start parsing log.", false);
 
 	//Force output
 	cout.flush();
@@ -328,6 +328,8 @@ vector<SSLog> ymt::GetFormattedData() {
 		}
 		is_pid_matched = false;
 	}
+
+	util::ReportEvent("Finish parsing log.", false);
 
 	return r;
 }
@@ -483,7 +485,7 @@ vector <string> ymt::GetStatistics() {
 		return vector<string>();
 	}
 
-	util::Print("Analyzing website data...\n");
+	util::ReportEvent("Start analyzing website data", false);
 
 	for (int i = 0; i < LOG_SIZE; ++i) {
 
@@ -523,8 +525,10 @@ vector <string> ymt::GetStatistics() {
 
 	r.push_back("");
 
+	util::ReportEvent("Finish analyzing website data", false);
+
 	//Get port frequency data
-	util::Print("Analyzing Port data...\n");
+	util::ReportEvent("Start analyzing port data", false);
 
 	for (int i = 0; i < LOG_SIZE; ++i) {
 
@@ -565,6 +569,8 @@ vector <string> ymt::GetStatistics() {
 			+ string("\t")
 			+ to_string((int)(port_list[data_seq[i]].value)));
 	}
+
+	util::ReportEvent("Finish analyzing port data", false);
 
 	return r;
 }
