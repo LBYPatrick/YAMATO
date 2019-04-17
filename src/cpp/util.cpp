@@ -78,7 +78,7 @@ void util::PercentageBar(int current, int total) {
 	int barLength = 50;
 	int leftPercent = double(current) / double(total) * barLength;
 	int rightPercent = barLength - leftPercent;
-	string print_buffer = "\r[";
+	string print_buffer = "\r   [";
 
 	for (int i = 0; i < leftPercent - 1; i++) {
 		print_buffer += "=";
@@ -459,7 +459,7 @@ void util::PrintLines(vector<string> & arr) {
 
 void util::PrintLines(vector<string> & arr, bool force_output) {
 
-	if (!is_visualizing_ || !force_output) return;
+	if (!is_visualizing_ && !force_output) return;
 
 	for (auto &i : arr) {
 		cout << i + "\n";
@@ -467,13 +467,17 @@ void util::PrintLines(vector<string> & arr, bool force_output) {
 }
 
 bool util::PrintFile(YFile file) {
+	return PrintFile(file, false);
+}
+
+bool util::PrintFile(YFile file, bool force_output) {
 	ifstream i(file.filename);
 	string read_buffer;
 
 	if (!i.is_open()) return false;
 
 	while (GetNextValidLine(i, read_buffer, file.filter)) {
-		util::Print(read_buffer + "\n");
+		util::Print(read_buffer + "\n",force_output);
 	}
 
 	return true;
@@ -608,9 +612,9 @@ size_t util::QuickSort::Partition(vector<SortItem> &arr, size_t low, size_t high
 	}
 }
 
-bool util::AppendDuplicateString(string & str, string & add, size_t num) {
+bool util::AppendDuplicateString(string & str, string add, int num) {
 
-	for (size_t i = 0; i < num; ++i) {
+	for (int i = 0; i < num; ++i) {
 		str += add;
 	}
 

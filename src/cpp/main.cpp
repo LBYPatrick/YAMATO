@@ -187,7 +187,7 @@ int main(int argc, char *const argv[]) {
 
 			if (ymt::GetPortLog(file_buffer)) {
 				if (out_file.empty()) { 
-					util::PrintFile(file_buffer); 
+					util::PrintFile(file_buffer,true); 
 				}
 				else {
 					util::DirectWriteFile(file_buffer, out_file);
@@ -226,9 +226,9 @@ int main(int argc, char *const argv[]) {
 			}
             break;
         case STATISTICS :
-			out_temp = ymt::GetStatistics();
+			out_temp = ymt::GetStringStats();
 			if (out_file.empty()) {
-				util::PrintLines(out_temp);
+				util::PrintLines(out_temp,true);
 			}
 			else {
 				util::WriteFile(out_file, out_temp);
@@ -237,7 +237,7 @@ int main(int argc, char *const argv[]) {
             break;
         case INFO :
 			out_temp = ymt::GetUserInfo();
-            util::PrintLines(out_temp);
+            util::PrintLines(out_temp,true);
 			break;
         default:
             break;

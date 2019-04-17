@@ -13,6 +13,7 @@ namespace util {
 	void PrintLines(vector<string> & arr);
 	void PrintLines(vector<string> & arr, bool force_output);
 	bool PrintFile(YFile file);
+	bool PrintFile(YFile file, bool force_output);
 	bool DirectWriteFile(YFile file, string target_path);
 	void Print(string str);
 	void Print(string str, bool force_output);
@@ -28,7 +29,7 @@ namespace util {
 	bool GetRandomString(string & buffer, int len);
 	bool IsTheSame(string str, string key, bool is_precise, bool is_case_sensitive);
 	bool IsLineVaild(string & line, FileFilter filter);
-	bool AppendDuplicateString(string & str, string & add, size_t num);
+	bool AppendDuplicateString(string & str, string add, int num);
 	bool GetNextValidLine(ifstream & i, string & buffer, FileFilter & filter);
 	
 	void PushToDeleteQueue(string & filename);

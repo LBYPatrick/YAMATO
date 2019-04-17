@@ -12,7 +12,8 @@ public:
 	static vector<SSLog> GetFormattedData();
 	static bool PrintFormattedData(bool is_readable);
 	static bool PrintFormattedData(bool is_readable, string output_filename);
-	static vector<string> GetStatistics();
+	static vector<string> GetStringStats();
+	static void GetStats(StatType type, vector<SSLog> & log, vector<InquiryData>& buffer);
 	static vector<string> GetUserInfo();
     static bool GetPortLog(YFile & buffer);
 	static void SetFileName(string filename);
