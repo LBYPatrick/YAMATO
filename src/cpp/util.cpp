@@ -30,8 +30,11 @@ double util::GetElapsedSeconds() {
 }
 
 void util::ReportEvent(string msg, bool force_output) {
+	ReportEvent(msg, force_output, true);
+}
 
-	Print(to_string(GetElapsedSeconds()) + "s " + msg + "\n",force_output);
+void util::ReportEvent(string msg, bool force_output, bool newline) {
+	Print("\r" + util::TruncateDouble(GetElapsedSeconds(),3) + "s " + msg + (newline ? "\n" : ""), force_output);
 }
 
 void util::RemoveLetter(string &original_string, char letter) {
@@ -423,6 +426,21 @@ vector<size_t> util::SearchString(string str, char key, size_t left, size_t stop
 	return r;
 }
 
+string util::TruncateDouble(double value, int decimal) {
+
+	if (decimal < 0) {
+		decimal = 0;
+	}
+	else if (decimal > 6) {
+		decimal = 6;
+	}
+
+	string out = to_string(value);
+
+	
+	return out.substr(0, out.length() - (6 - decimal));
+}
+
 vector<string> util::Make2DTable(vector<TableElement> table) {
 
 
@@ -503,6 +521,7 @@ void util::Print(string str, bool force_output) {
 	if (is_visualizing_ || force_output ) {
 		cout << str;
 	}
+	cout.flush();
 }
 
 string asc2b64_seg(char c1, char c2 = 0, char c3 = 0) {

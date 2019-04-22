@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define SOFTWARE_VERSION "1.4.1"
+#define SOFTWARE_VERSION "1.5.0"
 #define _CRT_SECURE_NO_WARNINGS
 
 #define DEBUG_CONFIG false
@@ -19,9 +19,11 @@ using namespace std;
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <cmath>
 #include <iostream>
 #include <fstream>
 #include <chrono>
+#include <iomanip>
 
 #ifdef _WIN32
 

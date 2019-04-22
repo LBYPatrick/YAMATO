@@ -218,10 +218,10 @@ int main(int argc, char *const argv[]) {
 			}
 			else {
 				if (ymt::PrintFormattedData(action == READABLE_LOG ? 1 : 0, out_file)) {
-					util::Print("Log saved to \"" + out_file + "\".\n");
+					util::ReportEvent("Log saved to \"" + out_file + "\".",false);
 				}
 				else {
-					util::Print("Failed to save to \"" + out_file + "\". Please check file access and try again\n");
+					util::ReportError("Failed to save to \"" + out_file + "\". Please check file access and try again.");
 				}
 			}
             break;
@@ -232,7 +232,7 @@ int main(int argc, char *const argv[]) {
 			}
 			else {
 				util::WriteFile(out_file, out_temp);
-				util::Print("Statistics saved to \"" + out_file + "\".\n");
+				util::ReportEvent("Statistics saved to \"" + out_file + "\".",false);
 			}
             break;
         case INFO :

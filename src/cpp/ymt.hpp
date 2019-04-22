@@ -21,6 +21,7 @@ public:
 private:
     static string RunUser(Parser &p);
 	static bool PrintFormattedData(bool is_readable, bool is_write);
+	static void PrintStatProgress(const int& current, const int & total,const int & segment_size);
     static void CleanSyslog();
     static void UpdateUsers();
 	static bool UpdateLog();

@@ -467,6 +467,37 @@ bool ymt::PrintFormattedData(bool is_readable, bool is_write) {
 	return true;
 }
 
+void ymt::PrintStatProgress(const int& current,const int & total,const int & segment_size) {
+	//Show progress
+
+	string percent;
+
+	if (current != total && current % segment_size == 0) {
+		percent = util::TruncateDouble(((double)current / (double)total) * 100, 2);
+		util::ReportEvent("Progress: " 
+						    + to_string(current) 
+						    + "/" 
+						    + to_string(total) 
+						    + ", " 
+						    + percent 
+						    + "%",
+						  false,
+						  false);
+	}
+	else if (current == total) {
+		percent = util::TruncateDouble(100, 2);
+		util::ReportEvent("Progress: " 
+						    + to_string(current) 
+						    + "/" 
+						    + to_string(total) 
+						    + ", " 
+						    + percent 
+						    + "%",
+						  false,
+						  true);
+	}
+}
+
 vector<string> ymt::GetStringStats() {
 
 	vector <SSLog> log = GetFormattedData();
@@ -536,30 +567,44 @@ void ymt::GetStats(StatType type, vector<SSLog> & log, vector<InquiryData> & buf
 	vector<InquiryData> temp_content;
 	vector<long long> temp_index;
 
+	const int LOG_SIZE = log.size();
+	const int SEGMENT_SIZE = LOG_SIZE / 10;
 
-	util::ReportEvent(string("Start analyzing ") + (type == WEBSITE_FREQUENCY ? "website frequency data." : "port frequency data."),false);
+	int counter = 0;
+
+
+	util::ReportEvent(string("Analyzing ") + (type == WEBSITE_FREQUENCY ? "website frequency data..." : "port frequency data..."),false);
 
 	//Parse Data
 	switch (type) {
 	case WEBSITE_FREQUENCY:
 		for (auto& line : log) {
+			counter++;
+
 			bool is_website_matched = false;
+
 			for (auto& n : temp_content) {
 				
 				if (line.destination == n.key) {
 					n.value += 1;
 					is_website_matched = true;
+					break;
 				}
 
 			}
-			if (is_website_matched) continue;
-			else {
+
+			if(!is_website_matched) {
 				temp_content.push_back({ line.destination, 1 });
 			}
+
+			PrintStatProgress(counter, LOG_SIZE, SEGMENT_SIZE);
 		}
 		break;
 	case PORT_FREQUENCY:
 		for (auto& line : log) {
+
+			counter++;
+
 			bool is_port_matched = false;
 			for (auto& n : temp_content) {
 				if (line.port == n.key) {
@@ -567,10 +612,12 @@ void ymt::GetStats(StatType type, vector<SSLog> & log, vector<InquiryData> & buf
 					is_port_matched = true;
 				}
 			}
-			if (is_port_matched) continue;
-			else {
+
+			if(!is_port_matched) {
 				temp_content.push_back({ line.port, 1 });
 			}
+
+			PrintStatProgress(counter, LOG_SIZE, SEGMENT_SIZE);
 		}
 		break;
 	}
@@ -588,8 +635,7 @@ void ymt::GetStats(StatType type, vector<SSLog> & log, vector<InquiryData> & buf
 	for(int i = temp_index.size()-1; i >= 0; i--) {
 		buffer.push_back(temp_content[final_index[i]]);
 	}
-	
-	util::ReportEvent(string("Finish analyzing ") + (type == WEBSITE_FREQUENCY ? "website frequency data." : "port frequency data."), false);
+
 }
 
 void ymt::SetFileName(string filename) {
