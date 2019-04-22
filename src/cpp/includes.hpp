@@ -2,13 +2,14 @@
 
 #pragma once
 
-#define SOFTWARE_VERSION "1.4.1"
+#define SOFTWARE_VERSION "1.5.0"
+#define _CRT_SECURE_NO_WARNINGS
 
 #define DEBUG_CONFIG false
 #define DEBUG_IO false
 #define DEBUG_ANALYZER false
 #define DEBUG_CMDOUT false
-#define READ_BUFFER_SIZE 64 * 1024 //64K
+#define READ_BUFFER_SIZE 16 * 1024 //16K
 
 using namespace std;
 
@@ -18,9 +19,11 @@ using namespace std;
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <cmath>
 #include <iostream>
 #include <fstream>
 #include <chrono>
+#include <iomanip>
 
 #ifdef _WIN32
 
@@ -34,15 +37,20 @@ struct InquiryData {
     size_t value;
 };
 
+enum StatType {
+	PORT_FREQUENCY,
+	WEBSITE_FREQUENCY
+};
+
 struct TableElement {
     string l_element;
     string r_element;
 };
 
 struct YAML {
-    size_t level;
-    string left;
-    string right;
+    size_t level = 0;
+    string left = "";
+    string right = "";
 };
 
 enum SSInfo {
@@ -101,15 +109,13 @@ struct SortItem {
 
 struct FileFilter {
 	string key;
-	bool is_include;
+	bool is_include = false;
 
 	FileFilter(string key) {
 		this->key = key;
 		is_include = true;
 	}
-	FileFilter() {
-
-	}
+	FileFilter() {}
 };
 
 struct YFile {

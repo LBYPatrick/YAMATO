@@ -187,7 +187,7 @@ int main(int argc, char *const argv[]) {
 
 			if (ymt::GetPortLog(file_buffer)) {
 				if (out_file.empty()) { 
-					util::PrintFile(file_buffer); 
+					util::PrintFile(file_buffer,true); 
 				}
 				else {
 					util::DirectWriteFile(file_buffer, out_file);
@@ -218,26 +218,26 @@ int main(int argc, char *const argv[]) {
 			}
 			else {
 				if (ymt::PrintFormattedData(action == READABLE_LOG ? 1 : 0, out_file)) {
-					util::Print("Log saved to \"" + out_file + "\".\n");
+					util::ReportEvent("Log saved to \"" + out_file + "\".",false);
 				}
 				else {
-					util::Print("Failed to save to \"" + out_file + "\". Please check file access and try again\n");
+					util::ReportError("Failed to save to \"" + out_file + "\". Please check file access and try again.");
 				}
 			}
             break;
         case STATISTICS :
-			out_temp = ymt::GetStatistics();
+			out_temp = ymt::GetStringStats();
 			if (out_file.empty()) {
-				util::PrintLines(out_temp);
+				util::PrintLines(out_temp,true);
 			}
 			else {
 				util::WriteFile(out_file, out_temp);
-				util::Print("Statistics saved to \"" + out_file + "\".\n");
+				util::ReportEvent("Statistics saved to \"" + out_file + "\".",false);
 			}
             break;
         case INFO :
 			out_temp = ymt::GetUserInfo();
-            util::PrintLines(out_temp);
+            util::PrintLines(out_temp,true);
 			break;
         default:
             break;

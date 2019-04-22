@@ -28,7 +28,7 @@ void ymt::RunConfig() {
 	pids.reserve(users_.size());
 
 	//Start Running processes for users
-	for (Parser &p : users_) {
+	for (Parser& p : users_) {
 		pids.push_back({ p.GetAttribute(REMOTE_PORT), RunUser(p) });
 	}
 
@@ -37,7 +37,7 @@ void ymt::RunConfig() {
 
 	file.reserve(pids.size());
 
-	for (auto &p : pids) {
+	for (auto& p : pids) {
 		file.push_back(p.port + ": " + p.pid);
 	}
 
@@ -53,7 +53,7 @@ void ymt::RunConfig() {
 
 */
 
-string ymt::RunUser(Parser &p) {
+string ymt::RunUser(Parser & p) {
 
 	string pid_buffer;
 
@@ -73,7 +73,7 @@ string ymt::RunUser(Parser &p) {
 
 	util::SysExecute(
 		("ss-server -c " + conf_path + " " + string(p.GetAttribute(VERBOSE) == "true" ? "-v" : "") + " " + extra_param_ +
-			" -f " + pid_path), false);
+		 " -f " + pid_path), false);
 
 	util::PushToDeleteQueue(conf_path);
 	util::PushToDeleteQueue(pid_path);
@@ -141,7 +141,7 @@ void ymt::StopConfig() {
 		return;
 	}
 
-	for (auto &line : config) {
+	for (auto& line : config) {
 		yaml = util::DecodeYamlLine(line);
 
 		if (goods > 3 || util::IsProcessAlive(yaml.right)) {
@@ -174,7 +174,7 @@ bool ymt::GetPortLog(YFile & buffer) {
 	if (pid_table_.empty()) UpdatePIDTable();
 
 	//If user input is port
-	for (auto &i : pid_table_) {
+	for (auto& i : pid_table_) {
 		if (port_ == i.port) {
 			target_pid = i.pid;
 			target_port = i.port;
@@ -184,7 +184,7 @@ bool ymt::GetPortLog(YFile & buffer) {
 
 	//If user input is pid
 	if (target_port.empty()) {
-		for (auto &i : pid_table_) {
+		for (auto& i : pid_table_) {
 			if (port_ == i.pid) {
 				target_pid = i.pid;
 				target_port = i.port;
@@ -243,7 +243,7 @@ vector<PIDInfo> ymt::GetPIDTable() {
 	vector <string> file_buffer = util::ReadFile(config_ + ".pidmap");
 	YAML yaml_buffer;
 
-	for (string &line : file_buffer) {
+	for (string& line : file_buffer) {
 		yaml_buffer = util::DecodeYamlLine(line);
 
 		r.push_back({ yaml_buffer.left, yaml_buffer.right });
@@ -278,7 +278,7 @@ vector<SSLog> ymt::GetFormattedData() {
 
 	if (!UpdateLog()) { return r; }
 
-	util::Print("Formatting Data...\n");
+	util::ReportEvent("Start parsing log.", false);
 
 	//Force output
 	cout.flush();
@@ -288,10 +288,10 @@ vector<SSLog> ymt::GetFormattedData() {
 	while (util::GetNextValidLine(reader, read_buffer, log_file.filter)) {
 
 		string temp_pid = util::SubString(read_buffer, read_buffer.find("ss-server[") + 10,
-			read_buffer.find(']'));
+										  read_buffer.find(']'));
 
 		if (last_pid.empty() || temp_pid != last_pid) {
-			for (PIDInfo &n : pid_table_) {
+			for (PIDInfo& n : pid_table_) {
 				if (n.pid == temp_pid) {
 
 					is_pid_matched = true;
@@ -329,6 +329,8 @@ vector<SSLog> ymt::GetFormattedData() {
 		is_pid_matched = false;
 	}
 
+	util::ReportEvent("Finish parsing log.", false);
+
 	return r;
 }
 
@@ -339,6 +341,7 @@ bool ymt::PrintFormattedData(bool is_readable, string output_filename) {
 
 	return PrintFormattedData(is_readable, true);
 }
+
 
 bool ymt::PrintFormattedData(bool is_readable) {
 	return PrintFormattedData(is_readable, false);
@@ -414,9 +417,9 @@ bool ymt::PrintFormattedData(bool is_readable, bool is_write) {
 			format_data_writer << head_line;
 		}
 		else {
-			util::Print(head_line);
+			util::Print(head_line, true);
 		}
-		for (SSLog & i : data) {
+		for (SSLog& i : data) {
 
 			//Time
 			string line = i.time;
@@ -443,18 +446,18 @@ bool ymt::PrintFormattedData(bool is_readable, bool is_write) {
 				format_data_writer << line;
 			}
 			else {
-				util::Print(line);
+				util::Print(line, true);
 			}
 		}
 	}
 	else {
-		for (SSLog & i : data) {
+		for (SSLog& i : data) {
 			string line = i.time + "," + machine_name + "," + i.port + "," + i.pid + "," + i.destination + '\n';
 			if (is_write) {
 				format_data_writer << line;
 			}
 			else {
-				util::Print(line);
+				util::Print(line, true);
 			}
 		}
 	}
@@ -464,109 +467,175 @@ bool ymt::PrintFormattedData(bool is_readable, bool is_write) {
 	return true;
 }
 
-vector <string> ymt::GetStatistics() {
+void ymt::PrintStatProgress(const int& current,const int & total,const int & segment_size) {
+	//Show progress
+
+	string percent;
+
+	if (current != total && current % segment_size == 0) {
+		percent = util::TruncateDouble(((double)current / (double)total) * 100, 2);
+		util::ReportEvent("Progress: " 
+						    + to_string(current) 
+						    + "/" 
+						    + to_string(total) 
+						    + ", " 
+						    + percent 
+						    + "%",
+						  false,
+						  false);
+	}
+	else if (current == total) {
+		percent = util::TruncateDouble(100, 2);
+		util::ReportEvent("Progress: " 
+						    + to_string(current) 
+						    + "/" 
+						    + to_string(total) 
+						    + ", " 
+						    + percent 
+						    + "%",
+						  false,
+						  true);
+	}
+}
+
+vector<string> ymt::GetStringStats() {
 
 	vector <SSLog> log = GetFormattedData();
-	vector <InquiryData> site_list;
-	vector <InquiryData> port_list;
-	vector<long long> temp;
-	vector <string> r;
-	vector <size_t> data_seq;
+	vector <InquiryData> temp_content;
+	ofstream output;
+	vector<string> r;
+
+	long long int max_left_length = 0;
 
 	size_t LOG_SIZE = log.size();
-	size_t STEP_LENGTH = LOG_SIZE / 50;
+
+	if (LOG_SIZE == 0) {
+		util::ReportError("No enough data for this port.\n");
+		return r;
+	}
 
 	//Get website frequency data
 
-	if (LOG_SIZE == 0) {
-		util::Print("No enough data for this port.\n");
-		return vector<string>();
-	}
+	GetStats(WEBSITE_FREQUENCY, log, temp_content);
 
-	util::Print("Analyzing website data...\n");
+	//Push website frequency data
 
-	for (int i = 0; i < LOG_SIZE; ++i) {
-
-		if (i + 1 == LOG_SIZE || i % STEP_LENGTH < 2) {
-			util::PercentageBar(i + 1, LOG_SIZE);
-		}
-
-		bool is_website_matched = false;
-		for (auto &n : site_list) {
-			if (log[i].destination == n.key) {
-				n.value += 1;
-				is_website_matched = true;
-			}
-		}
-		if (is_website_matched) continue;
-		else {
-			site_list.push_back({ log[i].destination, 1 });
+	for (auto& element : temp_content) {
+		if (element.key.length() > max_left_length) {
+			max_left_length = element.key.length();
 		}
 	}
 
-	temp.reserve(site_list.size());
+	string header = "Website";
+	util::AppendDuplicateString(header, " ", max_left_length - 7 + 2);
+	header += "Count";
 
-	for (auto &i : site_list) {
-		temp.push_back((long long)i.value);
+	r.push_back(header);
+
+	for (auto& element : temp_content) {
+		string line = element.key;
+		util::AppendDuplicateString(line, " ", max_left_length - element.key.length() + 2);
+		line += to_string(element.value);
+		r.push_back(line);
 	}
 
-	data_seq = util::QuickSort::Sort(temp);
-
-	//Push web frequency data
-	r.push_back("Website\tInquiry Count");
-
-	for (int i = data_seq.size() - 1; i >= 0; i--) {
-		r.push_back(site_list[data_seq[i]].key
-			+ string("\t")
-			+ to_string((int)(site_list[data_seq[i]].value)));
-	}
+	temp_content.clear();
 
 	r.push_back("");
 
 	//Get port frequency data
-	util::Print("Analyzing Port data...\n");
-
-	for (int i = 0; i < LOG_SIZE; ++i) {
-
-		if (i + 1 == LOG_SIZE || i % STEP_LENGTH < 2) {
-			util::PercentageBar(i + 1, LOG_SIZE);
-		}
-
-		bool is_port_matched = false;
-		for (auto &n : port_list) {
-			if (log[i].port == n.key) {
-				n.value += 1;
-				is_port_matched = true;
-			}
-		}
-		if (is_port_matched) continue;
-		else {
-			port_list.push_back({ log[i].port, 1 });
-		}
-	}
-
-	//Sort Port Frequency Data
-
-	temp.clear();
-	temp.reserve(port_list.size());
-
-	for (InquiryData &i : port_list) {
-		temp.push_back(i.value);
-	}
-
-	data_seq = util::QuickSort::Sort(temp);
+	GetStats(PORT_FREQUENCY, log, temp_content);
 
 	//Push port frequency data
-	r.push_back("User Port\tInquiry Count");
-	r.push_back("");
 
-	for (int i = data_seq.size() - 1; i >= 0; --i) {
-		r.push_back(port_list[data_seq[i]].key
-			+ string("\t")
-			+ to_string((int)(port_list[data_seq[i]].value)));
+	const int PORT_LENGTH = 13;
+
+	r.push_back("User Port    Inquiry Count");
+	
+	for (auto& element : temp_content) {
+		string line = element.key;
+		util::AppendDuplicateString(line, " ", PORT_LENGTH - element.key.length());
+		line += to_string(element.value);
+		r.push_back(line);
 	}
 
 	return r;
+}
+
+void ymt::GetStats(StatType type, vector<SSLog> & log, vector<InquiryData> & buffer) {
+
+	vector<InquiryData> temp_content;
+	vector<long long> temp_index;
+
+	const int LOG_SIZE = log.size();
+	const int SEGMENT_SIZE = LOG_SIZE / 10;
+
+	int counter = 0;
+
+
+	util::ReportEvent(string("Analyzing ") + (type == WEBSITE_FREQUENCY ? "website frequency data..." : "port frequency data..."),false);
+
+	//Parse Data
+	switch (type) {
+	case WEBSITE_FREQUENCY:
+		for (auto& line : log) {
+			counter++;
+
+			bool is_website_matched = false;
+
+			for (auto& n : temp_content) {
+				
+				if (line.destination == n.key) {
+					n.value += 1;
+					is_website_matched = true;
+					break;
+				}
+
+			}
+
+			if(!is_website_matched) {
+				temp_content.push_back({ line.destination, 1 });
+			}
+
+			PrintStatProgress(counter, LOG_SIZE, SEGMENT_SIZE);
+		}
+		break;
+	case PORT_FREQUENCY:
+		for (auto& line : log) {
+
+			counter++;
+
+			bool is_port_matched = false;
+			for (auto& n : temp_content) {
+				if (line.port == n.key) {
+					n.value += 1;
+					is_port_matched = true;
+				}
+			}
+
+			if(!is_port_matched) {
+				temp_content.push_back({ line.port, 1 });
+			}
+
+			PrintStatProgress(counter, LOG_SIZE, SEGMENT_SIZE);
+		}
+		break;
+	}
+
+	//Do Quick Sort
+	temp_index.reserve(temp_content.size());
+
+	for (auto& i : temp_content) {
+		temp_index.push_back(i.value);
+	}
+
+	auto final_index = util::QuickSort::Sort(temp_index);
+
+	//Push it in
+	for(int i = temp_index.size()-1; i >= 0; i--) {
+		buffer.push_back(temp_content[final_index[i]]);
+	}
+
 }
 
 void ymt::SetFileName(string filename) {
@@ -591,7 +660,7 @@ vector <string> ymt::GetUserInfo() {
 	bool is_user_located = false;
 	vector <string> r;
 
-	for (auto &i : users_) {
+	for (auto& i : users_) {
 		if (port_ == i.GetAttribute(REMOTE_PORT)) {
 			target_user = i;
 			target_port = i.GetAttribute(REMOTE_PORT);
@@ -601,7 +670,7 @@ vector <string> ymt::GetUserInfo() {
 	}
 
 	//If user input is port
-	for (auto &i : pid_table_) {
+	for (auto& i : pid_table_) {
 		if (port_ == i.port) {
 			target_pid = i.pid;
 			target_port = i.port;
@@ -611,7 +680,7 @@ vector <string> ymt::GetUserInfo() {
 
 	//If user input is pid
 	if (target_port.empty()) {
-		for (auto &i : pid_table_) {
+		for (auto& i : pid_table_) {
 			if (port_ == i.pid) {
 				target_pid = i.pid;
 
@@ -625,7 +694,7 @@ vector <string> ymt::GetUserInfo() {
 	}
 
 	if (!is_user_located) {
-		for (auto &i : users_) {
+		for (auto& i : users_) {
 			if (target_port == i.GetAttribute(REMOTE_PORT)) {
 				target_user = i;
 				is_user_located = true;
@@ -653,7 +722,7 @@ vector <string> ymt::GetUserInfo() {
 								  {"Timeout",            target_user.GetAttribute(TIMEOUT)},
 								  {"Verbose",            target_user.GetAttribute(VERBOSE)},
 								  {"SS Link",            GetSSShareLink(target_user)}
-		});
+						  });
 
 	return r;
 }
@@ -667,7 +736,7 @@ void ymt::UpdateUsers() {
 	vector <string> yaml_content = util::ReadFile(config_);
 
 	//Parse YAML
-	for (string &line : yaml_content) {
+	for (string& line : yaml_content) {
 
 		//Skip blanklines & comments
 		if (line.empty()) continue;
@@ -685,15 +754,15 @@ void ymt::UpdateUsers() {
 		//If it is global level -- no user
 		if (l.level == 0) {
 			switch (util::MatchWithWords(l.left,
-				{ "group",
-				 "nameserver",
-				 "method",
-				 "fastopen",
-				 "redirect",
-				 "timeout",
-				 "server",
-				 "tunnel_mode",
-				 "verbose" })) {
+										 { "group",
+										  "nameserver",
+										  "method",
+										  "fastopen",
+										  "redirect",
+										  "timeout",
+										  "server",
+										  "tunnel_mode",
+										  "verbose" })) {
 			case 0:
 				default_config.SetAttribute(GROUP_NAME, l.right);
 				break;
@@ -753,7 +822,7 @@ bool ymt::UpdateLog() {
 	return true;
 }
 
-string ymt::GetSSShareLink(Parser &user) {
+string ymt::GetSSShareLink(Parser & user) {
 
 	if (server_addr_.empty()) {
 		server_addr_ = util::GetMachineIP();
@@ -764,10 +833,10 @@ string ymt::GetSSShareLink(Parser &user) {
 	}
 
 	return "ss://" + util::GetEncodedBase64(user.GetAttribute(METHOD)
-		+ ':'
-		+ user.GetAttribute(KEY)
-		+ '@'
-		+ server_addr_
-		+ ':'
-		+ user.GetAttribute(REMOTE_PORT)) + "#" + profile_name_;
+											+ ':'
+											+ user.GetAttribute(KEY)
+											+ '@'
+											+ server_addr_
+											+ ':'
+											+ user.GetAttribute(REMOTE_PORT)) + "#" + profile_name_;
 }
