@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define SOFTWARE_VERSION "1.5.0"
+#define SOFTWARE_VERSION "1.5.1"
 #define _CRT_SECURE_NO_WARNINGS
 
 #define DEBUG_CONFIG false

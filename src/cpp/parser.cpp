@@ -188,3 +188,26 @@ string Parser::GetAttribute(SSInfo type) {
     }
     return string();
 }
+
+
+vector<size_t> util::QuickSort::Sort(vector<long long>& arr, size_t low, size_t high, bool is_increasing_order) {
+
+	//Get the indexes of the sorted array in increasing order
+	vector<size_t> raw = Sort(arr, low, high);
+
+	if (is_increasing_order) {
+		return raw;
+	}
+	else {
+		const size_t raw_size = raw.size();
+		const size_t halfway = (raw_size - raw_size % 2) / 2 - 1;
+
+		for (size_t i = 0; i <= halfway; ++i) {
+			std::swap(raw[i], raw[raw_size - 1 - i]);
+		}
+		return raw;
+	}
+
+	return vector<size_t>();
+}
+

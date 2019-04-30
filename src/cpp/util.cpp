@@ -596,17 +596,22 @@ vector<size_t> util::QuickSort::Sort(vector<long long> &arr, size_t low, size_t 
 /**
  * Overloaded Sort method #1: When user passes a raw size_t array without bounds
  * @param arr
- * @return vector containing indexes of sorted items
+ * @return vector containing indexes of sorted items in inceasing orders
  */
-vector<size_t> util::QuickSort::Sort(vector<long long> &arr) {
-	return Sort(arr, 0, arr.size() - 1);
+vector<size_t> util::QuickSort::Sort(vector<long long>& arr) {
+	return Sort(arr, true);
 }
+
+vector<size_t> util::QuickSort::Sort(vector<long long>& arr, bool is_increasing_order) {
+	return Sort(arr, 0, arr.size() - 1, is_increasing_order);
+}
+
 
 /**
  * Sort using Hoare Partition Scheme
  * @param arr  Array (By reference)
- * @param low  lower index.
- * @param high High index.
+ * @param lower index.
+ * @param  High index.
  * @return Index of pivot
  */
 size_t util::QuickSort::Partition(vector<SortItem> &arr, size_t low, size_t high) {

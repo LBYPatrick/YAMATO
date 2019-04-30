@@ -78,9 +78,11 @@ namespace util {
 	class QuickSort {
 	public:
 
-		static void Sort(vector<SortItem> &arr, size_t low, size_t high);
-		static vector<size_t> Sort(vector<long long> & arr, size_t low, size_t high);
-		static vector<size_t> Sort(vector<long long> & arr);
+		static void Sort(vector<SortItem>& arr, size_t low, size_t high);
+		static vector<size_t> Sort(vector<long long>& arr, size_t low, size_t high, bool is_increasing_order);
+		static vector<size_t> Sort(vector<long long>& arr, size_t low, size_t high);
+		static vector<size_t> Sort(vector<long long>& arr);
+		static vector<size_t> Sort(vector<long long>& arr, bool is_increasing_order);
 
 	private:
 		static size_t Partition(vector<SortItem> &arr, size_t low, size_t high);
