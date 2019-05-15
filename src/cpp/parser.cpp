@@ -5,29 +5,6 @@
 #include "parser.hpp"
 #include "util.hpp"
 
-const vector<string> WEBSITES = {
-        "cn.bing.com",
-        "qq.com",
-        "tmall.com",
-        "amazon.cn",
-        "sina.com.cn",
-        "music.163.com",
-        "bilibili.com",
-        "bilibilijj.com",
-        "baidu.com",
-		"zhmb.gov.cn",
-		"x3cn.com",
-		"y.qq.com",
-		"ipip.net",
-		"zh.moegirl.org",
-		"ja.moegirl.org",
-		"dmm.com",
-		"dmm.co.jp",
-		"sohu.com",
-		"taobao.com",
-		"jd.com"
-};
-
 vector<string> Parser::GetConfig() {
 
     vector <string> return_buffer;
@@ -43,12 +20,8 @@ vector<string> Parser::GetConfig() {
     return_buffer.push_back("\"timeout\" : " + timeout_ + ",");
     return_buffer.push_back(R"("nameserver" : ")" + dns_ + "\",");
 
-    if (redirect_.empty()) {
-
-        int index = rand() % WEBSITES.size();
-        return_buffer.push_back(R"("redirect" : ")" + WEBSITES[index] + "\",");
-    } else {
-        return_buffer.push_back(R"("redirect" : ")" + redirect_ + "\",");
+    if (!redirect_.empty()) {
+		return_buffer.push_back(R"("redirect" : ")" + redirect_ + "\",");
     }
 
     return_buffer.push_back(R"("mode" : ")" + GetAttribute(UDP_OR_TCP) + "\"");
