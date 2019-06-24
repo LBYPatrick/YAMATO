@@ -269,6 +269,7 @@ vector<SSLog> ymt::GetFormattedData() {
 	vector <SSLog> r;
 	string last_pid, last_port;
 	string read_buffer;
+	size_t log_count = 0;
 	bool is_pid_matched = false;
 	const bool is_port_specified = (port_.size() != 0);
 	ifstream reader;
@@ -286,6 +287,8 @@ vector<SSLog> ymt::GetFormattedData() {
 	reader = ifstream(log_file.filename);
 
 	while (util::GetNextValidLine(reader, read_buffer, log_file.filter)) {
+
+		++log_count;
 
 		string temp_pid = util::SubString(read_buffer, read_buffer.find("ss-server[") + 10,
 										  read_buffer.find(']'));
@@ -324,12 +327,12 @@ vector<SSLog> ymt::GetFormattedData() {
 			}
 
 			//Push to log buffer
-			r.push_back({ time, last_port, last_pid, destination, CONNECT });
+			r.push_back({ time, last_port, last_pid, destination, CONNECT});
 		}
 		is_pid_matched = false;
 	}
 
-	util::ReportEvent("Finish parsing log.", false);
+	util::ReportEvent("Finish parsing log, " + to_string(log_count) + "records processed.", false);
 
 	return r;
 }
@@ -720,9 +723,12 @@ vector <string> ymt::GetUserInfo() {
 								  {"TCP Fast Open",      target_user.GetAttribute(TCP_FASTOPEN)},
 								  {"Tunnel Mode",        target_user.GetAttribute(UDP_OR_TCP)},
 								  {"Timeout",            target_user.GetAttribute(TIMEOUT)},
-								  {"Verbose",            target_user.GetAttribute(VERBOSE)},
-								  {"SS Link",            GetSSShareLink(target_user)}
+								  {"Verbose",            target_user.GetAttribute(VERBOSE)}
 						  });
+
+	r.push_back("");
+	r.push_back("SS Link:");
+	r.push_back(GetSSShareLink(target_user));
 
 	return r;
 }
