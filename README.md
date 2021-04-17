@@ -109,15 +109,3 @@ method: chacha20
     4567 : "Baz"
     5678 : "Qux"
 ```
-
-## FAQs
-
-### 1. Can this software work on Windows?
-
-Partially. You can try to export your ``/var/log/syslog`` and **configuration's pidmap** from your shadowsocks server and use ``-li`` to locate your syslog and put the pidmap and the configuration itself in the same directory as ``yamato``.
-
-> As of now, everything except **load** and **unload** works on Windows (Maybe MacOS and other linux distributions? Use at your own risk).
-
-### 2. Why did you make such software?
-
-Because I am in charge of providing shadowsocks service to my clients in places where internet is not fully open. Since I need to quickly and conveniently transfer and synchronize configurations to new servers when needed, I created this project for fulfilling my demands.
