@@ -81,7 +81,7 @@ SS Link            : ss://Y2hhY2hhMjAtaWV0ZjpQYXNzd29yZDFAZ29vZ2xlLmNvbToxMjM0#g
 -s or --server-address          : Specify server address(For creating sharable SS:// link)
 /?, -h or --help                : Show this help message
 -e or --extra-parameter <param> : Specify additional parameters, you can do things like UDP relay or HTTP/TLS OBFS here
--p or --port                    : Specify a port for checking status
+-p or --user_port                    : Specify a user_port for checking status
 -li or --log-input              : Specify source syslog file (Not required, this is for analyzing log in devices other than your server)
 -o or --output                  : Specify output file name (For stat and log specified with --action)
 -q or --quiet                   : Enable Quiet Mode (No output, even including error notifications)

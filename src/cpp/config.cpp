@@ -4,12 +4,10 @@
 
 #include "config.h"
 
-#include <utility>
-
 using std::string;
 using std::string_view;
 
-const std::unordered_map<string_view,string> default_map_ = {
+const std::unordered_map<string_view,string> kDefaultMap = {
         {"server" , "0,0,0,0"},
         {"local_port","1080"},
         {"remote_port","114514"},
@@ -20,15 +18,17 @@ const std::unordered_map<string_view,string> default_map_ = {
 
 };
 
-Config default_(default_map_);
+Config default_(kDefaultMap);
 
 Config::Config() {
     parent_ = &default_;
+    parent_->AddChild(this);
 }
 
-Config::Config(Config * parent, bool is_ram_agressive) {
+Config::Config(Config * parent, bool is_ram_aggressive) {
     parent_ = parent;
-    is_ram_aggressive = is_ram_agressive;
+    is_ram_aggressive = is_ram_aggressive;
+    if(parent) parent_->AddChild(this);
 }
 
 Config::Config(std::unordered_map<std::string_view, std::string> key_map_) {
@@ -37,7 +37,7 @@ Config::Config(std::unordered_map<std::string_view, std::string> key_map_) {
 
 
 bool Config::IsKeyValid(std::string_view key) {
-    return default_map_.find(key) != default_map_.end();
+    return kDefaultMap.find(key) != kDefaultMap.end();
 }
 
 int
@@ -79,6 +79,17 @@ Config::Set(string_view key, string value) {
     return ret;
 }
 
+void Config::AddChild(Config * child) {
+    child_.push_back(child);
+}
+
+std::vector<Config *> Config::GetChildren() {
+    return child_;
+}
+
+Config * Config::GetRoot() {
+    return &default_;
+}
 
 
 
