@@ -8,6 +8,11 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include "rapidjson/document.h"
+
+#define ERR_CORE_CONFIG_PERM 1
+#define ERR_CORE_CONFIG_INVALID 2
+
 
 namespace core {
 

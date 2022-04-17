@@ -29,7 +29,6 @@ string Log::ToString(string &buffer) {
     const size_t len = columns.size();
 
     for(size_t i = 0; i < len; ++i) {
-
         ret += columns[i];
         if(i != len - 1) ret += ", ";
     }

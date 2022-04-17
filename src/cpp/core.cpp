@@ -3,8 +3,40 @@
 //
 
 #include "core.h"
+#include "io.h"
+#include "config.h"
+#include "parser.h"
+
+using namespace rapidjson;
+using std::string;
 
 int core::StartSS(std::string_view config_name) {
+
+    char * buf = NULL;
+
+    if(!io::ReadFile(config_name,&buf)) {
+        io::PrintLog(string("No file permission to read the specified config ") + string(config_name),LOG_ERROR);
+        return ERR_CORE_CONFIG_PERM;
+    }
+
+    Document dom;
+    dom.Parse(buf);
+    free(buf);
+
+    if(dom.HasParseError()) {
+
+        io::PrintLog(string("The JSON object from ") + string(config_name) + " contains syntax errors.",LOG_ERROR);
+        return ERR_CORE_CONFIG_INVALID;
+    }
+
+    Config * root = NULL;
+
+    if(!Parser::ParseDom(&dom,&root)) {
+
+    }
+
+
+
     return 0;
 }
 

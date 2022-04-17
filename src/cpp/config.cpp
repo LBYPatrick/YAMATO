@@ -10,11 +10,12 @@ using std::string_view;
 const std::unordered_map<string_view,string> kDefaultMap = {
         {"server" , "0,0,0,0"},
         {"local_port","1080"},
-        {"remote_port","114514"},
+        {"remote_port","65535"},
         {"tcp_fastopen","true"},
         {"tunnel_mode","both"},
         {"method","chacha20-ietf-poly1305"},
-        {"tag","default"}
+        {"tag","default"},
+        {"password","this_is_an_example_password"}
 
 };
 
